@@ -1063,6 +1063,8 @@
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // ==================== CONSTANTS & TAGS ====================
+    const DEV_EMAILS = ['tony7878mfs@gmail.com'];
+
     const TAGS = [
       { id: 'assignment', label: 'Assignment', emoji: '📝', color: '#00D1B2' },
       { id: 'quiz',       label: 'Quiz',       emoji: '⚡', color: '#FFD60A' },
@@ -1158,12 +1160,12 @@
       currentLevelId: 'level2',
       announcements: [],
       staffOverrides: {},
-      roleEmails: {}, // { [emailKey]: { email, name, role: 'admin'|'admin_plus', assignedSection, updatedAt } }
+      roleEmails: {},
 
       // Personal Account Preferences (Firestore: users/{uid}/prefs/main)
       role: 'viewer', // 'viewer' | 'admin' | 'admin_plus' | 'dev'
       isDevAccount: false,
-      adminSection: '', // Assigned section for Admin / Admin+ (e.g., 'W3')
+      adminSection: '',
       themePref: 'auto', // 'auto' | 'light' | 'dark' | 'special'
       selectedSection: 'ALL',
       doneIds: [],
@@ -1485,7 +1487,7 @@
     window.addEventListener('popstate', () => {
       if (state.openModals.length > 0) {
         const topModal = state.openModals[state.openModals.length - 1];
-        if (topModal === 'adminSectionModal') return; // Mandatory modal cannot be bypassed
+        if (topModal === 'adminSectionModal') return;
         closeModal(topModal, true);
         return;
       }
@@ -1507,8 +1509,6 @@
     }
 
     // ==================== ROLE RESOLUTION & MANDATORY SECTION CHECK ====================
-    const DEV_EMAILS = ['tony7878mfs@gmail.com']; // <-- اكتب إيميلك هنا بين علامتي التنصيص
-
     function resolveEffectiveRole(notify = false) {
       if (!state.user || state.user.isAnonymous) {
         state.role = 'viewer';
@@ -1545,8 +1545,6 @@
         }
       }
 
-      checkMandatoryAdminSection();
-    }
       checkMandatoryAdminSection();
     }
 
@@ -1600,13 +1598,11 @@
         state.auth = getAuth(app);
         state.db = getFirestore(app);
 
-        // Handle mobile redirect result if Google Sign-In used redirect fallback
         getRedirectResult(state.auth).catch(err => console.warn('Redirect result:', err));
 
         onAuthStateChanged(state.auth, async (user) => {
           clearSubscriptions();
 
-          // Enforce real account login (reject anonymous sessions if any existed previously)
           if (!user || user.isAnonymous) {
             if (user?.isAnonymous) {
               try { await signOut(state.auth); } catch {}
@@ -1631,6 +1627,7 @@
           dot.style.backgroundColor = '#4ADE80';
           text.textContent = 'متصل لايف';
 
+          resolveEffectiveRole(false);
           subscribeRealtime();
           renderAll();
         });
@@ -1645,7 +1642,7 @@
       if (!state.db || !state.user) return;
       const appId = state.appId;
 
-      // 1. Config (public: devPin, specialThemeMode)
+      // 1. Config (public)
       const u1 = onSnapshot(doc(state.db, 'artifacts', appId, 'public', 'data', 'config', 'main'), async (snap) => {
         if (snap.exists()) {
           state.config = { ...state.config, ...snap.data() };
@@ -1657,13 +1654,12 @@
         renderAll();
       });
 
-      // 2. Role Emails (public — live email-based Admin & Admin+ promotion/demotion)
+      // 2. Role Emails (public)
       const u2 = onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'roleEmails'), async (snap) => {
         const map = {};
         snap.forEach(d => { map[d.id] = { id: d.id, ...d.data() }; });
         state.roleEmails = map;
 
-        // Keep name synced on the user's roleEmails doc if they are listed
         const myKey = emailToDocId(state.user.email);
         if (map[myKey] && state.user.displayName && map[myKey].name !== state.user.displayName) {
           try {
@@ -1708,7 +1704,7 @@
         renderAll();
       });
 
-      // 6. Personal Account Preferences (private — syncs 'خلصته', section, theme, dev status across all devices!)
+      // 6. Personal Account Preferences (private)
       const u6 = onSnapshot(doc(state.db, 'artifacts', appId, 'users', state.user.uid, 'prefs', 'main'), async (snap) => {
         if (snap.exists()) {
           const data = snap.data();
@@ -1724,7 +1720,6 @@
           resolveEffectiveRole(false);
           renderAll();
         } else {
-          // Initialize profile doc for new account
           await saveUserPrefs();
           resolveEffectiveRole(false);
           renderAll();
@@ -1807,7 +1802,6 @@
         return;
       }
 
-      // Enforce Admin Scope Guard
       if (state.role === 'admin') {
         const mySec = state.adminSection;
         const myGrp = getAdminGroup();
@@ -2129,7 +2123,6 @@
       const lvl = getCurrentLevel();
       document.getElementById('heroLevelPill').textContent = `${lvl.name} • ${lvl.term || 'Fall 2026'}`;
 
-      // Show/Hide Add Buttons based on Role
       const allowedToAdd = canManage();
       const quickAddBtn = document.getElementById('quickAddBtn');
       const addInCourseBtn = document.getElementById('addInCourseBtn');
@@ -2141,7 +2134,6 @@
       addInCourseBtn.classList.toggle('inline-flex', allowedToAdd);
       calAddOnDayBtn.classList.toggle('hidden', !allowedToAdd);
 
-      // Role Badge Pill (Shown for Admin, Admin+, or Dev)
       const roleBadge = document.getElementById('headerRoleBadge');
       const roleText = document.getElementById('headerRoleText');
       if (state.role === 'dev') {
@@ -2164,7 +2156,6 @@
         roleBadge.classList.remove('inline-flex');
       }
 
-      // Global Section Dropdown
       const sel = document.getElementById('globalSectionSelect');
       let optHtml = `<option value="ALL" class="bg-white text-black">الكل (كل السكاشن)</option>`;
       lvl.groups.forEach(g => {
@@ -2621,7 +2612,6 @@
         const editForm = document.getElementById('settingsStaffEditForm');
         const editBtn = document.getElementById('toggleEditStaffBtn');
 
-        // Requirement 1: Edit Doctors & TAs is strictly for DEV ONLY!
         listEl.classList.toggle('hidden', state.editingStaff && devMode);
         editForm.classList.toggle('hidden', !state.editingStaff || !devMode);
         editBtn.classList.toggle('hidden', state.editingStaff || !devMode);
@@ -2673,15 +2663,12 @@
           secPill.classList.add('hidden');
         }
 
-        // Hide dev PIN unlock form if already Dev
         document.getElementById('roleLoginForm').classList.toggle('hidden', devMode);
       } else if (state.settingsTab === 'dev' && devMode) {
-        // 1. Populate Section dropdown for assigning emails
         const assignSecSel = document.getElementById('devAssignSectionSelect');
         assignSecSel.innerHTML = `<option value="" class="bg-white text-black">يختاره عند الدخول</option>` +
           lvl.sections.map(s => `<option value="${escapeHtml(s)}" class="bg-white text-black">سكشن ${escapeHtml(s)}</option>`).join('');
 
-        // 2. Render Assigned Admins & Admin+ List (Name + Email + Section + Role)
         const entries = Object.values(state.roleEmails).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
         document.getElementById('devAdminsCountBadge').textContent = `${entries.length} مسجل`;
         const adminsEl = document.getElementById('devAdminsList');
@@ -2730,7 +2717,6 @@
           }).join('');
         }
 
-        // 3. Special Theme Grid
         const curMode = state.config.specialThemeMode || 'auto';
         const eff = getEffectiveSpecialTheme();
         document.getElementById('devThemeActiveInfo').textContent = eff ? `نشط: ${SPECIAL_THEMES[eff].label}` : 'لا يوجد ثيم خاص نشط';
@@ -2746,13 +2732,11 @@
           `;
         }).join('');
 
-        // 4. Dev Backup PIN Input placeholder (never exposes hash)
         const devPinInput = document.getElementById('devNewDevPin');
         const isDevHashed = /^[a-f0-9]{64}$/.test(state.config.devPin || '');
         devPinInput.value = '';
         devPinInput.placeholder = isDevHashed ? '🔒 مشفر (اكتب كود جديد للتغيير)' : '⚠️ اكتب كود المطور الجديد لتشفيره';
 
-        // 5. Levels List
         document.getElementById('levelsList').innerHTML = Object.values(state.levels).map(l => {
           const active = l.id === state.currentLevelId;
           return `
@@ -2834,9 +2818,6 @@
       document.getElementById('formTagInput').value = tid;
       renderFormTagPills(tid);
 
-      // Enforce Target Audience rules by role:
-      // - Admin+ & Dev can choose 'all', 'group', or 'section'
-      // - Regular Admin CANNOT choose 'all', and is restricted to their own section (e.g. W3) or their own group (e.g. W)
       const btnAll = document.getElementById('btnTargetAll');
       const scopeHint = document.getElementById('targetScopeHint');
 
@@ -2861,7 +2842,6 @@
       document.getElementById('formNote').value = editAnn?.note || '';
       document.getElementById('formAuthor').value = editAnn?.author || state.authorName || state.user?.displayName || '';
 
-      // Populate Multiple Links
       const linksContainer = document.getElementById('formLinksContainer');
       linksContainer.innerHTML = '';
       const existingLinks = editAnn ? getAlertLinks(editAnn) : [];
@@ -2904,7 +2884,6 @@
     }
 
     function setFormTargetType(type, presetVal = null) {
-      // Prevent regular Admin from ever selecting 'all'
       if (type === 'all' && !isAdminPlus()) {
         type = 'section';
       }
@@ -2924,7 +2903,6 @@
         wrap.classList.add('hidden');
       } else if (type === 'group') {
         wrap.classList.remove('hidden');
-        // Regular admin is restricted strictly to their own group (e.g. Group W)
         const allowedGroups = isAdminPlus() ? lvl.groups : [getAdminGroup()].filter(Boolean);
         sel.innerHTML = allowedGroups.map(g => `<option value="${escapeHtml(g)}" class="bg-white text-black">Group ${escapeHtml(g)}</option>`).join('');
         if (presetVal && allowedGroups.includes(presetVal)) sel.value = presetVal;
@@ -2933,7 +2911,6 @@
         }
       } else {
         wrap.classList.remove('hidden');
-        // Regular admin is restricted strictly to their own section (e.g. W3)
         const allowedSections = isAdminPlus() ? lvl.sections : [state.adminSection].filter(Boolean);
         sel.innerHTML = allowedSections.map(s => `<option value="${escapeHtml(s)}" class="bg-white text-black">سكشن ${escapeHtml(s)}</option>`).join('');
         if (presetVal && allowedSections.includes(presetVal)) sel.value = presetVal;
@@ -2982,7 +2959,6 @@
     function setupAuthEvents() {
       document.getElementById('authThemeToggleBtn').addEventListener('click', cycleTheme);
 
-      // Switch Login / Signup tabs
       document.getElementById('authModeLoginBtn').addEventListener('click', () => {
         state.authMode = 'login';
         document.getElementById('emailSignupNameWrap').classList.add('hidden');
@@ -3007,7 +2983,6 @@
         document.getElementById('authGateError').classList.add('hidden');
       });
 
-      // Google Sign-In
       document.getElementById('googleSignInBtn').addEventListener('click', async () => {
         const errEl = document.getElementById('authGateError');
         errEl.classList.add('hidden');
@@ -3025,7 +3000,6 @@
         }
       });
 
-      // Email / Password Form
       document.getElementById('emailAuthForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('emailAuthInput').value.trim();
@@ -3060,7 +3034,6 @@
         }
       });
 
-      // Mandatory Admin Section Form
       document.getElementById('adminSectionForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const chosen = document.getElementById('adminSectionSelectInput').value;
@@ -3070,7 +3043,6 @@
         state.selectedSection = chosen;
         state.settingsStaffSection = chosen;
 
-        // Save both in personal prefs & public roleEmails so Dev sees it immediately
         await saveUserPrefs();
         if (state.user?.email) {
           const docId = emailToDocId(state.user.email);
@@ -3092,17 +3064,14 @@
 
     // ==================== MAIN APP EVENT LISTENERS ====================
     function setupEvents() {
-      // Theme Cycle Button
       document.getElementById('toggleThemeBtn').addEventListener('click', cycleTheme);
 
-      // Calendar View Toggle
       document.getElementById('toggleCalendarBtn').addEventListener('click', () => {
         state.searchQuery = '';
         document.getElementById('quickSearchInput').value = '';
         navigateToView(state.activeView === 'calendar' ? 'home' : 'calendar');
       });
 
-      // Settings Gear Button & Role Badge
       document.getElementById('openSettingsBtn').addEventListener('click', () => {
         state.editingStaff = false;
         if (state.selectedSection !== 'ALL') state.settingsStaffSection = state.selectedSection;
@@ -3115,7 +3084,6 @@
         openModal('settingsModal');
       });
 
-      // Account Sign Out
       document.getElementById('accountSignOutBtn').addEventListener('click', () => {
         openConfirm('تسجيل الخروج', 'هل تريد تسجيل الخروج من حسابك الحالي؟', async () => {
           closeModal('settingsModal');
@@ -3124,10 +3092,8 @@
         });
       });
 
-      // Recap Modal Button
       document.getElementById('openRecapBtn').addEventListener('click', openRecapModal);
 
-      // Global Section Filter
       document.getElementById('globalSectionSelect').addEventListener('change', (e) => {
         state.selectedSection = e.target.value;
         if (state.selectedSection !== 'ALL') state.settingsStaffSection = state.selectedSection;
@@ -3135,7 +3101,6 @@
         renderAll();
       });
 
-      // Quick Search & Add
       document.getElementById('quickSearchInput').addEventListener('input', (e) => {
         state.searchQuery = e.target.value;
         renderAll();
@@ -3149,7 +3114,6 @@
         requireManagerOrPrompt(() => openAlertModal());
       });
 
-      // Course Detail Controls
       document.getElementById('backToHomeBtn').addEventListener('click', () => {
         navigateToView('home', null);
       });
@@ -3167,7 +3131,6 @@
         renderCourseDetail();
       });
 
-      // Calendar Controls
       document.getElementById('calPrevBtn').addEventListener('click', () => {
         state.calMonth--;
         if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; }
@@ -3197,7 +3160,6 @@
         requireManagerOrPrompt(() => openAlertModal({ presetDate: state.calSelectedDate }));
       });
 
-      // Settings Modal Tabs
       document.getElementById('settingsTabStaff').addEventListener('click', () => {
         state.settingsTab = 'staff';
         state.editingStaff = false;
@@ -3213,7 +3175,6 @@
         renderSettingsContent();
       });
 
-      // Staff Section & Editing (Dev Only)
       document.getElementById('settingsStaffSection').addEventListener('change', (e) => {
         state.settingsStaffSection = e.target.value;
         state.editingStaff = false;
@@ -3242,7 +3203,6 @@
         renderSettingsContent();
       });
 
-      // SHA-256 Hashing & Verification for Dev Backup PIN
       async function hashPin(str) {
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
         return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -3255,7 +3215,6 @@
         return input === stored;
       }
 
-      // Dev Code Activation for Current Account
       document.getElementById('roleLoginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const pin = document.getElementById('roleLoginPin').value.trim();
@@ -3276,7 +3235,6 @@
         }
       });
 
-      // Dev Panel: Assign / Promote Admin or Admin+ by Email
       document.getElementById('devAssignEmailForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!isDev()) return;
@@ -3289,7 +3247,6 @@
         document.getElementById('devAssignEmailInput').value = '';
       });
 
-      // Dev Panel: Dev PIN Update
       document.getElementById('devPinsForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!isDev()) return;
@@ -3301,7 +3258,6 @@
         showToast('تم تحديث وتشفير كود المطور بنجاح 🔒', '#4ADE80');
       });
 
-      // Dev Panel: Backup & Restore
       document.getElementById('devExportJsonBtn').addEventListener('click', () => {
         if (!isDev()) return;
         exportFullBackupJSON();
@@ -3317,7 +3273,6 @@
         e.target.value = '';
       });
 
-      // Dev Panel: Add New Level Form
       document.getElementById('addLevelForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!isDev()) return;
@@ -3341,7 +3296,6 @@
         closeModal('settingsModal');
       });
 
-      // Advanced Recap Controls
       ['recapMode', 'recapScope', 'recapRange', 'recapCourseSelect', 'recapTagSelect', 'recapSingleSelect'].forEach(id => {
         document.getElementById(id).addEventListener('change', () => {
           document.getElementById('recapTextarea').value = buildRecapText();
@@ -3351,7 +3305,6 @@
         copyToClipboard(document.getElementById('recapTextarea').value);
       });
 
-      // Alert Form: Multiple Links Add Row & Target Buttons
       document.getElementById('addLinkRowBtn').addEventListener('click', () => appendLinkRow('', ''));
       document.getElementById('formLinksContainer').addEventListener('click', (e) => {
         const rm = e.target.closest('.remove-link-row');
@@ -3410,7 +3363,6 @@
         closeModal('alertModal');
       });
 
-      // Confirm Modal
       document.getElementById('confirmOkBtn').addEventListener('click', () => {
         const cb = state.confirmCallback;
         state.confirmCallback = null;
@@ -3422,7 +3374,6 @@
         closeModal('confirmModal');
       });
 
-      // Close modal triggers & backdrops
       document.querySelectorAll('[data-close-modal]').forEach(btn => {
         btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
       });
@@ -3432,7 +3383,6 @@
         });
       });
 
-      // Dev Panel: Inline Admin Section Change
       document.addEventListener('change', async (e) => {
         const secSel = e.target.closest('[data-change-admin-sec]');
         if (secSel && isDev()) {
@@ -3444,9 +3394,7 @@
         }
       });
 
-      // Delegated Clicks
       document.addEventListener('click', (e) => {
-        // Open Course Folder
         const openC = e.target.closest('[data-open-course]');
         if (openC) {
           state.courseStatusTab = 'active';
@@ -3455,7 +3403,6 @@
           return;
         }
 
-        // Urgent Chip Jump
         const jumpC = e.target.closest('[data-jump-course]');
         if (jumpC) {
           state.searchQuery = '';
@@ -3466,7 +3413,6 @@
           return;
         }
 
-        // Course Detail Tag Filter
         const cTag = e.target.closest('[data-course-tag]');
         if (cTag) {
           state.courseTagFilter = cTag.dataset.courseTag;
@@ -3474,7 +3420,6 @@
           return;
         }
 
-        // Form Course / Tag Pickers
         const pickC = e.target.closest('[data-pick-course]');
         if (pickC) {
           document.getElementById('formCourseInput').value = pickC.dataset.pickCourse;
@@ -3488,7 +3433,6 @@
           return;
         }
 
-        // Calendar Day Select
         const calDay = e.target.closest('[data-cal-day]');
         if (calDay) {
           state.calSelectedDate = calDay.dataset.calDay;
@@ -3496,7 +3440,6 @@
           return;
         }
 
-        // Dev Special Theme Switch
         const devTh = e.target.closest('[data-dev-theme]');
         if (devTh && isDev()) {
           const mode = devTh.dataset.devTheme;
@@ -3506,7 +3449,6 @@
           return;
         }
 
-        // Dev Toggle Admin <-> Admin+
         const togRole = e.target.closest('[data-toggle-admin-role]');
         if (togRole && isDev()) {
           const docId = togRole.dataset.toggleAdminRole;
@@ -3518,7 +3460,6 @@
           return;
         }
 
-        // Dev Remove Admin Email
         const remEmail = e.target.closest('[data-remove-email-role]');
         if (remEmail && isDev()) {
           const docId = remEmail.dataset.removeEmailRole;
@@ -3527,7 +3468,6 @@
           return;
         }
 
-        // Switch Level from Settings
         const selLvl = e.target.closest('[data-select-level]');
         if (selLvl) {
           state.currentLevelId = selLvl.dataset.selectLevel;
@@ -3540,7 +3480,6 @@
           return;
         }
 
-        // Alert Card Actions
         const doneBtn = e.target.closest('[data-toggle-done]');
         if (doneBtn) { togglePersonalDone(doneBtn.dataset.toggleDone); return; }
 
