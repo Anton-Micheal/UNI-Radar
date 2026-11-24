@@ -2663,6 +2663,21 @@
         renderSettingsContent();
       });
 
+     // Helper: SHA-256 Hashing & Verification
+      async function hashPin(str) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      async function verifyPin(input, stored) {
+        if (!stored) return false;
+        const isHashed = /^[a-f0-9]{64}$/.test(stored);
+        if (isHashed) {
+          return (await hashPin(input)) === stored;
+        }
+        return input === stored; // للسماح بالدخول بالكود القديم مرة أخيرة قبل التشفير
+      }
+
       // Role Login & Logout
       document.getElementById('roleLoginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -2671,7 +2686,7 @@
         const errEl = document.getElementById('roleLoginError');
         errEl.classList.add('hidden');
 
-        if (pin === state.config.devPin) {
+        if (await verifyPin(pin, state.config.devPin)) {
           state.role = 'dev';
           if (name) state.authorName = name;
           await registerActiveAdmin(name || 'المطور', 'dev');
@@ -2680,7 +2695,7 @@
           showToast('تم تفعيل صلاحيات المطور بنجاح 🛠️', '#A78BFA');
           state.settingsTab = 'dev';
           renderAll();
-        } else if (pin === state.config.adminPin) {
+        } else if (await verifyPin(pin, state.config.adminPin)) {
           state.role = 'admin';
           if (name) state.authorName = name;
           await registerActiveAdmin(name || 'أدمن', 'admin');
@@ -2706,11 +2721,15 @@
       document.getElementById('devPinsForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         if (state.role !== 'dev') return;
-        const adminPin = document.getElementById('devNewAdminPin').value.trim();
-        const devPin = document.getElementById('devNewDevPin').value.trim();
-        if (!adminPin || !devPin) return;
+        const rawAdminPin = document.getElementById('devNewAdminPin').value.trim();
+        const rawDevPin = document.getElementById('devNewDevPin').value.trim();
+        if (!rawAdminPin || !rawDevPin) return;
+        const adminPin = await hashPin(rawAdminPin);
+        const devPin = await hashPin(rawDevPin);
         await saveConfig({ adminPin, devPin });
-        showToast('تم تحديث أكواد الدخول بنجاح 🔑', '#4ADE80');
+        document.getElementById('devNewAdminPin').value = '';
+        document.getElementById('devNewDevPin').value = '';
+        showToast('تم تحديث وتشفير أكواد الدخول بنجاح 🔒', '#4ADE80');
       });
 
       // Dev Panel: Backup & Restore
