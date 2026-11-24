@@ -1,0 +1,2969 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>رادار الدفعة — Level 2 | BUA AI & Data Management</title>
+
+  <!-- Google Fonts: Cairo (Arabic Bold/Black) & Space Grotesk (English Neo-Brutalist) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* ==================== NEO-BRUTALIST DESIGN TOKENS ==================== */
+    :root {
+      --bg-page: #FAF8F2;
+      --bg-card: #FFFFFF;
+      --bg-muted: #F0ECE1;
+      --border-color: #000000;
+      --shadow-color: #000000;
+      --text-primary: #000000;
+      --text-secondary: #444444;
+      --accent-yellow: #FFD60A;
+      --accent-teal: #00D1B2;
+      --accent-pink: #FF5C8D;
+      --accent-violet: #A78BFA;
+      --accent-green: #4ADE80;
+      --accent-orange: #FB923C;
+      --hero-underline: #FFD60A;
+    }
+
+    /* Dark Mode */
+    html.dark {
+      --bg-page: #121216;
+      --bg-card: #1E1E24;
+      --bg-muted: #292932;
+      --border-color: #F4F4F0;
+      --shadow-color: #000000;
+      --text-primary: #FAF8F2;
+      --text-secondary: #B8B8C2;
+      --hero-underline: #FFD60A;
+    }
+
+    /* Special Theme 1: Christmas (Snow-Cream + Pine Green + Crimson + Gold) */
+    html.theme-christmas {
+      --bg-page: #F7FBF8;
+      --bg-card: #FFFFFF;
+      --bg-muted: #E6F4EA;
+      --border-color: #0F5132;
+      --shadow-color: #0F5132;
+      --text-primary: #0B2E1E;
+      --text-secondary: #2D5A43;
+      --hero-underline: #E11D48;
+    }
+
+    /* Special Theme 2: Finals (High-Intensity Dark Charcoal + Crimson + Warning Yellow) */
+    html.theme-finals {
+      --bg-page: #141013;
+      --bg-card: #21181D;
+      --bg-muted: #2E2027;
+      --border-color: #FF2E63;
+      --shadow-color: #000000;
+      --text-primary: #FFF5F7;
+      --text-secondary: #E2B6C2;
+      --hero-underline: #FF2E63;
+    }
+
+    /* Special Theme 3: Midterm (Electric Warm-Cream + Deep Indigo + Amber/Blue) */
+    html.theme-midterm {
+      --bg-page: #FFFBEB;
+      --bg-card: #FFFFFF;
+      --bg-muted: #FEF3C7;
+      --border-color: #1E1B4B;
+      --shadow-color: #1E1B4B;
+      --text-primary: #1E1B4B;
+      --text-secondary: #4338CA;
+      --hero-underline: #F59E0B;
+    }
+
+    /* Special Theme 4: Vacation (Abandoned Dusty Beige + Slate + Cobwebs) */
+    html.theme-vacation {
+      --bg-page: #E7E5DF;
+      --bg-card: #F3F2EE;
+      --bg-muted: #DCD9D0;
+      --border-color: #3F3F46;
+      --shadow-color: #3F3F46;
+      --text-primary: #27272A;
+      --text-secondary: #52525B;
+      --hero-underline: #71717A;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cairo', 'Space Grotesk', sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .font-en {
+      font-family: 'Space Grotesk', 'Cairo', sans-serif;
+    }
+
+    /* ==================== CORE NEO-BRUTALIST PRIMITIVES ==================== */
+    .nb-card {
+      background-color: var(--bg-card);
+      border: 2.5px solid var(--border-color);
+      box-shadow: 4px 4px 0px var(--shadow-color);
+      border-radius: 16px;
+    }
+
+    .nb-card-sm {
+      background-color: var(--bg-card);
+      border: 2.5px solid var(--border-color);
+      box-shadow: 3px 3px 0px var(--shadow-color);
+      border-radius: 12px;
+    }
+
+    .nb-btn {
+      border: 2.5px solid var(--border-color);
+      box-shadow: 4px 4px 0px var(--shadow-color);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
+      cursor: pointer;
+    }
+
+    .nb-btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px var(--shadow-color);
+    }
+
+    .nb-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px var(--shadow-color);
+    }
+
+    .nb-btn-sm {
+      border: 2px solid var(--border-color);
+      box-shadow: 3px 3px 0px var(--shadow-color);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      cursor: pointer;
+    }
+
+    .nb-btn-sm:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px var(--shadow-color);
+    }
+
+    .nb-input {
+      background-color: var(--bg-card);
+      color: var(--text-primary);
+      border: 2.5px solid var(--border-color);
+      box-shadow: 3px 3px 0px var(--shadow-color);
+      border-radius: 12px;
+      outline: none;
+      transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+
+    .nb-input:focus {
+      box-shadow: 5px 5px 0px var(--shadow-color);
+    }
+
+    .nb-input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.8;
+    }
+
+    /* ==================== FOLDER CARD STYLING ==================== */
+    .nb-folder-wrapper {
+      position: relative;
+      padding-top: 14px;
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+
+    .nb-folder-wrapper:hover {
+      transform: translate(-2px, -2px);
+    }
+
+    .nb-folder-wrapper:active {
+      transform: translate(2px, 2px);
+    }
+
+    .nb-folder-tab {
+      position: absolute;
+      top: 0;
+      right: 12px;
+      height: 17px;
+      width: 44%;
+      border: 2.5px solid var(--border-color);
+      border-bottom: none;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      z-index: 1;
+    }
+
+    .nb-folder-body {
+      position: relative;
+      z-index: 2;
+      background-color: var(--bg-card);
+      border: 2.5px solid var(--border-color);
+      box-shadow: 4px 4px 0px var(--shadow-color);
+      border-radius: 16px;
+      transition: box-shadow 0.12s ease;
+    }
+
+    .nb-folder-wrapper:hover .nb-folder-body {
+      box-shadow: 6px 6px 0px var(--shadow-color);
+    }
+
+    .nb-folder-wrapper:active .nb-folder-body {
+      box-shadow: 2px 2px 0px var(--shadow-color);
+    }
+
+    /* Vibrant colored accents always keep crisp black text */
+    .nb-ink {
+      color: #000000 !important;
+    }
+
+    .text-sec {
+      color: var(--text-secondary);
+    }
+
+    .bg-card {
+      background-color: var(--bg-card);
+    }
+
+    .bg-muted {
+      background-color: var(--bg-muted);
+    }
+
+    .border-nb {
+      border-color: var(--border-color);
+    }
+
+    .hero-underline {
+      text-decoration: underline;
+      text-decoration-thickness: 4px;
+      text-decoration-color: var(--hero-underline);
+      text-underline-offset: 4px;
+    }
+
+    /* Hide scrollbar on horizontal strips */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Modal pop animation */
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .animate-pop {
+      animation: popIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* ==================== THEME DECORATIVE OVERLAYS ==================== */
+    .theme-overlay {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-16 relative">
+
+  <!-- ==================== SPECIAL THEME SVG OVERLAYS (POINTER-EVENTS: NONE) ==================== -->
+  <!-- Christmas Snowflakes Overlay -->
+  <div id="overlayChristmas" class="theme-overlay hidden" aria-hidden="true">
+    <svg class="absolute top-2 left-2 w-24 h-24 sm:w-32 sm:h-32 opacity-20 text-[#0F5132]" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round">
+      <path d="M50 10v80M10 50h80M22 22l56 56M78 22L22 78M50 22l-8-8M50 22l8-8M50 78l-8 8M50 78l8 8M22 50l-8-8M22 50l-8 8M78 50l8-8M78 50l8 8"/>
+    </svg>
+    <svg class="absolute top-3 right-3 w-20 h-20 sm:w-28 sm:h-28 opacity-20 text-[#E11D48]" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round">
+      <path d="M50 12v76M12 50h76M24 24l52 52M76 24L24 76M50 25l-7-7M50 25l7-7M50 75l-7 7M50 75l7 7"/>
+    </svg>
+  </div>
+
+  <!-- Vacation Cobwebs Overlay -->
+  <div id="overlayVacation" class="theme-overlay hidden" aria-hidden="true">
+    <!-- Top Right Cobweb -->
+    <svg class="absolute top-0 right-0 w-36 h-36 sm:w-48 sm:h-48 opacity-30 text-[#3F3F46]" viewBox="0 0 160 160" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M160 0 L0 0 M160 0 L15 48 M160 0 L48 112 M160 0 L112 145 M160 0 L160 160"/>
+      <path d="M125 0 Q122 20 112 32 Q100 42 84 44"/>
+      <path d="M90 0 Q88 35 68 58 Q48 80 18 86"/>
+      <path d="M50 0 Q48 55 18 92"/>
+      <path d="M160 35 Q138 38 124 52 Q112 64 110 82"/>
+      <path d="M160 75 Q122 78 96 104 Q74 126 70 156"/>
+    </svg>
+    <!-- Top Left Cobweb -->
+    <svg class="absolute top-0 left-0 w-32 h-32 sm:w-44 sm:h-44 opacity-30 text-[#3F3F46]" viewBox="0 0 160 160" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M0 0 L160 0 M0 0 L145 48 M0 0 L112 112 M0 0 L48 145 M0 0 L0 160"/>
+      <path d="M35 0 Q38 20 48 32 Q60 42 76 44"/>
+      <path d="M70 0 Q72 35 92 58 Q112 80 142 86"/>
+      <path d="M0 35 Q22 38 36 52 Q48 64 50 82"/>
+      <path d="M0 75 Q38 78 64 104 Q86 126 90 156"/>
+    </svg>
+  </div>
+
+  <!-- ==================== MAIN CONTAINER ==================== -->
+  <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
+
+    <!-- ==================== TOP UTILITY BAR ==================== -->
+    <header class="flex items-center justify-between gap-3 mb-6">
+      <!-- Right (RTL start): Settings Gear Button, Sync Status, Compact Role Badge -->
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <button id="openSettingsBtn" type="button" title="الإعدادات والدكاترة والصلاحيات"
+          class="nb-btn w-11 h-11 rounded-xl bg-card flex items-center justify-center shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </button>
+
+        <!-- Live Sync Status Pill -->
+        <div id="syncBadge" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-nb bg-card text-xs font-extrabold">
+          <span id="syncDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 border border-black"></span>
+          <span id="syncText">جاري الاتصال...</span>
+        </div>
+
+        <!-- Compact Role Badge Pill (Only shown for Admin or Dev) -->
+        <button id="headerRoleBadge" type="button" class="hidden nb-btn-sm px-2.5 py-1.5 rounded-xl nb-ink text-xs font-black items-center gap-1">
+          <span id="headerRoleText"></span>
+        </button>
+      </div>
+
+      <!-- Left (RTL end): Calendar Toggle, WhatsApp Export, Theme Switcher -->
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <button id="toggleCalendarBtn" type="button" title="النتيجة (Calendar)"
+          class="nb-btn w-11 h-11 rounded-xl bg-card flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="3" ry="3"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </button>
+
+        <button id="openRecapBtn" type="button" title="تصدير ملخص الواتساب (Recap)"
+          class="nb-btn w-11 h-11 rounded-xl bg-[#4ADE80] nb-ink flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12m0-12l-4 4m4-4l4 4"/>
+          </svg>
+        </button>
+
+        <button id="toggleThemeBtn" type="button" title="تبديل الثيم (نهاري / ليلي / خاص)"
+          class="nb-btn w-11 h-11 rounded-xl bg-card flex items-center justify-center text-lg">
+          <span id="themeIcon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ==================== HERO SECTION ==================== -->
+    <section id="heroSection" class="mb-5">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <span id="heroLevelPill" class="px-2.5 py-0.5 rounded-lg border-2 border-nb bg-[#00D1B2] nb-ink text-xs font-black tracking-wide font-en">
+              Level 2 • Fall 2026
+            </span>
+            <span class="text-xs font-bold text-sec">BUA AI & Data Management</span>
+            <!-- Active Special Theme Status Pill -->
+            <span id="specialThemePill" class="hidden px-2 py-0.5 rounded-lg border-2 border-nb nb-ink text-[11px] font-black"></span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-black leading-[1.15] tracking-tight">
+            رادار الدفعة.<br/>
+            <span class="hero-underline">تنبيهاتك في مكان واحد.</span>
+          </h1>
+        </div>
+
+        <!-- Global Section Selector Pill -->
+        <div class="flex items-center gap-2 self-start sm:self-end">
+          <div class="nb-card-sm px-3 py-2 flex items-center gap-2">
+            <span class="text-xs font-black text-sec whitespace-nowrap">🎯 سكشنك:</span>
+            <select id="globalSectionSelect" aria-label="اختر سكشنك"
+              class="bg-transparent text-sm font-black focus:outline-none cursor-pointer pr-1">
+              <option value="ALL">الكل (كل السكاشن)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Search & Yellow Square '+' Add Button Row -->
+      <div class="mt-5 flex items-stretch gap-3">
+        <div class="relative flex-1">
+          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 font-black text-lg text-sec pointer-events-none">#</span>
+          <input id="quickSearchInput" type="search"
+            placeholder="ابحث في التنبيهات، المواد، أو التاجز..."
+            class="nb-input w-full h-12 pr-9 pl-4 text-sm font-bold" />
+        </div>
+        <button id="quickAddBtn" type="button" title="إضافة تنبيه جديد"
+          class="nb-btn w-12 h-12 rounded-xl bg-[#FFD60A] nb-ink flex items-center justify-center shrink-0">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Minimal Urgent Bar (Only visible when alerts are due today / within 48h) -->
+      <div id="urgentBar" class="hidden mt-4 nb-card-sm px-3 py-2.5 bg-muted flex items-center gap-2.5 overflow-x-auto no-scrollbar">
+        <span class="px-2 py-0.5 rounded-lg border-2 border-nb bg-[#FF5C8D] nb-ink text-[11px] font-black shrink-0">
+          🔥 عاجل
+        </span>
+        <div id="urgentBarChips" class="flex items-center gap-2 shrink-0"></div>
+      </div>
+    </section>
+
+    <!-- ==================== LIVE SEARCH RESULTS PANEL ==================== -->
+    <section id="searchResultsSection" class="hidden mb-6 space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-black">نتائج البحث <span id="searchCount" class="text-xs text-sec font-bold"></span></h2>
+        <button id="clearSearchBtn" type="button" class="nb-btn-sm px-3 py-1 rounded-lg bg-card text-xs font-extrabold">مسح البحث ✕</button>
+      </div>
+      <div id="searchResultsList" class="space-y-3"></div>
+    </section>
+
+    <!-- ==================== VIEW 1: HOME (6 COURSE FOLDERS) ==================== -->
+    <main id="view-home">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base sm:text-lg font-black flex items-center gap-2">
+          <span>موادك الدراسية</span>
+          <span id="sectionBadgeInline" class="hidden px-2 py-0.5 rounded-lg border-2 border-nb bg-[#A78BFA] nb-ink text-xs font-black"></span>
+        </h2>
+        <span id="totalActiveCounter" class="text-xs font-extrabold text-sec"></span>
+      </div>
+
+      <!-- 2-col on mobile/tablet, 3-col on desktop -->
+      <div id="coursesFolderGrid" class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"></div>
+    </main>
+
+    <!-- ==================== VIEW 2: COURSE DETAIL + PER-COURSE ARCHIVE ==================== -->
+    <section id="view-course-detail" class="hidden space-y-4">
+      <!-- Back Button & Add In Course -->
+      <div class="flex items-center justify-between gap-2">
+        <button id="backToHomeBtn" type="button"
+          class="nb-btn-sm px-3.5 py-2 rounded-xl bg-card text-xs sm:text-sm font-black inline-flex items-center gap-1.5">
+          <span>→</span>
+          <span>رجوع للمواد</span>
+        </button>
+
+        <button id="addInCourseBtn" type="button"
+          class="nb-btn-sm px-3.5 py-2 rounded-xl bg-[#FFD60A] nb-ink text-xs sm:text-sm font-black inline-flex items-center gap-1.5">
+          <span>+</span>
+          <span>إضافة تنبيه للمادة</span>
+        </button>
+      </div>
+
+      <!-- Course Colored Banner -->
+      <div id="courseBanner" class="nb-card p-4 sm:p-5 nb-ink"></div>
+
+      <!-- Per-Course Status Switcher: Active vs Archive -->
+      <div class="grid grid-cols-2 gap-3">
+        <button id="tabCourseActive" type="button"
+          class="nb-btn-sm py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2">
+          <span>📌 النشطة</span>
+          <span id="courseActiveCount" class="px-2 py-0.5 rounded-md border-2 border-black bg-white text-black text-xs font-black">0</span>
+        </button>
+        <button id="tabCourseArchive" type="button"
+          class="nb-btn-sm py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2">
+          <span>🗄️ الأرشيف</span>
+          <span id="courseArchiveCount" class="px-2 py-0.5 rounded-md border-2 border-black bg-white text-black text-xs font-black">0</span>
+        </button>
+      </div>
+
+      <!-- Tag Filter Pills -->
+      <div id="courseTagBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1"></div>
+
+      <!-- Course Alerts List -->
+      <div id="courseAlertsList" class="space-y-3.5"></div>
+    </section>
+
+    <!-- ==================== VIEW 3: CALENDAR VIEW ==================== -->
+    <section id="view-calendar" class="hidden space-y-4">
+      <div class="nb-card p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <button id="calPrevBtn" type="button" class="nb-btn-sm w-9 h-9 rounded-xl bg-card font-black flex items-center justify-center">‹</button>
+            <h2 id="calMonthLabel" class="text-base sm:text-lg font-black min-w-[140px] text-center"></h2>
+            <button id="calNextBtn" type="button" class="nb-btn-sm w-9 h-9 rounded-xl bg-card font-black flex items-center justify-center">›</button>
+            <button id="calTodayBtn" type="button" class="nb-btn-sm px-3 py-1.5 rounded-xl bg-[#FFD60A] nb-ink text-xs font-black">اليوم</button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <select id="calCourseFilter" class="nb-input px-3 py-1.5 text-xs font-extrabold cursor-pointer">
+              <option value="ALL">كل المواد</option>
+            </select>
+            <select id="calTagFilter" class="nb-input px-3 py-1.5 text-xs font-extrabold cursor-pointer">
+              <option value="ALL">كل التاجز</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="nb-card p-3 sm:p-4">
+        <div class="grid grid-cols-7 gap-1.5 mb-2 text-center text-xs font-black text-sec">
+          <div class="py-1">سبت</div>
+          <div class="py-1">أحد</div>
+          <div class="py-1">إثنين</div>
+          <div class="py-1">ثلاثاء</div>
+          <div class="py-1">أربعاء</div>
+          <div class="py-1">خميس</div>
+          <div class="py-1 text-[#FF5C8D]">جمعة</div>
+        </div>
+        <div id="calendarGrid" class="grid grid-cols-7 gap-1.5"></div>
+      </div>
+
+      <!-- Selected Day Alerts Below Calendar -->
+      <div class="nb-card p-4 space-y-3">
+        <div class="flex items-center justify-between gap-2 pb-2 border-b-2 border-nb">
+          <div>
+            <h3 id="calDayTitle" class="text-sm sm:text-base font-black"></h3>
+            <p id="calDaySubtitle" class="text-xs font-bold text-sec"></p>
+          </div>
+          <button id="calAddOnDayBtn" type="button" class="nb-btn-sm px-3 py-1.5 rounded-xl bg-[#FFD60A] nb-ink text-xs font-black">
+            + إضافة في اليوم ده
+          </button>
+        </div>
+        <div id="calDayAlertsList" class="space-y-3"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ==================== MODAL: ADD / EDIT ALERT ==================== -->
+  <div id="alertModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
+    <div class="animate-pop nb-card w-full sm:max-w-lg max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-2xl">
+      <div class="sticky top-0 z-10 bg-card border-b-[2.5px] border-nb px-5 py-3.5 flex items-center justify-between">
+        <h3 id="alertModalTitle" class="text-base font-black">➕ إضافة تنبيه جديد</h3>
+        <button type="button" data-close-modal="alertModal" class="nb-btn-sm w-8 h-8 rounded-lg bg-card font-black text-sm">✕</button>
+      </div>
+
+      <form id="alertForm" class="p-5 space-y-4">
+        <input type="hidden" id="editAlertId" />
+
+        <!-- Course (Required) -->
+        <div>
+          <label class="block text-xs font-black mb-2">المادة <span class="text-[#FF5C8D]">*</span></label>
+          <div id="formCoursePills" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+          <input type="hidden" id="formCourseInput" required />
+        </div>
+
+        <!-- Tag (Required) -->
+        <div>
+          <label class="block text-xs font-black mb-2">التصنيف (Tag) <span class="text-[#FF5C8D]">*</span></label>
+          <div id="formTagPills" class="grid grid-cols-3 gap-2"></div>
+          <input type="hidden" id="formTagInput" required />
+        </div>
+
+        <!-- Target Audience -->
+        <div class="space-y-2">
+          <label class="block text-xs font-black">موجه لـ</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" data-target-type="all" class="target-type-btn nb-btn-sm py-2 px-2 rounded-xl text-xs font-black">الكل</button>
+            <button type="button" data-target-type="group" class="target-type-btn nb-btn-sm py-2 px-2 rounded-xl text-xs font-black">جروب كامل</button>
+            <button type="button" data-target-type="section" class="target-type-btn nb-btn-sm py-2 px-2 rounded-xl text-xs font-black">سكشن محدد</button>
+          </div>
+          <div id="targetValueWrap" class="hidden pt-1">
+            <select id="formTargetValue" class="nb-input w-full px-3 py-2 text-sm font-black cursor-pointer"></select>
+          </div>
+        </div>
+
+        <!-- Title (Required) -->
+        <div>
+          <label for="formTitle" class="block text-xs font-black mb-1.5">عنوان التنبيه <span class="text-[#FF5C8D]">*</span></label>
+          <input id="formTitle" type="text" required placeholder="مثال: تسليم Assignment 2 - ER Diagram"
+            class="nb-input w-full px-3.5 py-2.5 text-sm font-bold" />
+        </div>
+
+        <!-- Date & Author -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="formDate" class="block text-xs font-black mb-1.5">تاريخ الديدلاين <span class="text-sec">(اختياري)</span></label>
+            <input id="formDate" type="date" class="nb-input w-full px-3 py-2 text-sm font-bold" />
+          </div>
+          <div>
+            <label for="formAuthor" class="block text-xs font-black mb-1.5">اسمك <span class="text-sec">(اختياري)</span></label>
+            <input id="formAuthor" type="text" placeholder="مثال: أحمد / ليدر W3" class="nb-input w-full px-3 py-2 text-sm font-bold" />
+          </div>
+        </div>
+
+        <!-- Multiple Named Hyperlinks -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-black">🔗 الروابط <span class="text-sec">(اختياري - بأسماء مخصصة)</span></label>
+            <button id="addLinkRowBtn" type="button" class="nb-btn-sm px-2.5 py-1 rounded-lg bg-[#00D1B2] nb-ink text-[11px] font-black">
+              + إضافة لينك
+            </button>
+          </div>
+          <div id="formLinksContainer" class="space-y-2"></div>
+        </div>
+
+        <!-- Note -->
+        <div>
+          <label for="formNote" class="block text-xs font-black mb-1.5">ملاحظة / تفاصيل <span class="text-sec">(اختياري)</span></label>
+          <textarea id="formNote" rows="3" placeholder="أي تعليمات إضافية من الدكتور أو المعيد..."
+            class="nb-input w-full px-3.5 py-2 text-sm font-bold resize-none"></textarea>
+        </div>
+
+        <p id="formErrorMsg" class="hidden text-xs font-black bg-[#FF5C8D] nb-ink border-2 border-black rounded-xl px-3 py-2"></p>
+
+        <div class="flex items-center gap-2.5 pt-1">
+          <button type="submit" id="alertSubmitBtn" class="nb-btn flex-1 py-3 rounded-xl bg-[#FFD60A] nb-ink text-sm font-black">
+            حفظ ونشر للدفعة 🚀
+          </button>
+          <button type="button" data-close-modal="alertModal" class="nb-btn px-4 py-3 rounded-xl bg-card text-sm font-black">
+            إلغاء
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: SETTINGS GEAR (STAFF + ROLES + DEV PANEL) ==================== -->
+  <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
+    <div class="animate-pop nb-card w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-2xl">
+      <div class="sticky top-0 z-10 bg-card border-b-[2.5px] border-nb px-5 py-3.5 flex items-center justify-between">
+        <h3 class="text-base font-black">⚙️ الإعدادات — الدكاترة والصلاحيات</h3>
+        <button type="button" data-close-modal="settingsModal" class="nb-btn-sm w-8 h-8 rounded-lg bg-card font-black text-sm">✕</button>
+      </div>
+
+      <!-- Settings Modal Tabs -->
+      <div id="settingsTabsBar" class="p-4 border-b-2 border-nb bg-muted flex flex-wrap gap-2">
+        <button id="settingsTabStaff" type="button" class="nb-btn-sm flex-1 min-w-[120px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black">
+          👨‍🏫 الدكاترة والمعيدين
+        </button>
+        <button id="settingsTabAuth" type="button" class="nb-btn-sm flex-1 min-w-[110px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black">
+          🔐 الصلاحيات
+        </button>
+        <!-- Strictly Hidden unless role === 'dev' -->
+        <button id="settingsTabDev" type="button" class="hidden nb-btn-sm flex-1 min-w-[120px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black">
+          🛠️ لوحة المطور
+        </button>
+      </div>
+
+      <!-- TAB 1: FACULTY & TAs -->
+      <div id="settingsPanelStaff" class="p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <label for="settingsStaffSection" class="text-xs font-black">عرض سكشن:</label>
+            <select id="settingsStaffSection" class="nb-input px-3 py-1.5 text-sm font-black cursor-pointer"></select>
+          </div>
+          <button id="toggleEditStaffBtn" type="button" class="hidden nb-btn-sm px-3.5 py-2 rounded-xl bg-[#00D1B2] nb-ink text-xs font-black">
+            ✏️ تعديل معيدين السكشن
+          </button>
+        </div>
+
+        <!-- Read-only Staff List -->
+        <div id="settingsStaffList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+
+        <!-- Inline Edit Staff Form -->
+        <form id="settingsStaffEditForm" class="hidden space-y-3">
+          <div id="settingsStaffEditFields" class="space-y-2.5"></div>
+          <div class="flex items-center gap-2 pt-2">
+            <button type="submit" class="nb-btn flex-1 py-2.5 rounded-xl bg-[#4ADE80] nb-ink text-sm font-black">
+              حفظ التعديلات للسكشن ✅
+            </button>
+            <button id="cancelEditStaffBtn" type="button" class="nb-btn px-4 py-2.5 rounded-xl bg-card text-sm font-black">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- TAB 2: ROLES & AUTHENTICATION -->
+      <div id="settingsPanelAuth" class="hidden p-5 space-y-5">
+        <div class="nb-card-sm p-4 bg-muted flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="text-xs font-bold text-sec">وضعك الحالي</div>
+            <div id="authCurrentStatus" class="text-base font-black mt-0.5">👁️ مشاهد (Viewer)</div>
+          </div>
+          <button id="logoutRoleBtn" type="button" class="hidden nb-btn-sm px-3.5 py-2 rounded-xl bg-[#FF5C8D] nb-ink text-xs font-black">
+            تسجيل خروج (رجوع لمشاهد)
+          </button>
+        </div>
+
+        <form id="roleLoginForm" class="space-y-3.5">
+          <div>
+            <label for="roleLoginName" class="block text-xs font-black mb-1.5">اسمك (للظهور في سجل الأدمن)</label>
+            <input id="roleLoginName" type="text" placeholder="مثال: أحمد - ليدر W1" class="nb-input w-full px-3.5 py-2.5 text-sm font-bold" />
+          </div>
+          <div>
+            <label for="roleLoginPin" class="block text-xs font-black mb-1.5">كود الصلاحية (Admin أو Dev PIN)</label>
+            <input id="roleLoginPin" type="password" required placeholder="أدخل الكود السري..." class="nb-input w-full px-3.5 py-2.5 text-sm font-bold" />
+          </div>
+          <p id="roleLoginError" class="hidden text-xs font-black bg-[#FF5C8D] nb-ink border-2 border-black rounded-xl px-3 py-2"></p>
+          <button type="submit" class="nb-btn w-full py-3 rounded-xl bg-[#FFD60A] nb-ink text-sm font-black">
+            تفعيل الصلاحية 🔓
+          </button>
+        </form>
+
+        <div class="nb-card-sm p-3.5 text-xs font-bold text-sec space-y-1">
+          <div class="font-black text-[var(--text-primary)]">مستويات الصلاحيات:</div>
+          <div>• <strong>المشاهد:</strong> تصفح، فلترة بالسكشن، النتيجة، تعليم "خلصته"، وتصدير للواتساب.</div>
+          <div>• <strong>الأدمن:</strong> إضافة وتعديل وحذف التنبيهات، وتحديث أسماء المعيدين والمعامل.</div>
+          <div>• <strong>المطور:</strong> لوحة تحكم كاملة للثيمات الخاصة، إدارة الأدمن، النسخ الاحتياطي، والمراحل.</div>
+        </div>
+      </div>
+
+      <!-- TAB 3: DEVELOPER PANEL (STRICTLY HIDDEN FROM VIEWERS & ADMINS) -->
+      <div id="settingsPanelDev" class="hidden p-5 space-y-6">
+
+        <!-- 1. Special Theme Controller -->
+        <div class="nb-card-sm p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <h4 class="text-sm font-black">🎨 التحكم في الثيمات الخاصة للدفعة</h4>
+            <span id="devThemeActiveInfo" class="px-2 py-0.5 rounded-lg border-2 border-nb bg-[#FFD60A] nb-ink text-[11px] font-black"></span>
+          </div>
+          <div id="devThemeGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+          <p class="text-[11px] font-bold text-sec">في الوضع التلقائي، يشتغل ثيم الكريسماس 🎄 أوتوماتيكياً من 1 ديسمبر حتى 7 يناير، ويقدر أي مشاهد يبدل بحرية بينه وبين النهاري والليلي.</p>
+        </div>
+
+        <!-- 2. Active Admins & PINs -->
+        <div class="nb-card-sm p-4 space-y-4">
+          <h4 class="text-sm font-black">👥 الأدمن النشطون (طرد فوري لايف)</h4>
+          <div id="devAdminsList" class="space-y-2"></div>
+
+          <form id="devPinsForm" class="pt-3 border-t-2 border-nb/20 space-y-3">
+            <h5 class="text-xs font-black">🔑 تغيير أكواد الدخول</h5>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-black mb-1 text-sec">كود الأدمن الجديد</label>
+                <input id="devNewAdminPin" type="text" required class="nb-input w-full px-3 py-2 text-xs font-bold font-en" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-black mb-1 text-sec">كود المطور الجديد</label>
+                <input id="devNewDevPin" type="text" required class="nb-input w-full px-3 py-2 text-xs font-bold font-en" />
+              </div>
+            </div>
+            <button type="submit" class="nb-btn-sm px-4 py-2 rounded-xl bg-[#00D1B2] nb-ink text-xs font-black">
+              حفظ الأكواد الجديدة ✅
+            </button>
+          </form>
+        </div>
+
+        <!-- 3. Safe Backup & Restore (JSON) -->
+        <div class="nb-card-sm p-4 space-y-3">
+          <h4 class="text-sm font-black">💾 النسخ الاحتياطي والاستعادة الآمنة (JSON)</h4>
+          <p class="text-[11px] font-bold text-sec">تصدير نسخة كاملة تشمل كل التنبيهات، المراحل، تعديلات المعيدين، والإعدادات في ملف JSON.</p>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button id="devExportJsonBtn" type="button" class="nb-btn-sm flex-1 py-2.5 px-3 rounded-xl bg-[#4ADE80] nb-ink text-xs font-black">
+              ⬇️ تصدير نسخة احتياطية كاملة (JSON)
+            </button>
+            <label class="nb-btn-sm flex-1 py-2.5 px-3 rounded-xl bg-[#FFD60A] nb-ink text-xs font-black text-center cursor-pointer">
+              ⬆️ استعادة نسخة احتياطية (JSON)
+              <input id="devImportJsonInput" type="file" accept=".json,application/json" class="hidden" />
+            </label>
+          </div>
+        </div>
+
+        <!-- 4. Levels Manager -->
+        <div class="nb-card-sm p-4 space-y-4">
+          <div>
+            <h4 class="text-sm font-black mb-2.5">🎓 المراحل الدراسية (Levels)</h4>
+            <div id="levelsList" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+          </div>
+
+          <div class="border-t-2 border-nb/20 pt-3">
+            <h5 class="text-xs font-black mb-2.5">➕ إضافة مرحلة دراسية جديدة (Level 1 / 3 / 4)</h5>
+            <form id="addLevelForm" class="space-y-2.5">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <input id="newLevelName" type="text" required placeholder="اسم المرحلة (مثال: Level 3)" class="nb-input w-full px-3 py-2 text-xs font-bold" />
+                <input id="newLevelGroups" type="text" required value="A, B, C" placeholder="الجروبات بفاصلة (W, X, Y, Z)" class="nb-input w-full px-3 py-2 text-xs font-bold" />
+              </div>
+              <input id="newLevelSecCount" type="number" min="1" max="8" value="4" placeholder="عدد السكاشن في كل جروب" class="nb-input w-full px-3 py-2 text-xs font-bold" />
+              <textarea id="newLevelCourses" rows="3" required placeholder="سطر لكل مادة: اسم المادة | اسم الدكتور&#10;Machine Learning | د. أحمد"
+                class="nb-input w-full px-3 py-2 text-xs font-bold"></textarea>
+              <button type="submit" class="nb-btn-sm w-full py-2.5 rounded-xl bg-[#A78BFA] nb-ink text-xs font-black">
+                إنشاء المرحلة ومزامنتها 🎓
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ADVANCED WHATSAPP EXPORT ==================== -->
+  <div id="recapModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
+    <div class="animate-pop nb-card w-full sm:max-w-xl max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-2xl">
+      <div class="sticky top-0 z-10 bg-card border-b-[2.5px] border-nb px-5 py-3.5 flex items-center justify-between">
+        <h3 class="text-base font-black">📤 تصدير متقدم للواتساب (Recap)</h3>
+        <button type="button" data-close-modal="recapModal" class="nb-btn-sm w-8 h-8 rounded-lg bg-card font-black text-sm">✕</button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <!-- Mode & Scope -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-black mb-1.5">نوع التصدير</label>
+            <select id="recapMode" class="nb-input w-full px-3 py-2 text-xs sm:text-sm font-black cursor-pointer">
+              <option value="ALL">📋 ملخص عام (كل التنبيهات)</option>
+              <option value="COURSE">📚 مادة معينة</option>
+              <option value="TAG">🏷️ تصنيف (Tag) معين</option>
+              <option value="SINGLE">📌 تنبيه محدد</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-black mb-1.5">النطاق</label>
+            <select id="recapScope" class="nb-input w-full px-3 py-2 text-xs sm:text-sm font-black cursor-pointer">
+              <option value="MY_SECTION">سكشني الحالي (+ العام)</option>
+              <option value="ALL">الدفعة كلها</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dynamic Sub-Filter Row -->
+        <div id="recapRangeWrap">
+          <label class="block text-xs font-black mb-1.5">الفترة الزمنية</label>
+          <select id="recapRange" class="nb-input w-full px-3 py-2 text-xs sm:text-sm font-black cursor-pointer">
+            <option value="7">الأسبوع القادم (7 أيام)</option>
+            <option value="ALL">كل التنبيهات النشطة</option>
+          </select>
+        </div>
+
+        <div id="recapCourseWrap" class="hidden">
+          <label class="block text-xs font-black mb-1.5">اختر المادة</label>
+          <select id="recapCourseSelect" class="nb-input w-full px-3 py-2 text-xs sm:text-sm font-black cursor-pointer"></select>
+        </div>
+
+        <div id="recapTagWrap" class="hidden">
+          <label class="block text-xs font-black mb-1.5">اختر التصنيف (Tag)</label>
+          <select id="recapTagSelect" class="nb-input w-full px-3 py-2 text-xs sm:text-sm font-black cursor-pointer"></select>
+        </div>
+
+        <div id="recapSingleWrap" class="hidden">
+          <label class="block text-xs font-black mb-1.5">اختر التنبيه</label>
+          <select id="recapSingleSelect" class="nb-input w-full px-3 py-2 text-xs sm:text-sm font-black cursor-pointer"></select>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-black">معاينة رسالة الواتساب</label>
+            <span id="recapCountBadge" class="px-2 py-0.5 rounded-lg border-2 border-nb bg-[#4ADE80] nb-ink text-[11px] font-black"></span>
+          </div>
+          <textarea id="recapTextarea" rows="11" class="nb-input w-full p-3.5 text-xs sm:text-sm font-bold leading-relaxed"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+          <button id="copyRecapBtn" type="button" class="nb-btn flex-1 py-3 rounded-xl bg-[#4ADE80] nb-ink text-sm font-black">
+            📋 نسخ الرسالة للواتساب
+          </button>
+          <button type="button" data-close-modal="recapModal" class="nb-btn px-4 py-3 rounded-xl bg-card text-sm font-black">
+            إغلاق
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CUSTOM CONFIRMATION ==================== -->
+  <div id="confirmModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4">
+    <div class="animate-pop nb-card w-full max-w-sm p-5 space-y-4">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 rounded-xl border-2 border-nb bg-[#FF5C8D] nb-ink flex items-center justify-center text-xl shrink-0">⚠️</div>
+        <div>
+          <h3 id="confirmTitle" class="text-base font-black">تأكيد الإجراء</h3>
+          <p id="confirmMessage" class="text-xs font-bold text-sec mt-1"></p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <button id="confirmOkBtn" type="button" class="nb-btn flex-1 py-2.5 rounded-xl bg-[#FF5C8D] nb-ink text-xs font-black">نعم، متأكد</button>
+        <button id="confirmCancelBtn" type="button" class="nb-btn flex-1 py-2.5 rounded-xl bg-card text-xs font-black">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== NEO-BRUTALIST TOAST STACK ==================== -->
+  <div id="toastStack" class="fixed bottom-5 right-4 left-4 sm:left-auto sm:right-6 z-[70] flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ==================== MAIN APPLICATION SCRIPT ==================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getFirestore, doc, setDoc, addDoc, updateDoc, deleteDoc,
+      onSnapshot, collection
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // ==================== CONSTANTS & TAGS ====================
+    const TAGS = [
+      { id: 'assignment', label: 'Assignment', emoji: '📝', color: '#00D1B2' },
+      { id: 'quiz',       label: 'Quiz',       emoji: '⚡', color: '#FFD60A' },
+      { id: 'midterm',    label: 'Midterm',    emoji: '📘', color: '#FB923C' },
+      { id: 'project',    label: 'Project',    emoji: '🚀', color: '#A78BFA' },
+      { id: 'final',      label: 'Final',      emoji: '🎯', color: '#FF5C8D' },
+      { id: 'other',      label: 'Other',      emoji: '📌', color: '#4ADE80' }
+    ];
+
+    const SPECIAL_THEMES = {
+      auto:      { id: 'auto',      label: 'تلقائي (كريسماس 1-12)', emoji: '✨', pill: '', bg: '#00D1B2' },
+      none:      { id: 'none',      label: 'إيقاف الثيم الخاص',     emoji: '🚫', pill: '', bg: '#E5E7EB' },
+      christmas: { id: 'christmas', label: 'الكريسماس',             emoji: '🎄', pill: '🎄 وضع الكريسماس', bg: '#4ADE80' },
+      finals:    { id: 'finals',    label: 'الفاينلز',              emoji: '🔥', pill: '🔥 وضع الفاينلز',  bg: '#FF5C8D' },
+      midterm:   { id: 'midterm',   label: 'الميد تيرم',            emoji: '⚡', pill: '⚡ وضع الميد تيرم', bg: '#FFD60A' },
+      vacation:  { id: 'vacation',  label: 'الإجازة',               emoji: '🕸️', pill: '🕸️ وضع الإجازة',   bg: '#D4D4D8' }
+    };
+
+    const COURSE_PALETTE = ['#00D1B2', '#FFD60A', '#A78BFA', '#FF5C8D', '#4ADE80', '#FB923C'];
+
+    // Crisp Black SVG Icons for the 6 Level 2 Courses
+    const COURSE_ICONS = {
+      arch: `<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 1v5M15 1v5M9 18v5M15 18v5M1 9h5M1 15h5M18 9h5M18 15h5"/></svg>`,
+      db:   `<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>`,
+      oop:  `<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 18l6-6-6-6M8 6l-6 6 6 6M14 4l-4 16"/></svg>`,
+      ai:   `<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2a4 4 0 014 4v1a3 3 0 012.5 4.6A3.5 3.5 0 0116 18h-1v2a2 2 0 11-4 0v-2H9a3.5 3.5 0 01-2.5-6.4A3 3 0 019 7V6a4 4 0 013-4z"/></svg>`,
+      net:  `<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M10.8 7.2L6.2 16.8M13.2 7.2l4.6 9.6M7.5 19h9"/></svg>`,
+      pm:   `<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h6M7 13h10M7 17h4"/></svg>`,
+      default: `<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>`
+    };
+
+    // ==================== LEVEL 2 PRE-POPULATED DATA (UPDATED FROM EXCEL) ====================
+    const DEFAULT_LEVEL_2 = {
+      id: 'level2',
+      name: 'Level 2',
+      term: 'Fall 2026',
+      groups: ['W', 'X', 'Y', 'Z'],
+      sections: [
+        'W1', 'W2', 'W3', 'W4',
+        'X1', 'X2', 'X3', 'X4',
+        'Y1', 'Y2', 'Y3', 'Y4',
+        'Z1', 'Z2', 'Z3', 'Z4'
+      ],
+      courses: [
+        { id: 'arch', name: 'Computer Architecture',       arLabel: 'معمارية الحاسب',   shortName: 'Arch', color: '#00D1B2', doctor: 'د. ع مرسي' },
+        { id: 'db',   name: 'Databases',                   arLabel: 'قواعد البيانات',    shortName: 'DB',   color: '#FFD60A', doctor: 'م. حسين' },
+        { id: 'oop',  name: 'Object-Oriented Programming', arLabel: 'البرمجة الشيئية',   shortName: 'OOP',  color: '#A78BFA', doctor: 'أ.د. علاء' },
+        { id: 'ai',   name: 'Artificial Intelligence',     arLabel: 'الذكاء الاصطناعي',  shortName: 'AI',   color: '#FF5C8D', doctor: 'د. بدرية' },
+        { id: 'net',  name: 'Computer Networks',           arLabel: 'شبكات الحاسب',      shortName: 'Net',  color: '#4ADE80', doctor: 'د. داليا' },
+        { id: 'pm',   name: 'Project Management',          arLabel: 'إدارة المشروعات',   shortName: 'PM',   color: '#FB923C', doctor: 'د. عمر' }
+      ]
+    };
+
+    // Exact Updated TA Mapping for all 16 sections (Fall 2026 Excel)
+    const DEFAULT_STAFF_MAP = {
+      W1: { ai: { taName: 'م. مريم', room: '' },       arch: { taName: 'م. شهد محمد', room: '' }, net: { taName: 'م. سليمان', room: '' },     db: { taName: 'م. محمد', room: '' },  oop: { taName: 'م. آلاء عماد', room: '' },  pm: { taName: 'م. علي', room: '' } },
+      W2: { ai: { taName: 'م. رشاد', room: '' },       arch: { taName: 'م. خالد', room: '' },     net: { taName: 'م. سليمان', room: '' },     db: { taName: 'م. ندى', room: '' },   oop: { taName: 'م. آلاء حمادة', room: '' }, pm: { taName: 'م. علي', room: '' } },
+      W3: { ai: { taName: 'م. مريم', room: '' },       arch: { taName: 'م. خالد', room: '' },     net: { taName: 'م. منار', room: '' },       db: { taName: 'م. إيمان', room: '' }, oop: { taName: 'م. نسيبة', room: '' },      pm: { taName: 'م. نسيبة', room: '' } },
+      W4: { ai: { taName: 'م. سارة حيدر', room: '' },  arch: { taName: 'م. شهد محمد', room: '' }, net: { taName: 'م. هالة', room: '' },       db: { taName: 'م. محمد', room: '' },  oop: { taName: 'م. ميرهان', room: '' },     pm: { taName: 'م. آلاء عماد', room: '' } },
+      X1: { ai: { taName: 'م. علي', room: '' },        arch: { taName: 'م. صفي', room: '' },      net: { taName: 'م. منار', room: '' },       db: { taName: 'م. محمد', room: '' },  oop: { taName: 'م. نسيبة', room: '' },      pm: { taName: 'م. شهد إبراهيم', room: '' } },
+      X2: { ai: { taName: 'م. سارة حيدر', room: '' },  arch: { taName: 'م. مها', room: '' },      net: { taName: 'م. منار', room: '' },       db: { taName: 'م. محمد', room: '' },  oop: { taName: 'م. آلاء عماد', room: '' },  pm: { taName: 'م. إنجي', room: '' } },
+      X3: { ai: { taName: 'م. ميرهان', room: '' },     arch: { taName: 'م. مها', room: '' },      net: { taName: 'م. سليمان', room: '' },     db: { taName: 'م. إيمان', room: '' }, oop: { taName: 'م. آلاء عماد', room: '' },  pm: { taName: 'م. علي', room: '' } },
+      X4: { ai: { taName: 'م. ميرهان', room: '' },     arch: { taName: 'م. خالد', room: '' },     net: { taName: 'م. بتول', room: '' },       db: { taName: 'م. خالد', room: '' },  oop: { taName: 'م. ندى', room: '' },        pm: { taName: 'م. علي', room: '' } },
+      Y1: { ai: { taName: 'م. مريم', room: '' },       arch: { taName: 'م. صفي', room: '' },      net: { taName: 'م. بتول', room: '' },       db: { taName: 'م. خالد', room: '' },  oop: { taName: 'م. ميرهان', room: '' },     pm: { taName: 'م. علي', room: '' } },
+      Y2: { ai: { taName: 'م. مريم', room: '' },       arch: { taName: 'م. صفي', room: '' },      net: { taName: 'م. بتول', room: '' },       db: { taName: 'م. ندى', room: '' },   oop: { taName: 'م. آلاء حمادة', room: '' }, pm: { taName: 'م. علي', room: '' } },
+      Y3: { ai: { taName: 'م. آلاء عماد', room: '' },  arch: { taName: 'م. صفي', room: '' },      net: { taName: 'م. بتول', room: '' },       db: { taName: 'م. محمد', room: '' },  oop: { taName: 'م. نسيبة', room: '' },      pm: { taName: 'م. آلاء عماد', room: '' } },
+      Y4: { ai: { taName: 'م. مريم', room: '' },       arch: { taName: 'م. شهد محمد', room: '' }, net: { taName: 'م. شهد إبراهيم', room: '' }, db: { taName: 'م. ندى', room: '' }, oop: { taName: 'م. آلاء حمادة', room: '' }, pm: { taName: 'م. ولاء', room: '' } },
+      Z1: { ai: { taName: 'م. آلاء عماد', room: '' },  arch: { taName: 'م. شهد محمد', room: '' }, net: { taName: 'م. بتول', room: '' },       db: { taName: 'م. محمد', room: '' },  oop: { taName: 'م. رشاد', room: '' },       pm: { taName: 'م. ولاء', room: '' } },
+      Z2: { ai: { taName: 'م. مريم', room: '' },       arch: { taName: 'م. صفي', room: '' },      net: { taName: 'م. منار', room: '' },       db: { taName: 'م. إيمان', room: '' }, oop: { taName: 'م. ندى', room: '' },        pm: { taName: 'م. ولاء', room: '' } },
+      Z3: { ai: { taName: 'م. رشاد', room: '' },       arch: { taName: 'م. صفي', room: '' },      net: { taName: 'م. بتول', room: '' },       db: { taName: 'م. ندى', room: '' },   oop: { taName: 'م. نسيبة', room: '' },      pm: { taName: 'م. ولاء', room: '' } },
+      Z4: { ai: { taName: 'م. مريم', room: '' },       arch: { taName: 'م. صفي', room: '' },      net: { taName: 'م. منار', room: '' },       db: { taName: 'م. إيمان', room: '' }, oop: { taName: 'م. ندى', room: '' },        pm: { taName: 'م. آلاء عماد', room: '' } }
+    };
+
+    const ARABIC_MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    const ARABIC_DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+    // ==================== APPLICATION STATE ====================
+    const state = {
+      db: null,
+      auth: null,
+      user: null,
+      localUid: 'local_' + Math.random().toString(36).slice(2, 10),
+      appId: typeof __app_id !== 'undefined' ? __app_id : 'bua-ai-radar-nb-v2',
+
+      // Global Synced Config (Firestore: config/main)
+      config: {
+        adminPin: 'admin2026',
+        devPin: 'dev2026',
+        specialThemeMode: 'auto' // 'auto' | 'none' | 'christmas' | 'finals' | 'midterm' | 'vacation'
+      },
+
+      levels: { level2: DEFAULT_LEVEL_2 },
+      currentLevelId: 'level2',
+      announcements: [],
+      staffOverrides: {},
+      activeAdmins: [],
+
+      // Personal Preferences (Firestore private prefs)
+      role: 'viewer', // 'viewer' | 'admin' | 'dev'
+      themePref: 'auto', // 'auto' | 'light' | 'dark' | 'special'
+      selectedSection: 'ALL',
+      doneIds: [],
+      authorName: '',
+
+      // Navigation & UI state
+      activeView: 'home', // 'home' | 'course' | 'calendar'
+      selectedCourseId: null,
+      courseStatusTab: 'active', // 'active' | 'archive'
+      courseTagFilter: 'ALL',
+      searchQuery: '',
+
+      // Calendar state
+      calYear: new Date().getFullYear(),
+      calMonth: new Date().getMonth(),
+      calSelectedDate: getLocalTodayStr(),
+      calCourseFilter: 'ALL',
+      calTagFilter: 'ALL',
+
+      // Settings modal state
+      settingsTab: 'staff', // 'staff' | 'auth' | 'dev'
+      settingsStaffSection: 'W1',
+      editingStaff: false,
+
+      // Form, Modal Stack & Confirm state
+      formTargetType: 'all',
+      openModals: [],
+      confirmCallback: null
+    };
+
+    // ==================== HELPERS ====================
+    function getEffectiveUid() {
+      return state.user?.uid || state.localUid;
+    }
+
+    function canManage() {
+      return state.role === 'admin' || state.role === 'dev';
+    }
+
+    function getLocalTodayStr() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    }
+
+    function parseLocalDate(str) {
+      if (!str) return null;
+      const [y, m, d] = str.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function getDaysDiff(dateStr) {
+      if (!dateStr) return null;
+      const target = parseLocalDate(dateStr);
+      const today = parseLocalDate(getLocalTodayStr());
+      return Math.round((target - today) / 86400000);
+    }
+
+    function formatArabicDate(dateStr) {
+      if (!dateStr) return 'بدون تاريخ محدد';
+      const d = parseLocalDate(dateStr);
+      if (!d || isNaN(d.getTime())) return dateStr;
+      return `${ARABIC_DAYS[d.getDay()]} ${d.getDate()} ${ARABIC_MONTHS[d.getMonth()]}`;
+    }
+
+    function getCountdownInfo(dateStr) {
+      const diff = getDaysDiff(dateStr);
+      if (diff === null) return { text: 'مفتوح', bg: '#E5E7EB' };
+      if (diff < 0) return { text: 'منتهي', bg: '#D1D5DB' };
+      if (diff === 0) return { text: 'النهاردة 🔥', bg: '#FF5C8D' };
+      if (diff === 1) return { text: 'بكرا ⏰', bg: '#FFD60A' };
+      if (diff === 2) return { text: 'باقي يومين', bg: '#FB923C' };
+      return { text: `بعد ${diff} أيام`, bg: '#00D1B2' };
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function safeUrl(url) {
+      if (!url) return '';
+      const t = url.trim();
+      return /^https?:\/\//i.test(t) ? t : 'https://' + t;
+    }
+
+    function getAlertLinks(ann) {
+      if (Array.isArray(ann.links) && ann.links.length > 0) {
+        return ann.links.filter(l => l && l.url && l.url.trim());
+      }
+      if (ann.link && ann.link.trim()) {
+        return [{ label: 'فتح اللينك', url: ann.link.trim() }];
+      }
+      return [];
+    }
+
+    function getCurrentLevel() {
+      return state.levels[state.currentLevelId] || DEFAULT_LEVEL_2;
+    }
+
+    function getCourse(courseId) {
+      const lvl = getCurrentLevel();
+      return lvl.courses.find(c => c.id === courseId) || {
+        id: courseId, name: courseId, arLabel: '', shortName: courseId, color: '#FFD60A', doctor: '—'
+      };
+    }
+
+    function getTag(tagId) {
+      return TAGS.find(t => t.id === tagId) || TAGS[TAGS.length - 1];
+    }
+
+    function getGroupFromSection(sec) {
+      if (!sec || sec === 'ALL') return null;
+      const m = sec.match(/^([A-Za-z]+)/);
+      return m ? m[1].toUpperCase() : sec[0].toUpperCase();
+    }
+
+    function matchesSection(ann, secFilter = state.selectedSection) {
+      if (!secFilter || secFilter === 'ALL') return true;
+      if (!ann.targetType || ann.targetType === 'all') return true;
+      const grp = getGroupFromSection(secFilter);
+      if (ann.targetType === 'group') return ann.targetValue === grp;
+      if (ann.targetType === 'section') return ann.targetValue === secFilter;
+      return true;
+    }
+
+    function isPastDue(ann) {
+      if (!ann.date) return false;
+      return ann.date < getLocalTodayStr();
+    }
+
+    function getTargetLabel(ann) {
+      if (!ann.targetType || ann.targetType === 'all') return 'الكل';
+      if (ann.targetType === 'group') return `Group ${ann.targetValue}`;
+      if (ann.targetType === 'section') return ann.targetValue;
+      return 'الكل';
+    }
+
+    function getStaffInfo(section, courseId) {
+      const overrideKey = `${state.currentLevelId}_${section}_${courseId}`;
+      if (state.staffOverrides[overrideKey]) {
+        return state.staffOverrides[overrideKey];
+      }
+      if (state.currentLevelId === 'level2' && DEFAULT_STAFF_MAP[section]?.[courseId]) {
+        return DEFAULT_STAFF_MAP[section][courseId];
+      }
+      return { taName: '', room: '' };
+    }
+
+    function sortAlerts(list) {
+      return [...list].sort((a, b) => {
+        if (a.date && b.date && a.date !== b.date) return a.date.localeCompare(b.date);
+        if (a.date && !b.date) return -1;
+        if (!a.date && b.date) return 1;
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+    }
+
+    function showToast(msg, bg = '#4ADE80') {
+      const stack = document.getElementById('toastStack');
+      const el = document.createElement('div');
+      el.className = 'pointer-events-auto nb-card-sm px-4 py-2.5 nb-ink text-xs sm:text-sm font-black animate-pop flex items-center gap-2';
+      el.style.backgroundColor = bg;
+      el.innerHTML = `<span>${escapeHtml(msg)}</span>`;
+      stack.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.2s ease';
+        setTimeout(() => el.remove(), 220);
+      }, 2800);
+    }
+
+    function copyToClipboard(text) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.top = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) showToast('تم النسخ بنجاح! جاهز للواتساب 📋', '#4ADE80');
+        else showToast('تعذر النسخ التلقائي', '#FF5C8D');
+      } catch {
+        showToast('تعذر النسخ التلقائي', '#FF5C8D');
+      }
+    }
+
+    // ==================== SPECIAL THEME ENGINE ====================
+    function getEffectiveSpecialTheme() {
+      const mode = state.config.specialThemeMode || 'auto';
+      if (mode === 'none') return null;
+      if (mode === 'auto') {
+        const now = new Date();
+        const m = now.getMonth(); // 0-indexed (11 = Dec, 0 = Jan)
+        const d = now.getDate();
+        if ((m === 11 && d >= 1) || (m === 0 && d <= 7)) return 'christmas';
+        return null;
+      }
+      if (['christmas', 'finals', 'midterm', 'vacation'].includes(mode)) return mode;
+      return null;
+    }
+
+    function getActiveVisualTheme() {
+      const special = getEffectiveSpecialTheme();
+      if (state.themePref === 'light') return 'light';
+      if (state.themePref === 'dark') return 'dark';
+      if (state.themePref === 'special' || state.themePref === 'auto') {
+        return special || 'light';
+      }
+      return 'light';
+    }
+
+    function applyTheme() {
+      const html = document.documentElement;
+      const active = getActiveVisualTheme();
+      const special = getEffectiveSpecialTheme();
+
+      html.classList.remove('dark', 'theme-christmas', 'theme-finals', 'theme-midterm', 'theme-vacation');
+      document.getElementById('overlayChristmas').classList.add('hidden');
+      document.getElementById('overlayVacation').classList.add('hidden');
+
+      const themeIcon = document.getElementById('themeIcon');
+      const specialPill = document.getElementById('specialThemePill');
+
+      if (active === 'dark') {
+        html.classList.add('dark');
+        themeIcon.textContent = '☀️';
+      } else if (active === 'light') {
+        themeIcon.textContent = '🌙';
+      } else {
+        html.classList.add(`theme-${active}`);
+        themeIcon.textContent = SPECIAL_THEMES[active]?.emoji || '✨';
+        if (active === 'christmas') document.getElementById('overlayChristmas').classList.remove('hidden');
+        if (active === 'vacation') document.getElementById('overlayVacation').classList.remove('hidden');
+      }
+
+      if (special && active === special) {
+        const meta = SPECIAL_THEMES[special];
+        specialPill.textContent = meta.pill;
+        specialPill.style.backgroundColor = meta.bg;
+        specialPill.classList.remove('hidden');
+      } else {
+        specialPill.classList.add('hidden');
+      }
+    }
+
+    function cycleTheme() {
+      const special = getEffectiveSpecialTheme();
+      const active = getActiveVisualTheme();
+      if (special) {
+        if (active === 'light') state.themePref = 'dark';
+        else if (active === 'dark') state.themePref = 'special';
+        else state.themePref = 'light';
+      } else {
+        state.themePref = active === 'dark' ? 'light' : 'dark';
+      }
+      applyTheme();
+      saveUserPrefs();
+    }
+
+    // ==================== HISTORY API (MOBILE BACK BUTTON SUPPORT) ====================
+    function pushNavState(kind, detail = '') {
+      try {
+        window.history.pushState({ radarNav: kind, detail }, '');
+      } catch (e) { /* Ignore in restricted iframe contexts */ }
+    }
+
+    window.addEventListener('popstate', () => {
+      // 1. Close top-most open modal first
+      if (state.openModals.length > 0) {
+        const topModal = state.openModals[state.openModals.length - 1];
+        closeModal(topModal, true);
+        return;
+      }
+      // 2. Navigate back from Course or Calendar to Home
+      if (state.activeView !== 'home') {
+        state.activeView = 'home';
+        state.selectedCourseId = null;
+        renderAll();
+      }
+    });
+
+    function navigateToView(view, courseId = null) {
+      if (state.activeView !== view || state.selectedCourseId !== courseId) {
+        if (view !== 'home') pushNavState('view', view);
+      }
+      state.activeView = view;
+      state.selectedCourseId = courseId;
+      renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ==================== FIREBASE SETUP & REAL-TIME SYNC ====================
+    async function initFirebase() {
+      const dot = document.getElementById('syncDot');
+      const text = document.getElementById('syncText');
+      try {
+        const cfgStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+        if (!cfgStr) {
+          dot.style.backgroundColor = '#FB923C';
+          text.textContent = 'وضع محلي';
+          renderAll();
+          return;
+        }
+
+        const app = initializeApp(JSON.parse(cfgStr));
+        state.auth = getAuth(app);
+        state.db = getFirestore(app);
+
+        // RULE 3: Authenticate BEFORE any Firestore queries
+        const customToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        if (customToken) {
+          const cred = await signInWithCustomToken(state.auth, customToken);
+          state.user = cred.user;
+        } else {
+          const cred = await signInAnonymously(state.auth);
+          state.user = cred.user;
+        }
+
+        dot.style.backgroundColor = '#4ADE80';
+        text.textContent = 'متصل لايف';
+        subscribeRealtime();
+      } catch (err) {
+        console.error('Firebase init error:', err);
+        dot.style.backgroundColor = '#FB923C';
+        text.textContent = 'وضع محلي';
+        renderAll();
+      }
+    }
+
+    function subscribeRealtime() {
+      if (!state.db || !state.user) return;
+      const appId = state.appId;
+
+      // 1. Config (public: adminPin, devPin, specialThemeMode)
+      onSnapshot(doc(state.db, 'artifacts', appId, 'public', 'data', 'config', 'main'), async (snap) => {
+        if (snap.exists()) {
+          state.config = { ...state.config, ...snap.data() };
+        } else {
+          try {
+            await setDoc(doc(state.db, 'artifacts', appId, 'public', 'data', 'config', 'main'), state.config);
+          } catch (e) { console.error(e); }
+        }
+        renderAll();
+      }, (err) => console.error('Config snapshot error:', err));
+
+      // 2. Active Admins (public — with real-time revocation)
+      onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'activeAdmins'), (snap) => {
+        const list = [];
+        snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+        state.activeAdmins = list;
+
+        // Check if current admin was revoked by Dev
+        const me = list.find(a => a.id === state.user.uid);
+        if (state.role === 'admin' && me && me.revoked === true) {
+          state.role = 'viewer';
+          saveUserPrefs();
+          showToast('تم إلغاء صلاحية الأدمن من قبل المطور 🔒', '#FF5C8D');
+        }
+        renderAll();
+      }, (err) => console.error('ActiveAdmins snapshot error:', err));
+
+      // 3. Levels (public)
+      onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'levels'), async (snap) => {
+        const loaded = {};
+        snap.forEach(d => { loaded[d.id] = { id: d.id, ...d.data() }; });
+        if (!loaded.level2) {
+          loaded.level2 = DEFAULT_LEVEL_2;
+          try {
+            await setDoc(doc(state.db, 'artifacts', appId, 'public', 'data', 'levels', 'level2'), DEFAULT_LEVEL_2);
+          } catch (e) { console.error(e); }
+        }
+        state.levels = loaded;
+        if (!state.levels[state.currentLevelId]) state.currentLevelId = 'level2';
+        renderAll();
+      }, (err) => console.error('Levels snapshot error:', err));
+
+      // 4. Announcements (public)
+      onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'announcements'), (snap) => {
+        const list = [];
+        snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+        state.announcements = list;
+        renderAll();
+      }, (err) => console.error('Announcements snapshot error:', err));
+
+      // 5. Staff Overrides (public)
+      onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'sectionStaff'), (snap) => {
+        const map = {};
+        snap.forEach(d => { map[d.id] = d.data(); });
+        state.staffOverrides = map;
+        renderAll();
+      }, (err) => console.error('Staff snapshot error:', err));
+
+      // 6. Personal User Preferences (private)
+      onSnapshot(doc(state.db, 'artifacts', appId, 'users', state.user.uid, 'prefs', 'main'), (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          if (['auto', 'light', 'dark', 'special'].includes(data.themePref)) state.themePref = data.themePref;
+          if (data.selectedSection) state.selectedSection = data.selectedSection;
+          if (Array.isArray(data.doneIds)) state.doneIds = data.doneIds;
+          if (typeof data.authorName === 'string') state.authorName = data.authorName;
+          if (['viewer', 'admin', 'dev'].includes(data.role)) state.role = data.role;
+          if (data.currentLevelId && state.levels[data.currentLevelId]) state.currentLevelId = data.currentLevelId;
+          if (state.selectedSection !== 'ALL') state.settingsStaffSection = state.selectedSection;
+          renderAll();
+        }
+      }, (err) => console.error('Prefs snapshot error:', err));
+    }
+
+    async function saveUserPrefs() {
+      if (!state.db || !state.user) return;
+      try {
+        await setDoc(doc(state.db, 'artifacts', state.appId, 'users', state.user.uid, 'prefs', 'main'), {
+          themePref: state.themePref,
+          selectedSection: state.selectedSection,
+          doneIds: state.doneIds,
+          authorName: state.authorName,
+          role: state.role,
+          currentLevelId: state.currentLevelId
+        }, { merge: true });
+      } catch (err) {
+        console.error('Save prefs error:', err);
+      }
+    }
+
+    async function saveConfig(partial) {
+      state.config = { ...state.config, ...partial };
+      if (state.db && state.user) {
+        try {
+          await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'config', 'main'), state.config, { merge: true });
+        } catch (e) { console.error(e); }
+      }
+      renderAll();
+    }
+
+    async function registerActiveAdmin(name, role) {
+      const uid = getEffectiveUid();
+      const entry = { uid, name: name || (role === 'dev' ? 'المطور' : 'أدمن'), role, joinedAt: Date.now(), revoked: false };
+      const idx = state.activeAdmins.findIndex(a => a.id === uid || a.uid === uid);
+      if (idx >= 0) state.activeAdmins[idx] = { id: uid, ...entry };
+      else state.activeAdmins.push({ id: uid, ...entry });
+
+      if (state.db && state.user) {
+        try {
+          await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'activeAdmins', uid), entry);
+        } catch (e) { console.error(e); }
+      }
+    }
+
+    async function revokeAdminByUid(uid) {
+      const target = state.activeAdmins.find(a => a.id === uid || a.uid === uid);
+      if (target) target.revoked = true;
+      if (state.db && state.user) {
+        try {
+          await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'activeAdmins', uid), { revoked: true }, { merge: true });
+        } catch (e) { console.error(e); }
+      }
+      showToast('تم إلغاء صلاحية الأدمن بنجاح 🚫', '#FFD60A');
+      renderAll();
+    }
+
+    // ==================== CRUD ACTIONS ====================
+    async function saveAlert(payload, editId = null) {
+      if (!canManage()) {
+        showToast('تحتاج صلاحية أدمن لتنفيذ هذا الإجراء 🔐', '#FF5C8D');
+        return;
+      }
+      if (state.db && state.user) {
+        try {
+          if (editId) {
+            await updateDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'announcements', editId), payload);
+            showToast('تم تعديل التنبيه بنجاح ✨', '#00D1B2');
+          } else {
+            await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'announcements'), { ...payload, createdAt: Date.now() });
+            showToast('تم نشر التنبيه للدفعة كلها 🚀', '#4ADE80');
+          }
+        } catch (err) {
+          console.error(err);
+          showToast('حصل خطأ أثناء الحفظ', '#FF5C8D');
+        }
+      } else {
+        if (editId) {
+          const i = state.announcements.findIndex(a => a.id === editId);
+          if (i !== -1) state.announcements[i] = { ...state.announcements[i], ...payload };
+          showToast('تم تعديل التنبيه ✨', '#00D1B2');
+        } else {
+          state.announcements.push({ id: 'local_' + Date.now(), ...payload, createdAt: Date.now() });
+          showToast('تم إضافة التنبيه 🚀', '#4ADE80');
+        }
+        renderAll();
+      }
+    }
+
+    async function deleteAlert(id) {
+      if (!canManage()) return;
+      if (state.db && state.user) {
+        try {
+          await deleteDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'announcements', id));
+          showToast('تم حذف التنبيه 🗑️', '#FFD60A');
+        } catch (err) {
+          console.error(err);
+          showToast('تعذر الحذف', '#FF5C8D');
+        }
+      } else {
+        state.announcements = state.announcements.filter(a => a.id !== id);
+        showToast('تم حذف التنبيه 🗑️', '#FFD60A');
+        renderAll();
+      }
+    }
+
+    async function saveStaffOverrides(section, rows) {
+      if (!canManage()) return;
+      for (const r of rows) {
+        const key = `${state.currentLevelId}_${section}_${r.courseId}`;
+        const data = { levelId: state.currentLevelId, section, courseId: r.courseId, taName: r.taName.trim(), room: r.room.trim() };
+        state.staffOverrides[key] = data;
+        if (state.db && state.user) {
+          try {
+            await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'sectionStaff', key), data);
+          } catch (e) { console.error(e); }
+        }
+      }
+      showToast(`تم تحديث معيدين سكشن ${section} للجميع ✅`, '#4ADE80');
+      renderAll();
+    }
+
+    async function addNewLevel(levelObj) {
+      if (state.role !== 'dev') return;
+      state.levels[levelObj.id] = levelObj;
+      if (state.db && state.user) {
+        try {
+          await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'levels', levelObj.id), levelObj);
+        } catch (e) { console.error(e); }
+      }
+      state.currentLevelId = levelObj.id;
+      state.selectedSection = 'ALL';
+      state.selectedCourseId = null;
+      state.activeView = 'home';
+      state.settingsStaffSection = levelObj.sections[0] || 'ALL';
+      saveUserPrefs();
+      showToast(`تم إنشاء ${levelObj.name} بنجاح 🎓`, '#A78BFA');
+      renderAll();
+    }
+
+    function togglePersonalDone(id) {
+      if (state.doneIds.includes(id)) {
+        state.doneIds = state.doneIds.filter(x => x !== id);
+      } else {
+        state.doneIds = [...state.doneIds, id];
+      }
+      saveUserPrefs();
+      renderAll();
+    }
+
+    // ==================== BACKUP & RESTORE (DEV ONLY) ====================
+    function exportFullBackupJSON() {
+      const backup = {
+        exportedAt: new Date().toISOString(),
+        app: 'BUA-Radar-Level2',
+        version: '2.0',
+        config: state.config,
+        levels: state.levels,
+        staffOverrides: state.staffOverrides,
+        announcements: state.announcements
+      };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `radar-backup-${getLocalTodayStr()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('تم تحميل النسخة الاحتياطية (JSON) بنجاح 💾', '#4ADE80');
+    }
+
+    async function importFullBackupJSON(file) {
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (!data || typeof data !== 'object' || !Array.isArray(data.announcements)) {
+          showToast('ملف النسخة الاحتياطية غير صالح ❌', '#FF5C8D');
+          return;
+        }
+
+        if (data.config) await saveConfig(data.config);
+        if (data.levels && typeof data.levels === 'object') {
+          state.levels = { ...state.levels, ...data.levels };
+          if (state.db && state.user) {
+            for (const [lid, lobj] of Object.entries(data.levels)) {
+              await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'levels', lid), lobj);
+            }
+          }
+        }
+        if (data.staffOverrides && typeof data.staffOverrides === 'object') {
+          state.staffOverrides = { ...state.staffOverrides, ...data.staffOverrides };
+          if (state.db && state.user) {
+            for (const [k, v] of Object.entries(data.staffOverrides)) {
+              await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'sectionStaff', k), v);
+            }
+          }
+        }
+        for (const ann of data.announcements) {
+          const { id, ...rest } = ann;
+          const docId = id || ('restored_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6));
+          if (state.db && state.user) {
+            await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'announcements', docId), rest);
+          } else {
+            const exists = state.announcements.findIndex(x => x.id === docId);
+            if (exists >= 0) state.announcements[exists] = { id: docId, ...rest };
+            else state.announcements.push({ id: docId, ...rest });
+          }
+        }
+        showToast(`تمت الاستعادة بنجاح (${data.announcements.length} تنبيه) ✅`, '#4ADE80');
+        renderAll();
+      } catch (err) {
+        console.error('Import JSON error:', err);
+        showToast('تعذر قراءة ملف النسخة الاحتياطية ❌', '#FF5C8D');
+      }
+    }
+
+    // ==================== WHATSAPP FORMATTERS ====================
+    function formatSingleAlertWA(ann) {
+      const c = getCourse(ann.courseId);
+      const t = getTag(ann.tag);
+      const links = getAlertLinks(ann);
+      const lines = [
+        `${t.emoji} *[${c.name}] — ${t.label}*`,
+        `📌 *التنبيه:* ${ann.title}`,
+        `🎯 *موجه لـ:* ${getTargetLabel(ann)}`
+      ];
+      if (ann.date) lines.push(`📅 *الديدلاين:* ${formatArabicDate(ann.date)} (${ann.date})`);
+      if (ann.note) lines.push(`📝 *ملاحظات:* ${ann.note}`);
+      links.forEach(l => {
+        lines.push(`🔗 *${l.label || 'اللينك'}:* ${safeUrl(l.url)}`);
+      });
+      if (ann.author) lines.push(`✍️ _بواسطة: ${ann.author}_`);
+      lines.push(`\n— رادار الدفعة (${getCurrentLevel().name} - BUA)`);
+      return lines.join('\n');
+    }
+
+    function buildRecapText() {
+      const mode = document.getElementById('recapMode').value;
+      const scope = document.getElementById('recapScope').value;
+      const range = document.getElementById('recapRange').value;
+      const lvl = getCurrentLevel();
+      const secFilter = scope === 'MY_SECTION' ? state.selectedSection : 'ALL';
+
+      // Show/Hide sub-filters
+      document.getElementById('recapRangeWrap').classList.toggle('hidden', mode !== 'ALL');
+      document.getElementById('recapCourseWrap').classList.toggle('hidden', mode !== 'COURSE');
+      document.getElementById('recapTagWrap').classList.toggle('hidden', mode !== 'TAG');
+      document.getElementById('recapSingleWrap').classList.toggle('hidden', mode !== 'SINGLE');
+
+      let activePool = state.announcements.filter(a =>
+        a.levelId === state.currentLevelId && !isPastDue(a) && matchesSection(a, secFilter)
+      );
+
+      if (mode === 'SINGLE') {
+        const singleId = document.getElementById('recapSingleSelect').value;
+        const found = activePool.find(a => a.id === singleId) || state.announcements.find(a => a.id === singleId);
+        document.getElementById('recapCountBadge').textContent = found ? '1 تنبيه' : '0 تنبيه';
+        return found ? formatSingleAlertWA(found) : '🎉 لا يوجد تنبيه محدد للتصدير حالياً.';
+      }
+
+      let items = [...activePool];
+      let subtitle = '';
+
+      if (mode === 'ALL') {
+        if (range === '7') {
+          items = items.filter(a => {
+            if (!a.date) return false;
+            const diff = getDaysDiff(a.date);
+            return diff !== null && diff >= 0 && diff <= 7;
+          });
+          subtitle = 'الأسبوع القادم (7 أيام)';
+        } else {
+          subtitle = 'كل التنبيهات النشطة';
+        }
+      } else if (mode === 'COURSE') {
+        const cid = document.getElementById('recapCourseSelect').value;
+        const c = getCourse(cid);
+        items = items.filter(a => a.courseId === cid);
+        subtitle = `مادة ${c.name}`;
+      } else if (mode === 'TAG') {
+        const tid = document.getElementById('recapTagSelect').value;
+        const t = getTag(tid);
+        items = items.filter(a => a.tag === tid);
+        subtitle = `تصنيف ${t.emoji} ${t.label}`;
+      }
+
+      items = sortAlerts(items);
+      document.getElementById('recapCountBadge').textContent = `${items.length} تنبيه`;
+
+      const scopeTitle = secFilter === 'ALL' ? `الدفعة كلها (${lvl.name})` : `سكشن ${secFilter} (+ العام)`;
+      const out = [
+        `📢 *ملخص رادار الدفعة — ${lvl.name} (BUA)*`,
+        `🎯 *النطاق:* ${scopeTitle}`,
+        `📌 *التصفية:* ${subtitle} (${formatArabicDate(getLocalTodayStr())})`,
+        `━━━━━━━━━━━━━━━━━━`
+      ];
+
+      if (items.length === 0) {
+        out.push(`\n🎉 مفيش ديدلاينات أو تنبيهات مطابقة حالياً! يومكم سعيد.`);
+        return out.join('\n');
+      }
+
+      const grouped = {};
+      items.forEach(item => {
+        const k = item.date || 'OPEN';
+        if (!grouped[k]) grouped[k] = [];
+        grouped[k].push(item);
+      });
+
+      Object.keys(grouped).forEach(k => {
+        if (k === 'OPEN') {
+          out.push(`\n📌 *تنبيهات عامة (بدون تاريخ):*`);
+        } else {
+          const cd = getCountdownInfo(k);
+          out.push(`\n📅 *${formatArabicDate(k)}* (${cd.text})`);
+        }
+        grouped[k].forEach(ann => {
+          const c = getCourse(ann.courseId);
+          const t = getTag(ann.tag);
+          const aud = ann.targetType && ann.targetType !== 'all' ? ` [${getTargetLabel(ann)}]` : '';
+          out.push(`  • ${t.emoji} *${c.shortName}* (${t.label})${aud}: ${ann.title}`);
+          if (ann.note) out.push(`     ↳ _${ann.note}_`);
+          getAlertLinks(ann).forEach(l => {
+            out.push(`     🔗 ${l.label || 'اللينك'}: ${safeUrl(l.url)}`);
+          });
+        });
+      });
+
+      out.push(`\n━━━━━━━━━━━━━━━━━━\nبالتوفيق يا شباب 💪✨`);
+      return out.join('\n');
+    }
+
+    // ==================== RENDER ENGINE ====================
+    function renderAll() {
+      applyTheme();
+      renderHeaderAndHero();
+      renderUrgentBar();
+      renderSearchResults();
+
+      const isSearching = state.searchQuery.trim().length > 0;
+      document.getElementById('view-home').classList.toggle('hidden', state.activeView !== 'home' || isSearching);
+      document.getElementById('view-course-detail').classList.toggle('hidden', state.activeView !== 'course' || isSearching);
+      document.getElementById('view-calendar').classList.toggle('hidden', state.activeView !== 'calendar' || isSearching);
+
+      const calBtn = document.getElementById('toggleCalendarBtn');
+      if (state.activeView === 'calendar') {
+        calBtn.style.backgroundColor = '#FFD60A';
+        calBtn.classList.add('nb-ink');
+      } else {
+        calBtn.style.backgroundColor = '';
+        calBtn.classList.remove('nb-ink');
+      }
+
+      if (!isSearching) {
+        if (state.activeView === 'home') renderCourseFolders();
+        else if (state.activeView === 'course') renderCourseDetail();
+        else if (state.activeView === 'calendar') renderCalendar();
+      }
+
+      if (!document.getElementById('settingsModal').classList.contains('hidden')) {
+        renderSettingsContent();
+      }
+    }
+
+    function renderHeaderAndHero() {
+      const lvl = getCurrentLevel();
+      document.getElementById('heroLevelPill').textContent = `${lvl.name} • ${lvl.term || 'Fall 2026'}`;
+
+      // Role Badge Pill (Only shown for Admin / Dev)
+      const roleBadge = document.getElementById('headerRoleBadge');
+      const roleText = document.getElementById('headerRoleText');
+      if (state.role === 'dev') {
+        roleText.textContent = '🛠️ مطور';
+        roleBadge.style.backgroundColor = '#A78BFA';
+        roleBadge.classList.remove('hidden');
+        roleBadge.classList.add('inline-flex');
+      } else if (state.role === 'admin') {
+        roleText.textContent = '🔑 أدمن';
+        roleBadge.style.backgroundColor = '#FFD60A';
+        roleBadge.classList.remove('hidden');
+        roleBadge.classList.add('inline-flex');
+      } else {
+        roleBadge.classList.add('hidden');
+        roleBadge.classList.remove('inline-flex');
+      }
+
+      // Global Section Dropdown
+      const sel = document.getElementById('globalSectionSelect');
+      let optHtml = `<option value="ALL" class="bg-white text-black">الكل (كل السكاشن)</option>`;
+      lvl.groups.forEach(g => {
+        const secs = lvl.sections.filter(s => getGroupFromSection(s) === g);
+        if (secs.length) {
+          optHtml += `<optgroup label="Group ${escapeHtml(g)}" class="bg-white text-black">`;
+          secs.forEach(s => {
+            optHtml += `<option value="${escapeHtml(s)}" class="bg-white text-black">سكشن ${escapeHtml(s)}</option>`;
+          });
+          optHtml += `</optgroup>`;
+        }
+      });
+      sel.innerHTML = optHtml;
+      if (state.selectedSection !== 'ALL' && !lvl.sections.includes(state.selectedSection)) {
+        state.selectedSection = 'ALL';
+      }
+      sel.value = state.selectedSection;
+
+      const inlineBadge = document.getElementById('sectionBadgeInline');
+      if (state.selectedSection !== 'ALL') {
+        inlineBadge.textContent = `سكشن ${state.selectedSection}`;
+        inlineBadge.classList.remove('hidden');
+      } else {
+        inlineBadge.classList.add('hidden');
+      }
+    }
+
+    function renderUrgentBar() {
+      const bar = document.getElementById('urgentBar');
+      const container = document.getElementById('urgentBarChips');
+
+      const urgent = sortAlerts(
+        state.announcements.filter(a => {
+          if (a.levelId !== state.currentLevelId || isPastDue(a) || !a.date) return false;
+          if (!matchesSection(a) || state.doneIds.includes(a.id)) return false;
+          const diff = getDaysDiff(a.date);
+          return diff !== null && diff >= 0 && diff <= 2;
+        })
+      );
+
+      if (urgent.length === 0) {
+        bar.classList.add('hidden');
+        return;
+      }
+
+      bar.classList.remove('hidden');
+      container.innerHTML = urgent.map(ann => {
+        const c = getCourse(ann.courseId);
+        const t = getTag(ann.tag);
+        const cd = getCountdownInfo(ann.date);
+        return `
+          <button type="button" data-jump-course="${escapeHtml(ann.courseId)}"
+            class="nb-btn-sm px-2.5 py-1 rounded-xl bg-card flex items-center gap-1.5 text-xs font-extrabold shrink-0">
+            <span class="w-2.5 h-2.5 rounded-full border border-black shrink-0" style="background:${c.color}"></span>
+            <span>${t.emoji}</span>
+            <span class="max-w-[140px] sm:max-w-[200px] truncate">${escapeHtml(ann.title)}</span>
+            <span class="px-1.5 py-0.5 rounded-md border border-black nb-ink text-[10px] font-black" style="background:${cd.bg}">${cd.text}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderSearchResults() {
+      const q = state.searchQuery.trim().toLowerCase();
+      const wrap = document.getElementById('searchResultsSection');
+      if (!q) {
+        wrap.classList.add('hidden');
+        return;
+      }
+
+      wrap.classList.remove('hidden');
+      const matches = sortAlerts(
+        state.announcements.filter(a => {
+          if (a.levelId !== state.currentLevelId || !matchesSection(a)) return false;
+          const c = getCourse(a.courseId);
+          const t = getTag(a.tag);
+          const hay = `${a.title} ${a.note || ''} ${c.name} ${c.arLabel || ''} ${c.shortName} ${t.label} ${getTargetLabel(a)}`.toLowerCase();
+          return hay.includes(q);
+        })
+      );
+
+      document.getElementById('searchCount').textContent = `(${matches.length})`;
+      const listEl = document.getElementById('searchResultsList');
+      if (matches.length === 0) {
+        listEl.innerHTML = `<div class="nb-card p-8 text-center text-sm font-black text-sec">مفيش نتائج مطابقة لـ "${escapeHtml(state.searchQuery)}"</div>`;
+      } else {
+        listEl.innerHTML = matches.map(a => renderAlertCard(a, true)).join('');
+      }
+    }
+
+    function renderCourseFolders() {
+      const lvl = getCurrentLevel();
+      const grid = document.getElementById('coursesFolderGrid');
+      const now = Date.now();
+      let totalActive = 0;
+
+      grid.innerHTML = lvl.courses.map(c => {
+        const activeList = state.announcements.filter(a =>
+          a.levelId === state.currentLevelId && a.courseId === c.id && !isPastDue(a) && matchesSection(a)
+        );
+        totalActive += activeList.length;
+
+        const hasUrgent = activeList.some(a => {
+          const diff = getDaysDiff(a.date);
+          return diff !== null && diff >= 0 && diff <= 2 && !state.doneIds.includes(a.id);
+        });
+        const hasNew = activeList.some(a => a.createdAt && (now - a.createdAt) < 86400000);
+
+        const badgeHtml = hasUrgent
+          ? `<span class="px-1.5 py-0.5 rounded-md border-2 border-black bg-[#FF5C8D] nb-ink text-[10px] font-black">عاجل</span>`
+          : hasNew
+            ? `<span class="px-1.5 py-0.5 rounded-md border-2 border-black bg-[#FFD60A] nb-ink text-[10px] font-black font-en">NEW</span>`
+            : '';
+
+        const staffInfo = state.selectedSection !== 'ALL' ? getStaffInfo(state.selectedSection, c.id) : null;
+        const iconSvg = COURSE_ICONS[c.id] || COURSE_ICONS.default;
+
+        return `
+          <div data-open-course="${escapeHtml(c.id)}" class="nb-folder-wrapper">
+            <div class="nb-folder-tab" style="background:${c.color}"></div>
+            <div class="nb-folder-body p-3.5 sm:p-4 flex flex-col justify-between min-h-[168px] sm:min-h-[184px] gap-3">
+              <div class="flex items-start justify-between gap-2">
+                <div class="w-11 h-11 rounded-xl border-2 border-nb nb-ink flex items-center justify-center shrink-0"
+                  style="background:${c.color}">
+                  ${iconSvg}
+                </div>
+                <div class="text-left flex flex-col items-end gap-1">
+                  <span class="text-xs font-extrabold text-sec">${activeList.length} تنبيهات نشطة</span>
+                  ${badgeHtml}
+                </div>
+              </div>
+
+              <div>
+                <h3 class="text-sm sm:text-base font-black leading-snug font-en">${escapeHtml(c.name)}</h3>
+                ${c.arLabel ? `<p class="text-[11px] sm:text-xs font-bold text-sec mt-0.5">${escapeHtml(c.arLabel)}</p>` : ''}
+              </div>
+
+              <div class="pt-2 border-t-2 border-nb/20 text-[11px] font-bold text-sec space-y-0.5">
+                <div class="truncate">👨‍🏫 ${escapeHtml(c.doctor || '—')}</div>
+                ${staffInfo?.taName ? `<div class="truncate">🧑‍💻 ${escapeHtml(staffInfo.taName)} ${staffInfo.room ? `(${escapeHtml(staffInfo.room)})` : ''}</div>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('totalActiveCounter').textContent = `${totalActive} تنبيه نشط`;
+    }
+
+    function renderCourseDetail() {
+      const c = getCourse(state.selectedCourseId);
+      const staff = state.selectedSection !== 'ALL' ? getStaffInfo(state.selectedSection, c.id) : null;
+      const iconSvg = COURSE_ICONS[c.id] || COURSE_ICONS.default;
+
+      const banner = document.getElementById('courseBanner');
+      banner.style.backgroundColor = c.color;
+      banner.innerHTML = `
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="flex items-start gap-3">
+            <div class="w-12 h-12 rounded-xl border-2 border-black bg-white text-black flex items-center justify-center shrink-0">
+              ${iconSvg}
+            </div>
+            <div>
+              <h2 class="text-lg sm:text-xl font-black leading-tight font-en">${escapeHtml(c.name)}</h2>
+              ${c.arLabel ? `<p class="text-xs sm:text-sm font-extrabold opacity-80">${escapeHtml(c.arLabel)}</p>` : ''}
+              <div class="flex flex-wrap items-center gap-2 mt-2 text-xs font-black">
+                <span class="px-2.5 py-1 rounded-lg border-2 border-black bg-white text-black">👨‍🏫 ${escapeHtml(c.doctor || '—')}</span>
+                ${state.selectedSection !== 'ALL' ? `
+                  <span class="px-2.5 py-1 rounded-lg border-2 border-black bg-white text-black">
+                    🧑‍💻 معيد ${escapeHtml(state.selectedSection)}: ${escapeHtml(staff?.taName || 'غير محدد')} ${staff?.room ? `(${escapeHtml(staff.room)})` : ''}
+                  </span>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const allCourseItems = state.announcements.filter(a =>
+        a.levelId === state.currentLevelId && a.courseId === c.id && matchesSection(a)
+      );
+      const activeItems = allCourseItems.filter(a => !isPastDue(a));
+      const archivedItems = allCourseItems.filter(a => isPastDue(a));
+
+      document.getElementById('courseActiveCount').textContent = activeItems.length;
+      document.getElementById('courseArchiveCount').textContent = archivedItems.length;
+
+      const tabActive = document.getElementById('tabCourseActive');
+      const tabArchive = document.getElementById('tabCourseArchive');
+      if (state.courseStatusTab === 'active') {
+        tabActive.style.backgroundColor = '#FFD60A';
+        tabActive.classList.add('nb-ink');
+        tabArchive.style.backgroundColor = '';
+        tabArchive.classList.remove('nb-ink');
+      } else {
+        tabArchive.style.backgroundColor = '#A78BFA';
+        tabArchive.classList.add('nb-ink');
+        tabActive.style.backgroundColor = '';
+        tabActive.classList.remove('nb-ink');
+      }
+
+      const pool = state.courseStatusTab === 'active' ? activeItems : archivedItems;
+
+      const tagBar = document.getElementById('courseTagBar');
+      let tagsHtml = `
+        <button type="button" data-course-tag="ALL"
+          class="nb-btn-sm px-3 py-1.5 rounded-xl text-xs font-black shrink-0 ${state.courseTagFilter === 'ALL' ? 'bg-[#000000] text-white' : 'bg-card'}">
+          الكل (${pool.length})
+        </button>
+      `;
+      TAGS.forEach(t => {
+        const cnt = pool.filter(a => a.tag === t.id).length;
+        const active = state.courseTagFilter === t.id;
+        tagsHtml += `
+          <button type="button" data-course-tag="${t.id}"
+            class="nb-btn-sm px-3 py-1.5 rounded-xl text-xs font-black shrink-0 inline-flex items-center gap-1 ${active ? 'nb-ink' : 'bg-card'}"
+            style="${active ? `background:${t.color}` : ''}">
+            <span>${t.emoji}</span>
+            <span>${t.label}</span>
+            ${cnt > 0 ? `<span class="opacity-75">(${cnt})</span>` : ''}
+          </button>
+        `;
+      });
+      tagBar.innerHTML = tagsHtml;
+
+      let filtered = state.courseTagFilter === 'ALL' ? pool : pool.filter(a => a.tag === state.courseTagFilter);
+      filtered = state.courseStatusTab === 'active'
+        ? sortAlerts(filtered)
+        : [...filtered].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+      const listEl = document.getElementById('courseAlertsList');
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div class="nb-card p-10 text-center space-y-2">
+            <div class="text-3xl">${state.courseStatusTab === 'active' ? '✨' : '🗄️'}</div>
+            <p class="text-sm font-black">${state.courseStatusTab === 'active' ? 'لا توجد تنبيهات نشطة في القسم ده حالياً' : 'أرشيف المادة دي فاضي حالياً'}</p>
+            <p class="text-xs font-bold text-sec">${state.courseStatusTab === 'active' ? 'اضغط على + إضافة تنبيه لو فيه حاجة جديدة من الدكتور أو المعيد.' : 'أي تنبيه يعدي تاريخه بيتنقل هنا أوتوماتيك.'}</p>
+          </div>
+        `;
+      } else {
+        listEl.innerHTML = filtered.map(a => renderAlertCard(a, false)).join('');
+      }
+    }
+
+    function renderAlertCard(ann, showCoursePill = false) {
+      const c = getCourse(ann.courseId);
+      const t = getTag(ann.tag);
+      const cd = getCountdownInfo(ann.date);
+      const done = state.doneIds.includes(ann.id);
+      const aud = getTargetLabel(ann);
+      const isSpecific = ann.targetType && ann.targetType !== 'all';
+      const links = getAlertLinks(ann);
+
+      return `
+        <article class="nb-card p-4 relative overflow-hidden transition ${done ? 'opacity-55' : ''}">
+          <div class="absolute top-0 bottom-0 right-0 w-2 border-l-2 border-nb" style="background:${c.color}"></div>
+
+          <div class="pr-3 space-y-2.5">
+            <!-- Badges Row -->
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5">
+                ${showCoursePill ? `
+                  <span class="px-2 py-0.5 rounded-lg border-2 border-nb nb-ink text-[11px] font-black font-en" style="background:${c.color}">
+                    ${escapeHtml(c.shortName)}
+                  </span>
+                ` : ''}
+                <span class="px-2 py-0.5 rounded-lg border-2 border-nb nb-ink text-[11px] font-black inline-flex items-center gap-1" style="background:${t.color}">
+                  <span>${t.emoji}</span>
+                  <span>${t.label}</span>
+                </span>
+                <span class="px-2 py-0.5 rounded-lg border-2 border-nb text-[11px] font-black ${isSpecific ? 'bg-[#FFD60A] nb-ink' : 'bg-muted'}">
+                  ${isSpecific ? '🎯' : '👥'} ${escapeHtml(aud)}
+                </span>
+              </div>
+
+              ${ann.date ? `
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[11px] font-extrabold text-sec">${formatArabicDate(ann.date)}</span>
+                  <span class="px-2 py-0.5 rounded-lg border-2 border-black nb-ink text-[11px] font-black" style="background:${cd.bg}">${cd.text}</span>
+                </div>
+              ` : `
+                <span class="text-[11px] font-extrabold text-sec">بدون ديدلاين</span>
+              `}
+            </div>
+
+            <!-- Title & Note -->
+            <div>
+              <h4 class="text-sm sm:text-base font-black ${done ? 'line-through' : ''}">${escapeHtml(ann.title)}</h4>
+              ${ann.note ? `<p class="mt-1 text-xs sm:text-sm font-bold text-sec leading-relaxed whitespace-pre-line">${escapeHtml(ann.note)}</p>` : ''}
+            </div>
+
+            <!-- Multiple Named Links + Author + Action Bar -->
+            <div class="pt-2.5 border-t-2 border-nb/20 flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5">
+                ${links.map(l => `
+                  <a href="${escapeHtml(safeUrl(l.url))}" target="_blank" rel="noopener noreferrer"
+                    class="nb-btn-sm px-2.5 py-1 rounded-xl bg-[#00D1B2] nb-ink text-xs font-black inline-flex items-center gap-1">
+                    <span>🔗 ${escapeHtml(l.label || 'فتح اللينك')}</span>
+                  </a>
+                `).join('')}
+                ${ann.author ? `<span class="text-[11px] font-extrabold text-sec">بواسطة: ${escapeHtml(ann.author)}</span>` : ''}
+              </div>
+
+              <div class="flex items-center gap-1.5 mr-auto">
+                <button type="button" data-toggle-done="${escapeHtml(ann.id)}"
+                  class="nb-btn-sm px-2.5 py-1 rounded-xl text-xs font-black ${done ? 'bg-[#4ADE80] nb-ink' : 'bg-card'}">
+                  ${done ? '✓ خلصته' : 'خلصته'}
+                </button>
+                <button type="button" data-copy-wa="${escapeHtml(ann.id)}" title="نسخ للواتساب"
+                  class="nb-btn-sm px-2.5 py-1 rounded-xl bg-[#4ADE80] nb-ink text-xs font-black">
+                  📋 واتساب
+                </button>
+                ${canManage() ? `
+                  <button type="button" data-edit-alert="${escapeHtml(ann.id)}" title="تعديل"
+                    class="nb-btn-sm w-8 h-8 rounded-xl bg-card text-xs font-black flex items-center justify-center">
+                    ✏️
+                  </button>
+                  <button type="button" data-delete-alert="${escapeHtml(ann.id)}" title="حذف"
+                    class="nb-btn-sm w-8 h-8 rounded-xl bg-[#FF5C8D] nb-ink text-xs font-black flex items-center justify-center">
+                    🗑️
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    // ==================== CALENDAR RENDER ====================
+    function renderCalendar() {
+      const lvl = getCurrentLevel();
+
+      const cSel = document.getElementById('calCourseFilter');
+      cSel.innerHTML = `<option value="ALL">كل المواد</option>` +
+        lvl.courses.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join('');
+      cSel.value = state.calCourseFilter;
+
+      const tSel = document.getElementById('calTagFilter');
+      tSel.innerHTML = `<option value="ALL">كل التاجز</option>` +
+        TAGS.map(t => `<option value="${t.id}">${t.emoji} ${t.label}</option>`).join('');
+      tSel.value = state.calTagFilter;
+
+      document.getElementById('calMonthLabel').textContent = `${ARABIC_MONTHS[state.calMonth]} ${state.calYear}`;
+
+      const filtered = state.announcements.filter(a => {
+        if (a.levelId !== state.currentLevelId || !a.date) return false;
+        if (!matchesSection(a)) return false;
+        if (state.calCourseFilter !== 'ALL' && a.courseId !== state.calCourseFilter) return false;
+        if (state.calTagFilter !== 'ALL' && a.tag !== state.calTagFilter) return false;
+        return true;
+      });
+
+      const byDate = {};
+      filtered.forEach(a => {
+        if (!byDate[a.date]) byDate[a.date] = [];
+        byDate[a.date].push(a);
+      });
+
+      const firstDay = new Date(state.calYear, state.calMonth, 1);
+      const startOffset = (firstDay.getDay() + 1) % 7;
+      const daysInMonth = new Date(state.calYear, state.calMonth + 1, 0).getDate();
+      const todayStr = getLocalTodayStr();
+
+      let html = '';
+      for (let i = 0; i < startOffset; i++) {
+        html += `<div class="min-h-[64px] sm:min-h-[82px] rounded-xl bg-muted/50 border-2 border-dashed border-nb/20"></div>`;
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dStr = `${state.calYear}-${String(state.calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const items = byDate[dStr] || [];
+        const isToday = dStr === todayStr;
+        const isSelected = dStr === state.calSelectedDate;
+
+        const pills = items.slice(0, 2).map(ann => {
+          const c = getCourse(ann.courseId);
+          const t = getTag(ann.tag);
+          return `
+            <div class="px-1 py-0.5 rounded-md border border-black nb-ink text-[9px] sm:text-[10px] font-black truncate flex items-center gap-0.5" style="background:${c.color}">
+              <span>${t.emoji}</span>
+              <span class="hidden sm:inline truncate">${escapeHtml(ann.title)}</span>
+              <span class="sm:hidden truncate">${escapeHtml(c.shortName)}</span>
+            </div>
+          `;
+        }).join('');
+
+        const more = items.length > 2 ? `<div class="text-[9px] font-black text-sec text-center">+${items.length - 2}</div>` : '';
+
+        html += `
+          <button type="button" data-cal-day="${dStr}"
+            class="min-h-[64px] sm:min-h-[82px] p-1.5 rounded-xl border-2 border-nb text-right flex flex-col gap-1 transition ${
+              isSelected ? 'bg-[#FFD60A] nb-ink shadow-[3px_3px_0px_#000]' : 'bg-card hover:bg-muted'
+            }">
+            <div class="flex items-center justify-between w-full">
+              <span class="text-xs font-black ${isToday && !isSelected ? 'px-1.5 py-0.5 rounded-md bg-[#FF5C8D] nb-ink border border-black' : ''}">${day}</span>
+              ${items.length > 0 ? `<span class="text-[10px] font-black opacity-70">${items.length}</span>` : ''}
+            </div>
+            <div class="space-y-1 w-full overflow-hidden">${pills}${more}</div>
+          </button>
+        `;
+      }
+
+      document.getElementById('calendarGrid').innerHTML = html;
+
+      const selItems = byDate[state.calSelectedDate] || [];
+      document.getElementById('calDayTitle').textContent = formatArabicDate(state.calSelectedDate);
+      document.getElementById('calDaySubtitle').textContent = `${selItems.length} تنبيه في اليوم ده`;
+
+      const listEl = document.getElementById('calDayAlertsList');
+      if (selItems.length === 0) {
+        listEl.innerHTML = `<div class="py-6 text-center text-xs font-bold text-sec">مفيش تنبيهات مسجلة في اليوم ده 📅</div>`;
+      } else {
+        listEl.innerHTML = selItems.map(a => renderAlertCard(a, true)).join('');
+      }
+    }
+
+    // ==================== SETTINGS MODAL RENDER ====================
+    function renderSettingsContent() {
+      const isDev = state.role === 'dev';
+      if (state.settingsTab === 'dev' && !isDev) state.settingsTab = 'staff';
+
+      const tabStaff = document.getElementById('settingsTabStaff');
+      const tabAuth  = document.getElementById('settingsTabAuth');
+      const tabDev   = document.getElementById('settingsTabDev');
+
+      tabDev.classList.toggle('hidden', !isDev);
+
+      tabStaff.style.backgroundColor = state.settingsTab === 'staff' ? '#FFD60A' : '';
+      tabStaff.classList.toggle('nb-ink', state.settingsTab === 'staff');
+
+      tabAuth.style.backgroundColor = state.settingsTab === 'auth' ? '#00D1B2' : '';
+      tabAuth.classList.toggle('nb-ink', state.settingsTab === 'auth');
+
+      tabDev.style.backgroundColor = state.settingsTab === 'dev' ? '#A78BFA' : '';
+      tabDev.classList.toggle('nb-ink', state.settingsTab === 'dev');
+
+      document.getElementById('settingsPanelStaff').classList.toggle('hidden', state.settingsTab !== 'staff');
+      document.getElementById('settingsPanelAuth').classList.toggle('hidden', state.settingsTab !== 'auth');
+      document.getElementById('settingsPanelDev').classList.toggle('hidden', state.settingsTab !== 'dev' || !isDev);
+
+      const lvl = getCurrentLevel();
+
+      if (state.settingsTab === 'staff') {
+        const secSel = document.getElementById('settingsStaffSection');
+        if (!lvl.sections.includes(state.settingsStaffSection)) {
+          state.settingsStaffSection = lvl.sections[0] || 'W1';
+        }
+        secSel.innerHTML = lvl.sections.map(s => `<option value="${escapeHtml(s)}" class="bg-white text-black">سكشن ${escapeHtml(s)}</option>`).join('');
+        secSel.value = state.settingsStaffSection;
+
+        const listEl = document.getElementById('settingsStaffList');
+        const editForm = document.getElementById('settingsStaffEditForm');
+        const editBtn = document.getElementById('toggleEditStaffBtn');
+
+        listEl.classList.toggle('hidden', state.editingStaff);
+        editForm.classList.toggle('hidden', !state.editingStaff);
+        editBtn.classList.toggle('hidden', state.editingStaff || !canManage());
+
+        if (!state.editingStaff) {
+          listEl.innerHTML = lvl.courses.map(c => {
+            const info = getStaffInfo(state.settingsStaffSection, c.id);
+            return `
+              <div class="nb-card-sm p-3 space-y-2 relative overflow-hidden">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs font-black font-en truncate">${escapeHtml(c.name)}</span>
+                  <span class="px-2 py-0.5 rounded-md border border-black nb-ink text-[10px] font-black shrink-0" style="background:${c.color}">${escapeHtml(c.shortName)}</span>
+                </div>
+                <div class="text-xs font-bold space-y-1">
+                  <div class="flex justify-between gap-2"><span class="text-sec">👨‍🏫 الدكتور:</span><span>${escapeHtml(c.doctor || '—')}</span></div>
+                  <div class="flex justify-between gap-2"><span class="text-sec">🧑‍💻 المعيد:</span><span>${escapeHtml(info.taName || 'غير محدد')}</span></div>
+                  <div class="flex justify-between gap-2"><span class="text-sec">📍 المعمل/القاعة:</span><span class="font-en">${escapeHtml(info.room || '—')}</span></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          document.getElementById('settingsStaffEditFields').innerHTML = lvl.courses.map(c => {
+            const info = getStaffInfo(state.settingsStaffSection, c.id);
+            return `
+              <div class="nb-card-sm p-3 space-y-2">
+                <div class="flex items-center gap-2 text-xs font-black">
+                  <span class="w-3 h-3 rounded-full border border-black" style="background:${c.color}"></span>
+                  <span>${escapeHtml(c.name)}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <input type="text" data-edit-ta="${escapeHtml(c.id)}" value="${escapeHtml(info.taName || '')}" placeholder="اسم المعيد" class="nb-input px-2.5 py-1.5 text-xs font-bold" />
+                  <input type="text" data-edit-room="${escapeHtml(c.id)}" value="${escapeHtml(info.room || '')}" placeholder="رقم اللاب / القاعة" class="nb-input px-2.5 py-1.5 text-xs font-bold" />
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      } else if (state.settingsTab === 'auth') {
+        const statusEl = document.getElementById('authCurrentStatus');
+        const logoutBtn = document.getElementById('logoutRoleBtn');
+        if (state.role === 'dev') {
+          statusEl.textContent = '🛠️ مطور (Dev) — صلاحيات كاملة';
+          logoutBtn.classList.remove('hidden');
+        } else if (state.role === 'admin') {
+          statusEl.textContent = `🔑 أدمن (Admin) ${state.authorName ? `— ${state.authorName}` : ''}`;
+          logoutBtn.classList.remove('hidden');
+        } else {
+          statusEl.textContent = '👁️ مشاهد (Viewer)';
+          logoutBtn.classList.add('hidden');
+        }
+        document.getElementById('roleLoginName').value = state.authorName || '';
+      } else if (state.settingsTab === 'dev' && isDev) {
+        // 1. Special Theme Grid
+        const curMode = state.config.specialThemeMode || 'auto';
+        const eff = getEffectiveSpecialTheme();
+        document.getElementById('devThemeActiveInfo').textContent = eff ? `نشط: ${SPECIAL_THEMES[eff].label}` : 'لا يوجد ثيم خاص نشط';
+        document.getElementById('devThemeGrid').innerHTML = Object.values(SPECIAL_THEMES).map(th => {
+          const active = curMode === th.id;
+          return `
+            <button type="button" data-dev-theme="${th.id}"
+              class="nb-btn-sm py-2 px-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 ${active ? 'nb-ink' : 'bg-card'}"
+              style="${active ? `background:${th.bg}` : ''}">
+              <span>${th.emoji}</span>
+              <span>${th.label}</span>
+            </button>
+          `;
+        }).join('');
+
+        // 2. Active Admins List
+        const admins = state.activeAdmins.filter(a => !a.revoked && a.role === 'admin');
+        const adminsEl = document.getElementById('devAdminsList');
+        if (admins.length === 0) {
+          adminsEl.innerHTML = `<div class="text-xs font-bold text-sec py-2">لا يوجد أدمن مسجلين حالياً.</div>`;
+        } else {
+          adminsEl.innerHTML = admins.map(a => `
+            <div class="nb-card-sm px-3 py-2 flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="text-xs font-black truncate">🔑 ${escapeHtml(a.name || 'أدمن')}</div>
+                <div class="text-[10px] font-bold text-sec font-en truncate">${escapeHtml(a.uid || a.id)}</div>
+              </div>
+              <button type="button" data-revoke-admin="${escapeHtml(a.uid || a.id)}"
+                class="nb-btn-sm px-2.5 py-1 rounded-lg bg-[#FF5C8D] nb-ink text-[11px] font-black shrink-0">
+                طرد 🚫
+              </button>
+            </div>
+          `).join('');
+        }
+
+        document.getElementById('devNewAdminPin').value = state.config.adminPin || 'admin2026';
+        document.getElementById('devNewDevPin').value = state.config.devPin || 'dev2026';
+
+        // 3. Levels List
+        document.getElementById('levelsList').innerHTML = Object.values(state.levels).map(l => {
+          const active = l.id === state.currentLevelId;
+          return `
+            <button type="button" data-select-level="${escapeHtml(l.id)}"
+              class="nb-btn-sm p-3 rounded-xl text-right flex items-center justify-between ${active ? 'bg-[#4ADE80] nb-ink' : 'bg-card'}">
+              <div>
+                <div class="text-sm font-black font-en">${escapeHtml(l.name)}</div>
+                <div class="text-[11px] font-bold opacity-80">${l.courses.length} مواد • ${l.sections.length} سكشن</div>
+              </div>
+              <span class="text-sm font-black">${active ? '✓ نشط' : 'تبديل'}</span>
+            </button>
+          `;
+        }).join('');
+      }
+    }
+
+    // ==================== MODAL HELPERS ====================
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (!el.classList.contains('hidden')) return;
+      el.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      state.openModals.push(id);
+      pushNavState('modal', id);
+    }
+
+    function closeModal(id, fromPopState = false) {
+      const el = document.getElementById(id);
+      if (!el || el.classList.contains('hidden')) return;
+      el.classList.add('hidden');
+      state.openModals = state.openModals.filter(m => m !== id);
+      if (state.openModals.length === 0) document.body.style.overflow = '';
+      if (!fromPopState && window.history.state?.radarNav === 'modal') {
+        try { window.history.back(); } catch {}
+      }
+    }
+
+    function requireAdminOrPrompt(onAllowed) {
+      if (canManage()) {
+        onAllowed();
+      } else {
+        showToast('سجّل بكود الأدمن أولاً لإضافة أو تعديل التنبيهات 🔐', '#FFD60A');
+        state.settingsTab = 'auth';
+        renderSettingsContent();
+        openModal('settingsModal');
+      }
+    }
+
+    // ==================== MULTIPLE LINKS FORM BUILDER ====================
+    function appendLinkRow(label = '', url = '') {
+      const container = document.getElementById('formLinksContainer');
+      const row = document.createElement('div');
+      row.className = 'link-row grid grid-cols-12 gap-1.5 items-center';
+      row.innerHTML = `
+        <input type="text" class="link-label nb-input col-span-4 px-2.5 py-2 text-xs font-bold" placeholder="اسم اللينك (الشيت)" value="${escapeHtml(label)}" />
+        <input type="url" dir="ltr" class="link-url nb-input col-span-7 px-2.5 py-2 text-xs font-bold text-left" placeholder="https://..." value="${escapeHtml(url)}" />
+        <button type="button" class="remove-link-row nb-btn-sm col-span-1 h-9 rounded-lg bg-[#FF5C8D] nb-ink text-xs font-black flex items-center justify-center">✕</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function openAlertModal({ editAnn = null, presetCourseId = null, presetDate = null } = {}) {
+      const lvl = getCurrentLevel();
+      document.getElementById('alertForm').reset();
+      document.getElementById('formErrorMsg').classList.add('hidden');
+
+      const isEdit = Boolean(editAnn);
+      document.getElementById('alertModalTitle').textContent = isEdit ? '✏️ تعديل التنبيه' : '➕ إضافة تنبيه جديد';
+      document.getElementById('alertSubmitBtn').textContent = isEdit ? 'حفظ التعديلات ✨' : 'حفظ ونشر للدفعة 🚀';
+      document.getElementById('editAlertId').value = isEdit ? editAnn.id : '';
+
+      const cid = editAnn?.courseId || presetCourseId || state.selectedCourseId || lvl.courses[0]?.id;
+      document.getElementById('formCourseInput').value = cid;
+      renderFormCoursePills(cid);
+
+      const tid = editAnn?.tag || 'assignment';
+      document.getElementById('formTagInput').value = tid;
+      renderFormTagPills(tid);
+
+      setFormTargetType(editAnn?.targetType || 'all', editAnn?.targetValue || null);
+
+      document.getElementById('formTitle').value = editAnn?.title || '';
+      document.getElementById('formDate').value = editAnn?.date || presetDate || '';
+      document.getElementById('formNote').value = editAnn?.note || '';
+      document.getElementById('formAuthor').value = editAnn?.author || state.authorName || '';
+
+      // Populate Multiple Links
+      const linksContainer = document.getElementById('formLinksContainer');
+      linksContainer.innerHTML = '';
+      const existingLinks = editAnn ? getAlertLinks(editAnn) : [];
+      if (existingLinks.length > 0) {
+        existingLinks.forEach(l => appendLinkRow(l.label, l.url));
+      } else {
+        appendLinkRow('', '');
+      }
+
+      openModal('alertModal');
+    }
+
+    function renderFormCoursePills(selectedId) {
+      const lvl = getCurrentLevel();
+      document.getElementById('formCoursePills').innerHTML = lvl.courses.map(c => {
+        const active = c.id === selectedId;
+        return `
+          <button type="button" data-pick-course="${escapeHtml(c.id)}"
+            class="nb-btn-sm px-2.5 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 truncate ${active ? 'nb-ink' : 'bg-card'}"
+            style="${active ? `background:${c.color}` : ''}">
+            <span class="w-2.5 h-2.5 rounded-full border border-black shrink-0" style="background:${c.color}"></span>
+            <span class="truncate font-en">${escapeHtml(c.shortName)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderFormTagPills(selectedId) {
+      document.getElementById('formTagPills').innerHTML = TAGS.map(t => {
+        const active = t.id === selectedId;
+        return `
+          <button type="button" data-pick-tag="${t.id}"
+            class="nb-btn-sm px-2 py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1 ${active ? 'nb-ink' : 'bg-card'}"
+            style="${active ? `background:${t.color}` : ''}">
+            <span>${t.emoji}</span>
+            <span>${t.label}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function setFormTargetType(type, presetVal = null) {
+      state.formTargetType = type;
+      const lvl = getCurrentLevel();
+      document.querySelectorAll('.target-type-btn').forEach(b => {
+        const active = b.dataset.targetType === type;
+        b.style.backgroundColor = active ? '#00D1B2' : '';
+        b.classList.toggle('nb-ink', active);
+        b.classList.toggle('bg-card', !active);
+      });
+
+      const wrap = document.getElementById('targetValueWrap');
+      const sel = document.getElementById('formTargetValue');
+      if (type === 'all') {
+        wrap.classList.add('hidden');
+      } else if (type === 'group') {
+        wrap.classList.remove('hidden');
+        sel.innerHTML = lvl.groups.map(g => `<option value="${escapeHtml(g)}" class="bg-white text-black">Group ${escapeHtml(g)}</option>`).join('');
+        if (presetVal && lvl.groups.includes(presetVal)) sel.value = presetVal;
+        else if (state.selectedSection !== 'ALL') sel.value = getGroupFromSection(state.selectedSection);
+      } else {
+        wrap.classList.remove('hidden');
+        sel.innerHTML = lvl.sections.map(s => `<option value="${escapeHtml(s)}" class="bg-white text-black">سكشن ${escapeHtml(s)}</option>`).join('');
+        if (presetVal && lvl.sections.includes(presetVal)) sel.value = presetVal;
+        else if (state.selectedSection !== 'ALL') sel.value = state.selectedSection;
+      }
+    }
+
+    function openRecapModal() {
+      const lvl = getCurrentLevel();
+      const scopeSel = document.getElementById('recapScope');
+      const myOpt = scopeSel.querySelector('option[value="MY_SECTION"]');
+      if (state.selectedSection === 'ALL') {
+        myOpt.textContent = 'سكشني الحالي (اختر سكشنك أولاً)';
+        scopeSel.value = 'ALL';
+      } else {
+        myOpt.textContent = `سكشن ${state.selectedSection} (+ العام)`;
+        scopeSel.value = 'MY_SECTION';
+      }
+
+      // Populate dynamic selects
+      document.getElementById('recapCourseSelect').innerHTML = lvl.courses
+        .map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)} (${escapeHtml(c.shortName)})</option>`).join('');
+      if (state.selectedCourseId) document.getElementById('recapCourseSelect').value = state.selectedCourseId;
+
+      document.getElementById('recapTagSelect').innerHTML = TAGS
+        .map(t => `<option value="${t.id}">${t.emoji} ${t.label}</option>`).join('');
+
+      const activeAlerts = sortAlerts(state.announcements.filter(a => a.levelId === state.currentLevelId && !isPastDue(a)));
+      document.getElementById('recapSingleSelect').innerHTML = activeAlerts.length
+        ? activeAlerts.map(a => `<option value="${escapeHtml(a.id)}">[${escapeHtml(getCourse(a.courseId).shortName)}] ${escapeHtml(a.title)}</option>`).join('')
+        : `<option value="">لا توجد تنبيهات نشطة</option>`;
+
+      document.getElementById('recapTextarea').value = buildRecapText();
+      openModal('recapModal');
+    }
+
+    function openConfirm(title, message, cb) {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMessage').textContent = message;
+      state.confirmCallback = cb;
+      openModal('confirmModal');
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    function setupEvents() {
+      // Theme Cycle Button
+      document.getElementById('toggleThemeBtn').addEventListener('click', cycleTheme);
+
+      // Calendar View Toggle
+      document.getElementById('toggleCalendarBtn').addEventListener('click', () => {
+        state.searchQuery = '';
+        document.getElementById('quickSearchInput').value = '';
+        navigateToView(state.activeView === 'calendar' ? 'home' : 'calendar');
+      });
+
+      // Settings Gear Button & Role Badge
+      document.getElementById('openSettingsBtn').addEventListener('click', () => {
+        state.editingStaff = false;
+        if (state.selectedSection !== 'ALL') state.settingsStaffSection = state.selectedSection;
+        renderSettingsContent();
+        openModal('settingsModal');
+      });
+      document.getElementById('headerRoleBadge').addEventListener('click', () => {
+        state.settingsTab = state.role === 'dev' ? 'dev' : 'auth';
+        renderSettingsContent();
+        openModal('settingsModal');
+      });
+
+      // Recap Modal Button
+      document.getElementById('openRecapBtn').addEventListener('click', openRecapModal);
+
+      // Global Section Filter
+      document.getElementById('globalSectionSelect').addEventListener('change', (e) => {
+        state.selectedSection = e.target.value;
+        if (state.selectedSection !== 'ALL') state.settingsStaffSection = state.selectedSection;
+        saveUserPrefs();
+        renderAll();
+      });
+
+      // Quick Search & Add
+      document.getElementById('quickSearchInput').addEventListener('input', (e) => {
+        state.searchQuery = e.target.value;
+        renderAll();
+      });
+      document.getElementById('clearSearchBtn').addEventListener('click', () => {
+        state.searchQuery = '';
+        document.getElementById('quickSearchInput').value = '';
+        renderAll();
+      });
+      document.getElementById('quickAddBtn').addEventListener('click', () => {
+        requireAdminOrPrompt(() => openAlertModal());
+      });
+
+      // Course Detail Controls
+      document.getElementById('backToHomeBtn').addEventListener('click', () => {
+        navigateToView('home', null);
+      });
+      document.getElementById('addInCourseBtn').addEventListener('click', () => {
+        requireAdminOrPrompt(() => openAlertModal({ presetCourseId: state.selectedCourseId }));
+      });
+      document.getElementById('tabCourseActive').addEventListener('click', () => {
+        state.courseStatusTab = 'active';
+        state.courseTagFilter = 'ALL';
+        renderCourseDetail();
+      });
+      document.getElementById('tabCourseArchive').addEventListener('click', () => {
+        state.courseStatusTab = 'archive';
+        state.courseTagFilter = 'ALL';
+        renderCourseDetail();
+      });
+
+      // Calendar Controls
+      document.getElementById('calPrevBtn').addEventListener('click', () => {
+        state.calMonth--;
+        if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; }
+        renderCalendar();
+      });
+      document.getElementById('calNextBtn').addEventListener('click', () => {
+        state.calMonth++;
+        if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
+        renderCalendar();
+      });
+      document.getElementById('calTodayBtn').addEventListener('click', () => {
+        const now = new Date();
+        state.calYear = now.getFullYear();
+        state.calMonth = now.getMonth();
+        state.calSelectedDate = getLocalTodayStr();
+        renderCalendar();
+      });
+      document.getElementById('calCourseFilter').addEventListener('change', (e) => {
+        state.calCourseFilter = e.target.value;
+        renderCalendar();
+      });
+      document.getElementById('calTagFilter').addEventListener('change', (e) => {
+        state.calTagFilter = e.target.value;
+        renderCalendar();
+      });
+      document.getElementById('calAddOnDayBtn').addEventListener('click', () => {
+        requireAdminOrPrompt(() => openAlertModal({ presetDate: state.calSelectedDate }));
+      });
+
+      // Settings Modal Tabs
+      document.getElementById('settingsTabStaff').addEventListener('click', () => {
+        state.settingsTab = 'staff';
+        state.editingStaff = false;
+        renderSettingsContent();
+      });
+      document.getElementById('settingsTabAuth').addEventListener('click', () => {
+        state.settingsTab = 'auth';
+        renderSettingsContent();
+      });
+      document.getElementById('settingsTabDev').addEventListener('click', () => {
+        if (state.role !== 'dev') return;
+        state.settingsTab = 'dev';
+        renderSettingsContent();
+      });
+
+      // Staff Section & Editing
+      document.getElementById('settingsStaffSection').addEventListener('change', (e) => {
+        state.settingsStaffSection = e.target.value;
+        state.editingStaff = false;
+        renderSettingsContent();
+      });
+      document.getElementById('toggleEditStaffBtn').addEventListener('click', () => {
+        if (!canManage()) return;
+        state.editingStaff = true;
+        renderSettingsContent();
+      });
+      document.getElementById('cancelEditStaffBtn').addEventListener('click', () => {
+        state.editingStaff = false;
+        renderSettingsContent();
+      });
+      document.getElementById('settingsStaffEditForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const lvl = getCurrentLevel();
+        const rows = lvl.courses.map(c => ({
+          courseId: c.id,
+          taName: document.querySelector(`[data-edit-ta="${c.id}"]`)?.value || '',
+          room: document.querySelector(`[data-edit-room="${c.id}"]`)?.value || ''
+        }));
+        await saveStaffOverrides(state.settingsStaffSection, rows);
+        state.editingStaff = false;
+        renderSettingsContent();
+      });
+
+      // Role Login & Logout
+      document.getElementById('roleLoginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const pin = document.getElementById('roleLoginPin').value.trim();
+        const name = document.getElementById('roleLoginName').value.trim();
+        const errEl = document.getElementById('roleLoginError');
+        errEl.classList.add('hidden');
+
+        if (pin === state.config.devPin) {
+          state.role = 'dev';
+          if (name) state.authorName = name;
+          await registerActiveAdmin(name || 'المطور', 'dev');
+          await saveUserPrefs();
+          document.getElementById('roleLoginPin').value = '';
+          showToast('تم تفعيل صلاحيات المطور بنجاح 🛠️', '#A78BFA');
+          state.settingsTab = 'dev';
+          renderAll();
+        } else if (pin === state.config.adminPin) {
+          state.role = 'admin';
+          if (name) state.authorName = name;
+          await registerActiveAdmin(name || 'أدمن', 'admin');
+          await saveUserPrefs();
+          document.getElementById('roleLoginPin').value = '';
+          showToast('تم تفعيل صلاحيات الأدمن بنجاح 🔑', '#FFD60A');
+          renderAll();
+        } else {
+          errEl.textContent = 'الكود غير صحيح. تأكد من كود الأدمن أو المطور.';
+          errEl.classList.remove('hidden');
+        }
+      });
+
+      document.getElementById('logoutRoleBtn').addEventListener('click', async () => {
+        state.role = 'viewer';
+        state.settingsTab = 'auth';
+        await saveUserPrefs();
+        showToast('تم الرجوع لوضع المشاهد 👁️', '#E5E7EB');
+        renderAll();
+      });
+
+      // Dev Panel: PINs Update
+      document.getElementById('devPinsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (state.role !== 'dev') return;
+        const adminPin = document.getElementById('devNewAdminPin').value.trim();
+        const devPin = document.getElementById('devNewDevPin').value.trim();
+        if (!adminPin || !devPin) return;
+        await saveConfig({ adminPin, devPin });
+        showToast('تم تحديث أكواد الدخول بنجاح 🔑', '#4ADE80');
+      });
+
+      // Dev Panel: Backup & Restore
+      document.getElementById('devExportJsonBtn').addEventListener('click', () => {
+        if (state.role !== 'dev') return;
+        exportFullBackupJSON();
+      });
+      document.getElementById('devImportJsonInput').addEventListener('change', (e) => {
+        if (state.role !== 'dev') return;
+        const file = e.target.files?.[0];
+        if (file) {
+          openConfirm('استعادة نسخة احتياطية', 'سيتم دمج واستعادة البيانات من ملف JSON المحدد. هل تريد المتابعة؟', () => {
+            importFullBackupJSON(file);
+          });
+        }
+        e.target.value = '';
+      });
+
+      // Dev Panel: Add New Level Form
+      document.getElementById('addLevelForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (state.role !== 'dev') return;
+        const name = document.getElementById('newLevelName').value.trim();
+        const groups = document.getElementById('newLevelGroups').value.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+        const secCount = parseInt(document.getElementById('newLevelSecCount').value, 10) || 4;
+        const lines = document.getElementById('newLevelCourses').value.split('\n').map(l => l.trim()).filter(Boolean);
+        if (!name || !groups.length || !lines.length) return;
+
+        const sections = [];
+        groups.forEach(g => { for (let i = 1; i <= secCount; i++) sections.push(`${g}${i}`); });
+        const courses = lines.map((line, i) => {
+          const [cName, cDoc] = line.split('|').map(s => s.trim());
+          const short = cName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 4) || `C${i + 1}`;
+          return { id: `c${i + 1}_${Date.now().toString(36)}`, name: cName, arLabel: '', shortName: short, color: COURSE_PALETTE[i % COURSE_PALETTE.length], doctor: cDoc || '—' };
+        });
+
+        const id = 'lvl_' + Date.now().toString(36);
+        await addNewLevel({ id, name, term: 'BUA', groups, sections, courses });
+        document.getElementById('addLevelForm').reset();
+        closeModal('settingsModal');
+      });
+
+      // Advanced Recap Controls
+      ['recapMode', 'recapScope', 'recapRange', 'recapCourseSelect', 'recapTagSelect', 'recapSingleSelect'].forEach(id => {
+        document.getElementById(id).addEventListener('change', () => {
+          document.getElementById('recapTextarea').value = buildRecapText();
+        });
+      });
+      document.getElementById('copyRecapBtn').addEventListener('click', () => {
+        copyToClipboard(document.getElementById('recapTextarea').value);
+      });
+
+      // Alert Form: Multiple Links Add Row & Target Buttons
+      document.getElementById('addLinkRowBtn').addEventListener('click', () => appendLinkRow('', ''));
+      document.getElementById('formLinksContainer').addEventListener('click', (e) => {
+        const rm = e.target.closest('.remove-link-row');
+        if (rm) rm.closest('.link-row').remove();
+      });
+
+      document.querySelectorAll('.target-type-btn').forEach(btn => {
+        btn.addEventListener('click', () => setFormTargetType(btn.dataset.targetType));
+      });
+
+      document.getElementById('alertForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const courseId = document.getElementById('formCourseInput').value;
+        const tag = document.getElementById('formTagInput').value;
+        const title = document.getElementById('formTitle').value.trim();
+        const date = document.getElementById('formDate').value;
+        const note = document.getElementById('formNote').value.trim();
+        const author = document.getElementById('formAuthor').value.trim();
+        const editId = document.getElementById('editAlertId').value || null;
+
+        if (!courseId || !tag || !title) {
+          const err = document.getElementById('formErrorMsg');
+          err.textContent = 'برجاء اختيار المادة والتصنيف وكتابة عنوان التنبيه.';
+          err.classList.remove('hidden');
+          return;
+        }
+
+        // Collect Named Links
+        const links = [];
+        document.querySelectorAll('#formLinksContainer .link-row').forEach(row => {
+          const lbl = row.querySelector('.link-label')?.value.trim() || '';
+          const url = row.querySelector('.link-url')?.value.trim() || '';
+          if (url) links.push({ label: lbl || 'فتح اللينك', url });
+        });
+
+        const targetType = state.formTargetType;
+        const targetValue = targetType === 'all' ? 'ALL' : document.getElementById('formTargetValue').value;
+
+        if (author && author !== state.authorName) {
+          state.authorName = author;
+          saveUserPrefs();
+        }
+
+        await saveAlert({
+          levelId: state.currentLevelId,
+          courseId, tag, title,
+          date: date || '',
+          links,
+          link: links[0]?.url || '',
+          note, author,
+          targetType, targetValue
+        }, editId);
+
+        closeModal('alertModal');
+      });
+
+      // Confirm Modal
+      document.getElementById('confirmOkBtn').addEventListener('click', () => {
+        const cb = state.confirmCallback;
+        state.confirmCallback = null;
+        closeModal('confirmModal');
+        if (typeof cb === 'function') cb();
+      });
+      document.getElementById('confirmCancelBtn').addEventListener('click', () => {
+        state.confirmCallback = null;
+        closeModal('confirmModal');
+      });
+
+      // Close modal triggers & backdrops
+      document.querySelectorAll('[data-close-modal]').forEach(btn => {
+        btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
+      });
+      ['alertModal', 'settingsModal', 'recapModal', 'confirmModal'].forEach(mid => {
+        document.getElementById(mid).addEventListener('click', (e) => {
+          if (e.target.id === mid) closeModal(mid);
+        });
+      });
+
+      // Delegated Clicks
+      document.addEventListener('click', (e) => {
+        // Open Course Folder
+        const openC = e.target.closest('[data-open-course]');
+        if (openC) {
+          state.courseStatusTab = 'active';
+          state.courseTagFilter = 'ALL';
+          navigateToView('course', openC.dataset.openCourse);
+          return;
+        }
+
+        // Urgent Chip Jump
+        const jumpC = e.target.closest('[data-jump-course]');
+        if (jumpC) {
+          state.searchQuery = '';
+          document.getElementById('quickSearchInput').value = '';
+          state.courseStatusTab = 'active';
+          state.courseTagFilter = 'ALL';
+          navigateToView('course', jumpC.dataset.jumpCourse);
+          return;
+        }
+
+        // Course Detail Tag Filter
+        const cTag = e.target.closest('[data-course-tag]');
+        if (cTag) {
+          state.courseTagFilter = cTag.dataset.courseTag;
+          renderCourseDetail();
+          return;
+        }
+
+        // Form Course / Tag Pickers
+        const pickC = e.target.closest('[data-pick-course]');
+        if (pickC) {
+          document.getElementById('formCourseInput').value = pickC.dataset.pickCourse;
+          renderFormCoursePills(pickC.dataset.pickCourse);
+          return;
+        }
+        const pickT = e.target.closest('[data-pick-tag]');
+        if (pickT) {
+          document.getElementById('formTagInput').value = pickT.dataset.pickTag;
+          renderFormTagPills(pickT.dataset.pickTag);
+          return;
+        }
+
+        // Calendar Day Select
+        const calDay = e.target.closest('[data-cal-day]');
+        if (calDay) {
+          state.calSelectedDate = calDay.dataset.calDay;
+          renderCalendar();
+          return;
+        }
+
+        // Dev Special Theme Switch
+        const devTh = e.target.closest('[data-dev-theme]');
+        if (devTh && state.role === 'dev') {
+          const mode = devTh.dataset.devTheme;
+          state.themePref = mode === 'none' ? 'light' : 'auto';
+          saveConfig({ specialThemeMode: mode });
+          showToast(`تم تحديث ثيم الدفعة: ${SPECIAL_THEMES[mode]?.label} 🎨`, '#FFD60A');
+          return;
+        }
+
+        // Dev Revoke Admin
+        const revAdm = e.target.closest('[data-revoke-admin]');
+        if (revAdm && state.role === 'dev') {
+          const uid = revAdm.dataset.revokeAdmin;
+          openConfirm('طرد أدمن', 'سيتم سحب صلاحية الأدمن من هذا الجهاز فوراً وإرجاعه لوضع المشاهد.', () => revokeAdminByUid(uid));
+          return;
+        }
+
+        // Switch Level from Settings
+        const selLvl = e.target.closest('[data-select-level]');
+        if (selLvl) {
+          state.currentLevelId = selLvl.dataset.selectLevel;
+          state.selectedSection = 'ALL';
+          state.selectedCourseId = null;
+          state.activeView = 'home';
+          saveUserPrefs();
+          closeModal('settingsModal');
+          renderAll();
+          return;
+        }
+
+        // Alert Card Actions
+        const doneBtn = e.target.closest('[data-toggle-done]');
+        if (doneBtn) { togglePersonalDone(doneBtn.dataset.toggleDone); return; }
+
+        const waBtn = e.target.closest('[data-copy-wa]');
+        if (waBtn) {
+          const ann = state.announcements.find(a => a.id === waBtn.dataset.copyWa);
+          if (ann) copyToClipboard(formatSingleAlertWA(ann));
+          return;
+        }
+
+        const editBtn = e.target.closest('[data-edit-alert]');
+        if (editBtn) {
+          const ann = state.announcements.find(a => a.id === editBtn.dataset.editAlert);
+          if (ann) requireAdminOrPrompt(() => openAlertModal({ editAnn: ann }));
+          return;
+        }
+
+        const delBtn = e.target.closest('[data-delete-alert]');
+        if (delBtn) {
+          const id = delBtn.dataset.deleteAlert;
+          const ann = state.announcements.find(a => a.id === id);
+          requireAdminOrPrompt(() => {
+            openConfirm('تأكيد الحذف', `هل أنت متأكد من حذف "${ann?.title || 'هذا التنبيه'}"؟ سيختفي عند الدفعة كلها.`, () => deleteAlert(id));
+          });
+          return;
+        }
+      });
+    }
+
+    // ==================== BOOTSTRAP ====================
+    setupEvents();
+    renderAll();
+    initFirebase();
+  </script>
+</body>
+</html>
