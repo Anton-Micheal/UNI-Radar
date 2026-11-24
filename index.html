@@ -1507,16 +1507,20 @@
     }
 
     // ==================== ROLE RESOLUTION & MANDATORY SECTION CHECK ====================
+    const DEV_EMAILS = ['tony7878mfs@gmail.com']; // <-- اكتب إيميلك هنا بين علامتي التنصيص
+
     function resolveEffectiveRole(notify = false) {
       if (!state.user || state.user.isAnonymous) {
         state.role = 'viewer';
         return;
       }
       const prevRole = state.role;
-      const emailKey = emailToDocId(state.user.email);
+      const cleanEmail = normalizeEmail(state.user.email);
+      const emailKey = emailToDocId(cleanEmail);
       const assigned = state.roleEmails[emailKey];
+      const isListedDev = DEV_EMAILS.map(e => normalizeEmail(e)).includes(cleanEmail);
 
-      if (state.isDevAccount) {
+      if (state.isDevAccount || isListedDev) {
         state.role = 'dev';
       } else if (assigned && (assigned.role === 'admin' || assigned.role === 'admin_plus')) {
         state.role = assigned.role;
@@ -1541,6 +1545,8 @@
         }
       }
 
+      checkMandatoryAdminSection();
+    }
       checkMandatoryAdminSection();
     }
 
