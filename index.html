@@ -729,15 +729,15 @@
           <form id="devPinsForm" class="pt-3 border-t-2 border-nb/20 space-y-3">
             <h5 class="text-xs font-black">🔑 تغيير أكواد الدخول</h5>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <div>
-                <label class="block text-[11px] font-black mb-1 text-sec">كود الأدمن الجديد</label>
-                <input id="devNewAdminPin" type="text" required class="nb-input w-full px-3 py-2 text-xs font-bold font-en" />
-              </div>
-              <div>
-                <label class="block text-[11px] font-black mb-1 text-sec">كود المطور الجديد</label>
-                <input id="devNewDevPin" type="text" required class="nb-input w-full px-3 py-2 text-xs font-bold font-en" />
-              </div>
-            </div>
+          <div>
+            <label class="block text-[11px] font-black mb-1 text-sec">كود الأدمن الجديد</label>
+            <input id="devNewAdminPin" type="text" placeholder="اكتب كود جديد لتغييره..." class="nb-input w-full px-3 py-2 text-xs font-bold font-en" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-black mb-1 text-sec">كود المطور الجديد</label>
+            <input id="devNewDevPin" type="text" placeholder="اكتب كود جديد لتغييره..." class="nb-input w-full px-3 py-2 text-xs font-bold font-en" />
+          </div>
+        </div>
             <button type="submit" class="nb-btn-sm px-4 py-2 rounded-xl bg-[#00D1B2] nb-ink text-xs font-black">
               حفظ الأكواد الجديدة ✅
             </button>
@@ -2326,8 +2326,15 @@
           `).join('');
         }
 
-        document.getElementById('devNewAdminPin').value = state.config.adminPin || 'admin2026';
-        document.getElementById('devNewDevPin').value = state.config.devPin || 'dev2026';
+       const adminInput = document.getElementById('devNewAdminPin');
+        const devInput = document.getElementById('devNewDevPin');
+        const isAdminHashed = /^[a-f0-9]{64}$/.test(state.config.adminPin || '');
+        const isDevHashed = /^[a-f0-9]{64}$/.test(state.config.devPin || '');
+
+        adminInput.value = '';
+        devInput.value = '';
+        adminInput.placeholder = isAdminHashed ? '🔒 مشفر (اكتب كود جديد للتغيير)' : '⚠️ غير مشفر (اكتب كود جديد)';
+        devInput.placeholder = isDevHashed ? '🔒 مشفر (اكتب كود جديد للتغيير)' : '⚠️ غير مشفر (اكتب كود جديد)';
 
         // 3. Levels List
         document.getElementById('levelsList').innerHTML = Object.values(state.levels).map(l => {
@@ -2723,13 +2730,20 @@
         if (state.role !== 'dev') return;
         const rawAdminPin = document.getElementById('devNewAdminPin').value.trim();
         const rawDevPin = document.getElementById('devNewDevPin').value.trim();
-        if (!rawAdminPin || !rawDevPin) return;
-        const adminPin = await hashPin(rawAdminPin);
-        const devPin = await hashPin(rawDevPin);
-        await saveConfig({ adminPin, devPin });
+
+        if (!rawAdminPin && !rawDevPin) {
+          showToast('اكتب كود واحد على الأقل للتحديث ⚠️', '#FFD60A');
+          return;
+        }
+
+        const updates = {};
+        if (rawAdminPin) updates.adminPin = await hashPin(rawAdminPin);
+        if (rawDevPin) updates.devPin = await hashPin(rawDevPin);
+
+        await saveConfig(updates);
         document.getElementById('devNewAdminPin').value = '';
         document.getElementById('devNewDevPin').value = '';
-        showToast('تم تحديث وتشفير أكواد الدخول بنجاح 🔒', '#4ADE80');
+        showToast('تم تحديث وتشفير الأكواد بنجاح 🔒', '#4ADE80');
       });
 
       // Dev Panel: Backup & Restore
