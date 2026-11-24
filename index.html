@@ -1291,13 +1291,33 @@
       const dot = document.getElementById('syncDot');
       const text = document.getElementById('syncText');
       try {
-        const cfgStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
-        if (!cfgStr) {
-          dot.style.backgroundColor = '#FB923C';
-          text.textContent = 'وضع محلي';
-          renderAll();
-          return;
-        }
+        const firebaseConfig = {
+         apiKey: "AIzaSyB9jPDkdCorGkM1UsJoL-__pCQmmYi0mZs",
+         authDomain: "uni-radar-e8a8a.firebaseapp.com",
+         projectId: "uni-radar-e8a8a",
+         storageBucket: "uni-radar-e8a8a.firebasestorage.app",
+         messagingSenderId: "707595984172",
+         appId: "1:707595984172:web:4351e1ba66fb51dfed6089"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        state.auth = getAuth(app);
+        state.db = getFirestore(app);
+
+        // Authenticate BEFORE any Firestore queries
+        const cred = await signInAnonymously(state.auth);
+        state.user = cred.user;
+
+        dot.style.backgroundColor = '#4ADE80';
+        text.textContent = 'متصل لايف';
+        subscribeRealtime();
+      } catch (err) {
+        console.error('Firebase init error:', err);
+        dot.style.backgroundColor = '#FB923C';
+        text.textContent = 'وضع محلي';
+        renderAll();
+      }
+    }
 
         const app = initializeApp(JSON.parse(cfgStr));
         state.auth = getAuth(app);
