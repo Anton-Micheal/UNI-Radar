@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>رادار الدفعة — Level 2 | BUA AI & Data Management</title>
 
+  <!-- Neo-Brutalist Radar Tab Bar Icon (Favicon) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='4' width='56' height='56' rx='14' fill='%23FFD60A' stroke='%23000' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='19' fill='%2300D1B2' stroke='%23000' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='10' fill='none' stroke='%23000' stroke-width='3' stroke-dasharray='5 4'/%3E%3Cpath d='M32 32 L46 18' stroke='%23000' stroke-width='4.5' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='32' r='4.5' fill='%23000'/%3E%3Ccircle cx='44' cy='20' r='4.5' fill='%23FF5C8D' stroke='%23000' stroke-width='2.5'/%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='4' width='56' height='56' rx='14' fill='%23FFD60A' stroke='%23000' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='19' fill='%2300D1B2' stroke='%23000' stroke-width='4'/%3E%3Cpath d='M32 32 L46 18' stroke='%23000' stroke-width='4.5' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='32' r='4.5' fill='%23000'/%3E%3Ccircle cx='44' cy='20' r='4.5' fill='%23FF5C8D' stroke='%23000' stroke-width='2.5'/%3E%3C/svg%3E" />
+
   <!-- Google Fonts: Cairo (Arabic Bold/Black) & Space Grotesk (English Neo-Brutalist) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -130,12 +134,12 @@
       cursor: pointer;
     }
 
-    .nb-btn:hover {
+    .nb-btn:hover:not(:disabled) {
       transform: translate(-1px, -1px);
       box-shadow: 5px 5px 0px var(--shadow-color);
     }
 
-    .nb-btn:active {
+    .nb-btn:active:not(:disabled) {
       transform: translate(2px, 2px);
       box-shadow: 2px 2px 0px var(--shadow-color);
     }
@@ -147,9 +151,14 @@
       cursor: pointer;
     }
 
-    .nb-btn-sm:active {
+    .nb-btn-sm:active:not(:disabled) {
       transform: translate(2px, 2px);
       box-shadow: 1px 1px 0px var(--shadow-color);
+    }
+
+    .nb-btn:disabled, .nb-btn-sm:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
     }
 
     .nb-input {
@@ -308,14 +317,103 @@
     </svg>
   </div>
 
-  <!-- ==================== MAIN CONTAINER ==================== -->
-  <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
+  <!-- ==================== AUTH GATE (LOGIN / SIGN-UP SCREEN) ==================== -->
+  <div id="authGate" class="relative z-20 min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="animate-pop nb-card w-full max-w-md p-6 sm:p-7 space-y-5">
+      <!-- Top Brand Header -->
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl border-[2.5px] border-nb bg-[#FFD60A] nb-ink flex items-center justify-center shrink-0 shadow-[3px_3px_0px_var(--shadow-color)]">
+            <svg class="w-7 h-7" viewBox="0 0 64 64" fill="none">
+              <circle cx="32" cy="32" r="20" fill="#00D1B2" stroke="#000" stroke-width="4.5"/>
+              <circle cx="32" cy="32" r="10" stroke="#000" stroke-width="3.5" stroke-dasharray="5 4"/>
+              <path d="M32 32 L46 18" stroke="#000" stroke-width="4.5" stroke-linecap="round"/>
+              <circle cx="32" cy="32" r="4.5" fill="#000"/>
+              <circle cx="44" cy="20" r="4.5" fill="#FF5C8D" stroke="#000" stroke-width="2.5"/>
+            </svg>
+          </div>
+          <div>
+            <span class="px-2 py-0.5 rounded-md border-2 border-nb bg-[#00D1B2] nb-ink text-[11px] font-black font-en">
+              Level 2 • Fall 2026
+            </span>
+            <h1 class="text-2xl font-black mt-1 leading-tight">رادار الدفعة</h1>
+            <p class="text-xs font-bold text-sec">BUA AI & Data Management</p>
+          </div>
+        </div>
+
+        <button id="authThemeToggleBtn" type="button" title="تبديل الثيم"
+          class="nb-btn-sm w-10 h-10 rounded-xl bg-card flex items-center justify-center text-base shrink-0">
+          <span id="authThemeIcon">🌙</span>
+        </button>
+      </div>
+
+      <div class="nb-card-sm p-3 bg-muted text-xs font-extrabold leading-relaxed">
+        🔒 سجّل دخولك بحسابك لمزامنة تنبيهاتك وحالة إنجازك ("خلصته") تلقائياً على كل أجهزتك.
+      </div>
+
+      <!-- Google Sign-In Button -->
+      <button id="googleSignInBtn" type="button"
+        class="nb-btn w-full py-3 px-4 rounded-xl bg-[#FFD60A] nb-ink text-sm font-black flex items-center justify-center gap-2.5">
+        <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+          <path fill="#000000" d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81Z"/>
+        </svg>
+        <span>المتابعة باستخدام Google</span>
+      </button>
+
+      <div class="flex items-center gap-3">
+        <div class="h-[2px] flex-1 bg-nb/20"></div>
+        <span class="text-xs font-black text-sec">أو بالبريد الإلكتروني</span>
+        <div class="h-[2px] flex-1 bg-nb/20"></div>
+      </div>
+
+      <!-- Switch between Sign-In and Sign-Up -->
+      <div class="grid grid-cols-2 gap-2">
+        <button id="authModeLoginBtn" type="button" class="nb-btn-sm py-2 rounded-xl bg-[#00D1B2] nb-ink text-xs font-black">
+          تسجيل الدخول
+        </button>
+        <button id="authModeSignupBtn" type="button" class="nb-btn-sm py-2 rounded-xl bg-card text-xs font-black">
+          حساب جديد
+        </button>
+      </div>
+
+      <!-- Email / Password Form -->
+      <form id="emailAuthForm" class="space-y-3">
+        <div id="emailSignupNameWrap" class="hidden">
+          <label for="emailAuthName" class="block text-xs font-black mb-1">الاسم الكامل</label>
+          <input id="emailAuthName" type="text" placeholder="مثال: أحمد محمد"
+            class="nb-input w-full px-3.5 py-2.5 text-sm font-bold" />
+        </div>
+
+        <div>
+          <label for="emailAuthInput" class="block text-xs font-black mb-1">البريد الإلكتروني</label>
+          <input id="emailAuthInput" type="email" dir="ltr" required placeholder="name@example.com"
+            class="nb-input w-full px-3.5 py-2.5 text-sm font-bold text-left font-en" />
+        </div>
+
+        <div>
+          <label for="emailAuthPass" class="block text-xs font-black mb-1">كلمة المرور</label>
+          <input id="emailAuthPass" type="password" dir="ltr" required minlength="6" placeholder="••••••••"
+            class="nb-input w-full px-3.5 py-2.5 text-sm font-bold text-left font-en" />
+        </div>
+
+        <p id="authGateError" class="hidden text-xs font-black bg-[#FF5C8D] nb-ink border-2 border-black rounded-xl px-3 py-2"></p>
+
+        <button id="emailAuthSubmitBtn" type="submit"
+          class="nb-btn w-full py-3 rounded-xl bg-[#4ADE80] nb-ink text-sm font-black">
+          دخول إلى الرادار 🚀
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN CONTAINER (SHOWN WHEN LOGGED IN) ==================== -->
+  <div id="appShell" class="hidden relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
 
     <!-- ==================== TOP UTILITY BAR ==================== -->
     <header class="flex items-center justify-between gap-3 mb-6">
       <!-- Right (RTL start): Settings Gear Button, Sync Status, Compact Role Badge -->
       <div class="flex items-center gap-2 sm:gap-2.5">
-        <button id="openSettingsBtn" type="button" title="الإعدادات والدكاترة والصلاحيات"
+        <button id="openSettingsBtn" type="button" title="الإعدادات والحساب والصلاحيات"
           class="nb-btn w-11 h-11 rounded-xl bg-card flex items-center justify-center shrink-0">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
@@ -329,7 +427,7 @@
           <span id="syncText">جاري الاتصال...</span>
         </div>
 
-        <!-- Compact Role Badge Pill (Only shown for Admin or Dev) -->
+        <!-- Compact Role Badge Pill (Shown for Admin, Admin+, or Dev) -->
         <button id="headerRoleBadge" type="button" class="hidden nb-btn-sm px-2.5 py-1.5 rounded-xl nb-ink text-xs font-black items-center gap-1">
           <span id="headerRoleText"></span>
         </button>
@@ -400,7 +498,7 @@
             class="nb-input w-full h-12 pr-9 pl-4 text-sm font-bold" />
         </div>
         <button id="quickAddBtn" type="button" title="إضافة تنبيه جديد"
-          class="nb-btn w-12 h-12 rounded-xl bg-[#FFD60A] nb-ink flex items-center justify-center shrink-0">
+          class="hidden nb-btn w-12 h-12 rounded-xl bg-[#FFD60A] nb-ink items-center justify-center shrink-0">
           <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/>
           </svg>
@@ -450,7 +548,7 @@
         </button>
 
         <button id="addInCourseBtn" type="button"
-          class="nb-btn-sm px-3.5 py-2 rounded-xl bg-[#FFD60A] nb-ink text-xs sm:text-sm font-black inline-flex items-center gap-1.5">
+          class="hidden nb-btn-sm px-3.5 py-2 rounded-xl bg-[#FFD60A] nb-ink text-xs sm:text-sm font-black items-center gap-1.5">
           <span>+</span>
           <span>إضافة تنبيه للمادة</span>
         </button>
@@ -523,7 +621,7 @@
             <h3 id="calDayTitle" class="text-sm sm:text-base font-black"></h3>
             <p id="calDaySubtitle" class="text-xs font-bold text-sec"></p>
           </div>
-          <button id="calAddOnDayBtn" type="button" class="nb-btn-sm px-3 py-1.5 rounded-xl bg-[#FFD60A] nb-ink text-xs font-black">
+          <button id="calAddOnDayBtn" type="button" class="hidden nb-btn-sm px-3 py-1.5 rounded-xl bg-[#FFD60A] nb-ink text-xs font-black">
             + إضافة في اليوم ده
           </button>
         </div>
@@ -531,6 +629,30 @@
       </div>
     </section>
 
+  </div>
+
+  <!-- ==================== MODAL: MANDATORY ADMIN SECTION PICKER ==================== -->
+  <div id="adminSectionModal" class="hidden fixed inset-0 z-[55] flex items-center justify-center bg-black/80 p-4">
+    <div class="animate-pop nb-card w-full max-w-md p-6 space-y-4">
+      <div class="flex items-start gap-3">
+        <div class="w-12 h-12 rounded-xl border-2 border-nb bg-[#FFD60A] nb-ink flex items-center justify-center text-2xl shrink-0">🎯</div>
+        <div>
+          <h3 class="text-base sm:text-lg font-black">حدد سكشنك الدراسي أولاً</h3>
+          <p id="adminSectionPromptDesc" class="text-xs font-bold text-sec mt-1 leading-relaxed"></p>
+        </div>
+      </div>
+
+      <form id="adminSectionForm" class="space-y-4">
+        <div>
+          <label for="adminSectionSelectInput" class="block text-xs font-black mb-1.5">سكشنك الدراسي <span class="text-[#FF5C8D]">*</span></label>
+          <select id="adminSectionSelectInput" required class="nb-input w-full px-3.5 py-2.5 text-sm font-black cursor-pointer"></select>
+        </div>
+
+        <button type="submit" class="nb-btn w-full py-3 rounded-xl bg-[#4ADE80] nb-ink text-sm font-black">
+          تأكيد السكشن والمتابعة ✅
+        </button>
+      </form>
+    </div>
   </div>
 
   <!-- ==================== MODAL: ADD / EDIT ALERT ==================== -->
@@ -560,11 +682,14 @@
 
         <!-- Target Audience -->
         <div class="space-y-2">
-          <label class="block text-xs font-black">موجه لـ</label>
+          <div class="flex items-center justify-between gap-2">
+            <label class="block text-xs font-black">موجه لـ</label>
+            <span id="targetScopeHint" class="text-[11px] font-extrabold text-sec"></span>
+          </div>
           <div class="grid grid-cols-3 gap-2">
-            <button type="button" data-target-type="all" class="target-type-btn nb-btn-sm py-2 px-2 rounded-xl text-xs font-black">الكل</button>
-            <button type="button" data-target-type="group" class="target-type-btn nb-btn-sm py-2 px-2 rounded-xl text-xs font-black">جروب كامل</button>
-            <button type="button" data-target-type="section" class="target-type-btn nb-btn-sm py-2 px-2 rounded-xl text-xs font-black">سكشن محدد</button>
+            <button type="button" id="btnTargetAll" data-target-type="all" class="target-type-btn nb-btn-sm py-2 px-2 rounded-xl text-xs font-black">الكل</button>
+            <button type="button" id="btnTargetGroup" data-target-type="group" class="target-type-btn nb-btn-sm py-2 px-2 rounded-xl text-xs font-black">جروب كامل</button>
+            <button type="button" id="btnTargetSection" data-target-type="section" class="target-type-btn nb-btn-sm py-2 px-2 rounded-xl text-xs font-black">سكشن محدد</button>
           </div>
           <div id="targetValueWrap" class="hidden pt-1">
             <select id="formTargetValue" class="nb-input w-full px-3 py-2 text-sm font-black cursor-pointer"></select>
@@ -622,11 +747,11 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: SETTINGS GEAR (STAFF + ROLES + DEV PANEL) ==================== -->
+  <!-- ==================== MODAL: SETTINGS GEAR (STAFF + ACCOUNT & ROLES + DEV PANEL) ==================== -->
   <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
     <div class="animate-pop nb-card w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-2xl">
       <div class="sticky top-0 z-10 bg-card border-b-[2.5px] border-nb px-5 py-3.5 flex items-center justify-between">
-        <h3 class="text-base font-black">⚙️ الإعدادات — الدكاترة والصلاحيات</h3>
+        <h3 class="text-base font-black">⚙️ الإعدادات — الدكاترة والحساب والصلاحيات</h3>
         <button type="button" data-close-modal="settingsModal" class="nb-btn-sm w-8 h-8 rounded-lg bg-card font-black text-sm">✕</button>
       </div>
 
@@ -636,7 +761,7 @@
           👨‍🏫 الدكاترة والمعيدين
         </button>
         <button id="settingsTabAuth" type="button" class="nb-btn-sm flex-1 min-w-[110px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black">
-          🔐 الصلاحيات
+          👤 الحساب والصلاحيات
         </button>
         <!-- Strictly Hidden unless role === 'dev' -->
         <button id="settingsTabDev" type="button" class="hidden nb-btn-sm flex-1 min-w-[120px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black">
@@ -644,13 +769,14 @@
         </button>
       </div>
 
-      <!-- TAB 1: FACULTY & TAs -->
+      <!-- TAB 1: FACULTY & TAs (EDITABLE BY DEV ONLY) -->
       <div id="settingsPanelStaff" class="p-5 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-2">
             <label for="settingsStaffSection" class="text-xs font-black">عرض سكشن:</label>
             <select id="settingsStaffSection" class="nb-input px-3 py-1.5 text-sm font-black cursor-pointer"></select>
           </div>
+          <!-- Strictly visible for Dev ONLY -->
           <button id="toggleEditStaffBtn" type="button" class="hidden nb-btn-sm px-3.5 py-2 rounded-xl bg-[#00D1B2] nb-ink text-xs font-black">
             ✏️ تعديل معيدين السكشن
           </button>
@@ -659,7 +785,7 @@
         <!-- Read-only Staff List -->
         <div id="settingsStaffList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
 
-        <!-- Inline Edit Staff Form -->
+        <!-- Inline Edit Staff Form (Dev Only) -->
         <form id="settingsStaffEditForm" class="hidden space-y-3">
           <div id="settingsStaffEditFields" class="space-y-2.5"></div>
           <div class="flex items-center gap-2 pt-2">
@@ -673,45 +799,93 @@
         </form>
       </div>
 
-      <!-- TAB 2: ROLES & AUTHENTICATION -->
+      <!-- TAB 2: ACCOUNT, ROLES & SIGN OUT -->
       <div id="settingsPanelAuth" class="hidden p-5 space-y-5">
-        <div class="nb-card-sm p-4 bg-muted flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div class="text-xs font-bold text-sec">وضعك الحالي</div>
-            <div id="authCurrentStatus" class="text-base font-black mt-0.5">👁️ مشاهد (Viewer)</div>
+        <!-- Account Info Card -->
+        <div class="nb-card-sm p-4 bg-muted space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-sec">الحساب المسجّل</div>
+              <div id="accountDisplayName" class="text-sm sm:text-base font-black truncate mt-0.5">—</div>
+              <div id="accountDisplayEmail" class="text-xs font-bold text-sec font-en truncate">—</div>
+            </div>
+            <button id="accountSignOutBtn" type="button" class="nb-btn-sm px-3.5 py-2 rounded-xl bg-[#FF5C8D] nb-ink text-xs font-black shrink-0">
+              تسجيل الخروج 🚪
+            </button>
           </div>
-          <button id="logoutRoleBtn" type="button" class="hidden nb-btn-sm px-3.5 py-2 rounded-xl bg-[#FF5C8D] nb-ink text-xs font-black">
-            تسجيل خروج (رجوع لمشاهد)
-          </button>
+
+          <div class="pt-2.5 border-t-2 border-nb/15 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div class="text-[11px] font-bold text-sec">رتبتك الحالية</div>
+              <div id="authCurrentStatus" class="text-sm font-black mt-0.5">👁️ مشاهد (Viewer)</div>
+            </div>
+            <div id="authAdminSectionPill" class="hidden px-2.5 py-1 rounded-lg border-2 border-nb bg-[#FFD60A] nb-ink text-xs font-black"></div>
+          </div>
         </div>
 
-        <form id="roleLoginForm" class="space-y-3.5">
-          <div>
-            <label for="roleLoginName" class="block text-xs font-black mb-1.5">اسمك (للظهور في سجل الأدمن)</label>
-            <input id="roleLoginName" type="text" placeholder="مثال: أحمد - ليدر W1" class="nb-input w-full px-3.5 py-2.5 text-sm font-bold" />
-          </div>
-          <div>
-            <label for="roleLoginPin" class="block text-xs font-black mb-1.5">كود الصلاحية (Admin أو Dev PIN)</label>
-            <input id="roleLoginPin" type="password" required placeholder="أدخل الكود السري..." class="nb-input w-full px-3.5 py-2.5 text-sm font-bold" />
+        <!-- Developer Code Unlock (Backup / First-time Dev activation for this account) -->
+        <form id="roleLoginForm" class="nb-card-sm p-4 space-y-3">
+          <div class="text-xs font-black">🛠️ تفعيل وضع المطور (Dev)</div>
+          <p class="text-[11px] font-bold text-sec">الترقية لـ Admin و Admin+ بتتم تلقائياً عبر البريد الإلكتروني من لوحة المطور. لو معاك كود المطور تقدر تفعّله لحسابك من هنا:</p>
+          <div class="flex gap-2">
+            <input id="roleLoginPin" type="password" required placeholder="أدخل كود المطور..." class="nb-input flex-1 px-3.5 py-2 text-xs sm:text-sm font-bold" />
+            <button type="submit" class="nb-btn-sm px-4 py-2 rounded-xl bg-[#A78BFA] nb-ink text-xs font-black shrink-0">
+              تفعيل 🔓
+            </button>
           </div>
           <p id="roleLoginError" class="hidden text-xs font-black bg-[#FF5C8D] nb-ink border-2 border-black rounded-xl px-3 py-2"></p>
-          <button type="submit" class="nb-btn w-full py-3 rounded-xl bg-[#FFD60A] nb-ink text-sm font-black">
-            تفعيل الصلاحية 🔓
-          </button>
         </form>
 
-        <div class="nb-card-sm p-3.5 text-xs font-bold text-sec space-y-1">
-          <div class="font-black text-[var(--text-primary)]">مستويات الصلاحيات:</div>
-          <div>• <strong>المشاهد:</strong> تصفح، فلترة بالسكشن، النتيجة، تعليم "خلصته"، وتصدير للواتساب.</div>
-          <div>• <strong>الأدمن:</strong> إضافة وتعديل وحذف التنبيهات، وتحديث أسماء المعيدين والمعامل.</div>
-          <div>• <strong>المطور:</strong> لوحة تحكم كاملة للثيمات الخاصة، إدارة الأدمن، النسخ الاحتياطي، والمراحل.</div>
+        <!-- Roles Explanation -->
+        <div class="nb-card-sm p-3.5 text-xs font-bold text-sec space-y-1.5">
+          <div class="font-black text-[var(--text-primary)]">مستويات الصلاحيات في النظام:</div>
+          <div>• <strong>👁️ مشاهد (Viewer):</strong> تصفح، فلترة بالسكشن، النتيجة، تعليم "خلصته" (متزامن بحسابك)، وتصدير للواتساب.</div>
+          <div>• <strong>🔑 أدمن (Admin):</strong> إضافة وتعديل وحذف التنبيهات الخاصة بسكشنه أو جروبه فقط.</div>
+          <div>• <strong>⭐ أدمن بلس (Admin+):</strong> إضافة وتعديل وحذف التنبيهات للجميع ("الكل") أو لأي جروب أو سكشن.</div>
+          <div>• <strong>🛠️ مطور (Dev):</strong> تحكم كامل في الدكاترة والمعيدين، ترقية الأدمن بالإيميل، الثيمات، والمراحل.</div>
         </div>
       </div>
 
-      <!-- TAB 3: DEVELOPER PANEL (STRICTLY HIDDEN FROM VIEWERS & ADMINS) -->
+      <!-- TAB 3: DEVELOPER PANEL (STRICTLY HIDDEN FROM VIEWERS, ADMINS & ADMIN+) -->
       <div id="settingsPanelDev" class="hidden p-5 space-y-6">
 
-        <!-- 1. Special Theme Controller -->
+        <!-- 1. Email-Based Admin & Admin+ Manager (No Passwords Needed!) -->
+        <div class="nb-card-sm p-4 space-y-4">
+          <div class="flex items-center justify-between gap-2">
+            <h4 class="text-sm font-black">👥 إدارة الأدمن بالإيميل (ترقية تلقائية بدون باسورد)</h4>
+            <span id="devAdminsCountBadge" class="px-2 py-0.5 rounded-lg border-2 border-nb bg-[#00D1B2] nb-ink text-[11px] font-black">0</span>
+          </div>
+
+          <!-- Add / Promote by Email Form -->
+          <form id="devAssignEmailForm" class="space-y-2.5 bg-muted p-3 rounded-xl border-2 border-nb">
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+              <div class="sm:col-span-5">
+                <label class="block text-[11px] font-black mb-1">البريد الإلكتروني</label>
+                <input id="devAssignEmailInput" type="email" dir="ltr" required placeholder="student@gmail.com"
+                  class="nb-input w-full px-3 py-2 text-xs font-bold text-left font-en" />
+              </div>
+              <div class="sm:col-span-4">
+                <label class="block text-[11px] font-black mb-1">الرتبة</label>
+                <select id="devAssignRoleSelect" class="nb-input w-full px-2.5 py-2 text-xs font-black cursor-pointer">
+                  <option value="admin">🔑 Admin (سكشن وجروب)</option>
+                  <option value="admin_plus">⭐ Admin+ (عام للكل)</option>
+                </select>
+              </div>
+              <div class="sm:col-span-3">
+                <label class="block text-[11px] font-black mb-1">السكشن</label>
+                <select id="devAssignSectionSelect" class="nb-input w-full px-2.5 py-2 text-xs font-black cursor-pointer"></select>
+              </div>
+            </div>
+            <button type="submit" class="nb-btn-sm w-full py-2.5 rounded-xl bg-[#4ADE80] nb-ink text-xs font-black">
+              حفظ / ترقية الحساب بالإيميل ✅
+            </button>
+          </form>
+
+          <!-- Registered Admins & Admin+ List (with Name + Email + Section + Role) -->
+          <div id="devAdminsList" class="space-y-2"></div>
+        </div>
+
+        <!-- 2. Special Theme Controller -->
         <div class="nb-card-sm p-4 space-y-3">
           <div class="flex items-center justify-between gap-2">
             <h4 class="text-sm font-black">🎨 التحكم في الثيمات الخاصة للدفعة</h4>
@@ -721,33 +895,21 @@
           <p class="text-[11px] font-bold text-sec">في الوضع التلقائي، يشتغل ثيم الكريسماس 🎄 أوتوماتيكياً من 1 ديسمبر حتى 7 يناير، ويقدر أي مشاهد يبدل بحرية بينه وبين النهاري والليلي.</p>
         </div>
 
-        <!-- 2. Active Admins & PINs -->
-        <div class="nb-card-sm p-4 space-y-4">
-          <h4 class="text-sm font-black">👥 الأدمن النشطون (طرد فوري لايف)</h4>
-          <div id="devAdminsList" class="space-y-2"></div>
-
-          <form id="devPinsForm" class="pt-3 border-t-2 border-nb/20 space-y-3">
-            <h5 class="text-xs font-black">🔑 تغيير أكواد الدخول</h5>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <div>
-            <label class="block text-[11px] font-black mb-1 text-sec">كود الأدمن الجديد</label>
-            <input id="devNewAdminPin" type="text" placeholder="اكتب كود جديد لتغييره..." class="nb-input w-full px-3 py-2 text-xs font-bold font-en" />
-          </div>
-          <div>
-            <label class="block text-[11px] font-black mb-1 text-sec">كود المطور الجديد</label>
-            <input id="devNewDevPin" type="text" placeholder="اكتب كود جديد لتغييره..." class="nb-input w-full px-3 py-2 text-xs font-bold font-en" />
-          </div>
-        </div>
-            <button type="submit" class="nb-btn-sm px-4 py-2 rounded-xl bg-[#00D1B2] nb-ink text-xs font-black">
-              حفظ الأكواد الجديدة ✅
+        <!-- 3. Developer Backup PIN (SHA-256) -->
+        <div class="nb-card-sm p-4 space-y-3">
+          <h4 class="text-sm font-black">🔑 تغيير كود المطور الاحتياطي (SHA-256)</h4>
+          <form id="devPinsForm" class="flex flex-col sm:flex-row gap-2">
+            <input id="devNewDevPin" type="text" required placeholder="اكتب كود المطور الجديد..." class="nb-input flex-1 px-3 py-2 text-xs font-bold font-en" />
+            <button type="submit" class="nb-btn-sm px-4 py-2 rounded-xl bg-[#00D1B2] nb-ink text-xs font-black shrink-0">
+              حفظ وتشفير الكود ✅
             </button>
           </form>
         </div>
 
-        <!-- 3. Safe Backup & Restore (JSON) -->
+        <!-- 4. Safe Backup & Restore (JSON) -->
         <div class="nb-card-sm p-4 space-y-3">
           <h4 class="text-sm font-black">💾 النسخ الاحتياطي والاستعادة الآمنة (JSON)</h4>
-          <p class="text-[11px] font-bold text-sec">تصدير نسخة كاملة تشمل كل التنبيهات، المراحل، تعديلات المعيدين، والإعدادات في ملف JSON.</p>
+          <p class="text-[11px] font-bold text-sec">تصدير نسخة كاملة تشمل كل التنبيهات، المراحل، تعديلات المعيدين، صلاحيات الإيميلات، والإعدادات في ملف JSON.</p>
           <div class="flex flex-wrap items-center gap-2.5">
             <button id="devExportJsonBtn" type="button" class="nb-btn-sm flex-1 py-2.5 px-3 rounded-xl bg-[#4ADE80] nb-ink text-xs font-black">
               ⬇️ تصدير نسخة احتياطية كاملة (JSON)
@@ -759,7 +921,7 @@
           </div>
         </div>
 
-        <!-- 4. Levels Manager -->
+        <!-- 5. Levels Manager -->
         <div class="nb-card-sm p-4 space-y-4">
           <div>
             <h4 class="text-sm font-black mb-2.5">🎓 المراحل الدراسية (Levels)</h4>
@@ -883,7 +1045,18 @@
   <!-- ==================== MAIN APPLICATION SCRIPT ==================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signInWithRedirect,
+      getRedirectResult,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      updateProfile,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import {
       getFirestore, doc, setDoc, addDoc, updateDoc, deleteDoc,
       onSnapshot, collection
@@ -921,7 +1094,7 @@
       default: `<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>`
     };
 
-    // ==================== LEVEL 2 PRE-POPULATED DATA (UPDATED FROM EXCEL) ====================
+    // ==================== LEVEL 2 PRE-POPULATED DATA ====================
     const DEFAULT_LEVEL_2 = {
       id: 'level2',
       name: 'Level 2',
@@ -971,28 +1144,33 @@
       db: null,
       auth: null,
       user: null,
-      localUid: 'local_' + Math.random().toString(36).slice(2, 10),
+      unsubscribers: [],
       appId: typeof __app_id !== 'undefined' ? __app_id : 'bua-ai-radar-nb-v2',
 
       // Global Synced Config (Firestore: config/main)
       config: {
         adminPin: 'admin2026',
         devPin: 'dev2026',
-        specialThemeMode: 'auto' // 'auto' | 'none' | 'christmas' | 'finals' | 'midterm' | 'vacation'
+        specialThemeMode: 'auto'
       },
 
       levels: { level2: DEFAULT_LEVEL_2 },
       currentLevelId: 'level2',
       announcements: [],
       staffOverrides: {},
-      activeAdmins: [],
+      roleEmails: {}, // { [emailKey]: { email, name, role: 'admin'|'admin_plus', assignedSection, updatedAt } }
 
-      // Personal Preferences (Firestore private prefs)
-      role: 'viewer', // 'viewer' | 'admin' | 'dev'
+      // Personal Account Preferences (Firestore: users/{uid}/prefs/main)
+      role: 'viewer', // 'viewer' | 'admin' | 'admin_plus' | 'dev'
+      isDevAccount: false,
+      adminSection: '', // Assigned section for Admin / Admin+ (e.g., 'W3')
       themePref: 'auto', // 'auto' | 'light' | 'dark' | 'special'
       selectedSection: 'ALL',
       doneIds: [],
       authorName: '',
+
+      // Auth Gate state
+      authMode: 'login', // 'login' | 'signup'
 
       // Navigation & UI state
       activeView: 'home', // 'home' | 'course' | 'calendar'
@@ -1019,13 +1197,51 @@
       confirmCallback: null
     };
 
-    // ==================== HELPERS ====================
-    function getEffectiveUid() {
-      return state.user?.uid || state.localUid;
+    // ==================== PERMISSION & ROLE HELPERS ====================
+    function normalizeEmail(email) {
+      return (email || '').trim().toLowerCase();
+    }
+
+    function emailToDocId(email) {
+      return normalizeEmail(email).replace(/\//g, '_');
+    }
+
+    function isDev() {
+      return state.role === 'dev';
+    }
+
+    function isAdminPlus() {
+      return state.role === 'admin_plus' || state.role === 'dev';
     }
 
     function canManage() {
-      return state.role === 'admin' || state.role === 'dev';
+      return state.role === 'admin' || state.role === 'admin_plus' || state.role === 'dev';
+    }
+
+    function getAdminGroup() {
+      if (!state.adminSection) return null;
+      return getGroupFromSection(state.adminSection);
+    }
+
+    function canModifyAlert(ann) {
+      if (!ann) return false;
+      if (state.role === 'dev' || state.role === 'admin_plus') return true;
+      if (state.role === 'admin') {
+        if (!state.adminSection) return false;
+        const mySec = state.adminSection;
+        const myGrp = getGroupFromSection(mySec);
+        if (ann.targetType === 'section' && ann.targetValue === mySec) return true;
+        if (ann.targetType === 'group' && ann.targetValue === myGrp) return true;
+        return false;
+      }
+      return false;
+    }
+
+    function getRoleDisplayLabel(role = state.role) {
+      if (role === 'dev') return '🛠️ مطور (Dev)';
+      if (role === 'admin_plus') return '⭐ أدمن بلس (Admin+)';
+      if (role === 'admin') return '🔑 أدمن (Admin)';
+      return '👁️ مشاهد (Viewer)';
     }
 
     function getLocalTodayStr() {
@@ -1159,7 +1375,7 @@
         el.style.opacity = '0';
         el.style.transition = 'opacity 0.2s ease';
         setTimeout(() => el.remove(), 220);
-      }, 2800);
+      }, 3000);
     }
 
     function copyToClipboard(text) {
@@ -1187,7 +1403,7 @@
       if (mode === 'none') return null;
       if (mode === 'auto') {
         const now = new Date();
-        const m = now.getMonth(); // 0-indexed (11 = Dec, 0 = Jan)
+        const m = now.getMonth();
         const d = now.getDate();
         if ((m === 11 && d >= 1) || (m === 0 && d <= 7)) return 'christmas';
         return null;
@@ -1216,16 +1432,21 @@
       document.getElementById('overlayVacation').classList.add('hidden');
 
       const themeIcon = document.getElementById('themeIcon');
+      const authThemeIcon = document.getElementById('authThemeIcon');
       const specialPill = document.getElementById('specialThemePill');
 
       if (active === 'dark') {
         html.classList.add('dark');
         themeIcon.textContent = '☀️';
+        authThemeIcon.textContent = '☀️';
       } else if (active === 'light') {
         themeIcon.textContent = '🌙';
+        authThemeIcon.textContent = '🌙';
       } else {
         html.classList.add(`theme-${active}`);
-        themeIcon.textContent = SPECIAL_THEMES[active]?.emoji || '✨';
+        const emo = SPECIAL_THEMES[active]?.emoji || '✨';
+        themeIcon.textContent = emo;
+        authThemeIcon.textContent = emo;
         if (active === 'christmas') document.getElementById('overlayChristmas').classList.remove('hidden');
         if (active === 'vacation') document.getElementById('overlayVacation').classList.remove('hidden');
       }
@@ -1258,17 +1479,16 @@
     function pushNavState(kind, detail = '') {
       try {
         window.history.pushState({ radarNav: kind, detail }, '');
-      } catch (e) { /* Ignore in restricted iframe contexts */ }
+      } catch (e) {}
     }
 
     window.addEventListener('popstate', () => {
-      // 1. Close top-most open modal first
       if (state.openModals.length > 0) {
         const topModal = state.openModals[state.openModals.length - 1];
+        if (topModal === 'adminSectionModal') return; // Mandatory modal cannot be bypassed
         closeModal(topModal, true);
         return;
       }
-      // 2. Navigate back from Course or Calendar to Home
       if (state.activeView !== 'home') {
         state.activeView = 'home';
         state.selectedCourseId = null;
@@ -1286,7 +1506,77 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-  // ==================== FIREBASE SETUP & REAL-TIME SYNC ====================
+    // ==================== ROLE RESOLUTION & MANDATORY SECTION CHECK ====================
+    function resolveEffectiveRole(notify = false) {
+      if (!state.user || state.user.isAnonymous) {
+        state.role = 'viewer';
+        return;
+      }
+      const prevRole = state.role;
+      const emailKey = emailToDocId(state.user.email);
+      const assigned = state.roleEmails[emailKey];
+
+      if (state.isDevAccount) {
+        state.role = 'dev';
+      } else if (assigned && (assigned.role === 'admin' || assigned.role === 'admin_plus')) {
+        state.role = assigned.role;
+        if (assigned.assignedSection) {
+          state.adminSection = assigned.assignedSection;
+          if (state.selectedSection === 'ALL') {
+            state.selectedSection = assigned.assignedSection;
+          }
+        }
+      } else {
+        state.role = 'viewer';
+        state.adminSection = '';
+      }
+
+      if (notify && prevRole !== state.role) {
+        if (state.role === 'admin_plus') {
+          showToast('⭐ تمت ترقيتك إلى Admin+ بواسطة المطور!', '#FFD60A');
+        } else if (state.role === 'admin') {
+          showToast('🔑 تمت ترقيتك إلى Admin بواسطة المطور!', '#00D1B2');
+        } else if (prevRole === 'admin' || prevRole === 'admin_plus') {
+          showToast('تم إرجاع حسابك إلى وضع المشاهد 👁️', '#FF5C8D');
+        }
+      }
+
+      checkMandatoryAdminSection();
+    }
+
+    function checkMandatoryAdminSection() {
+      const modal = document.getElementById('adminSectionModal');
+      if (!state.user || state.user.isAnonymous) {
+        modal.classList.add('hidden');
+        return;
+      }
+
+      const needsSection = (state.role === 'admin' || state.role === 'admin_plus') && !state.adminSection;
+      if (needsSection) {
+        const lvl = getCurrentLevel();
+        const sel = document.getElementById('adminSectionSelectInput');
+        sel.innerHTML = `<option value="" disabled selected>-- اختر سكشنك الدراسي --</option>` +
+          lvl.sections.map(s => `<option value="${escapeHtml(s)}" class="bg-white text-black">سكشن ${escapeHtml(s)} (Group ${getGroupFromSection(s)})</option>`).join('');
+
+        document.getElementById('adminSectionPromptDesc').textContent =
+          state.role === 'admin'
+            ? 'بصفتك Admin، لازم تحدد سكشنك الدراسي عشان يظهر للمطور وتقدر تنشر وتعدل تنبيهات سكشنك وجروبك.'
+            : 'بصفتك Admin+، حدد سكشنك الدراسي عشان يظهر بجانب اسمك في قائمة المطور.';
+
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      } else if (!modal.classList.contains('hidden')) {
+        modal.classList.add('hidden');
+        if (state.openModals.length === 0) document.body.style.overflow = '';
+      }
+    }
+
+    // ==================== FIREBASE SETUP & ACCOUNT AUTH ====================
+    function clearSubscriptions() {
+      state.unsubscribers.forEach(fn => { try { fn(); } catch {} });
+      state.unsubscribers = [];
+    }
+
     async function initFirebase() {
       const dot = document.getElementById('syncDot');
       const text = document.getElementById('syncText');
@@ -1304,18 +1594,44 @@
         state.auth = getAuth(app);
         state.db = getFirestore(app);
 
-        // Authenticate BEFORE any Firestore queries
-        const cred = await signInAnonymously(state.auth);
-        state.user = cred.user;
+        // Handle mobile redirect result if Google Sign-In used redirect fallback
+        getRedirectResult(state.auth).catch(err => console.warn('Redirect result:', err));
 
-        dot.style.backgroundColor = '#4ADE80';
-        text.textContent = 'متصل لايف';
-        subscribeRealtime();
+        onAuthStateChanged(state.auth, async (user) => {
+          clearSubscriptions();
+
+          // Enforce real account login (reject anonymous sessions if any existed previously)
+          if (!user || user.isAnonymous) {
+            if (user?.isAnonymous) {
+              try { await signOut(state.auth); } catch {}
+            }
+            state.user = null;
+            state.role = 'viewer';
+            state.isDevAccount = false;
+            state.adminSection = '';
+            state.doneIds = [];
+            document.getElementById('authGate').classList.remove('hidden');
+            document.getElementById('appShell').classList.add('hidden');
+            applyTheme();
+            return;
+          }
+
+          state.user = user;
+          state.authorName = user.displayName || user.email?.split('@')[0] || 'طالب';
+
+          document.getElementById('authGate').classList.add('hidden');
+          document.getElementById('appShell').classList.remove('hidden');
+
+          dot.style.backgroundColor = '#4ADE80';
+          text.textContent = 'متصل لايف';
+
+          subscribeRealtime();
+          renderAll();
+        });
       } catch (err) {
         console.error('Firebase init error:', err);
         dot.style.backgroundColor = '#FB923C';
-        text.textContent = 'وضع محلي';
-        renderAll();
+        text.textContent = 'خطأ في الاتصال';
       }
     }
 
@@ -1323,8 +1639,8 @@
       if (!state.db || !state.user) return;
       const appId = state.appId;
 
-      // 1. Config (public: adminPin, devPin, specialThemeMode)
-      onSnapshot(doc(state.db, 'artifacts', appId, 'public', 'data', 'config', 'main'), async (snap) => {
+      // 1. Config (public: devPin, specialThemeMode)
+      const u1 = onSnapshot(doc(state.db, 'artifacts', appId, 'public', 'data', 'config', 'main'), async (snap) => {
         if (snap.exists()) {
           state.config = { ...state.config, ...snap.data() };
         } else {
@@ -1333,26 +1649,30 @@
           } catch (e) { console.error(e); }
         }
         renderAll();
-      }, (err) => console.error('Config snapshot error:', err));
+      });
 
-      // 2. Active Admins (public — with real-time revocation)
-      onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'activeAdmins'), (snap) => {
-        const list = [];
-        snap.forEach(d => list.push({ id: d.id, ...d.data() }));
-        state.activeAdmins = list;
+      // 2. Role Emails (public — live email-based Admin & Admin+ promotion/demotion)
+      const u2 = onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'roleEmails'), async (snap) => {
+        const map = {};
+        snap.forEach(d => { map[d.id] = { id: d.id, ...d.data() }; });
+        state.roleEmails = map;
 
-        // Check if current admin was revoked by Dev
-        const me = list.find(a => a.id === state.user.uid);
-        if (state.role === 'admin' && me && me.revoked === true) {
-          state.role = 'viewer';
-          saveUserPrefs();
-          showToast('تم إلغاء صلاحية الأدمن من قبل المطور 🔒', '#FF5C8D');
+        // Keep name synced on the user's roleEmails doc if they are listed
+        const myKey = emailToDocId(state.user.email);
+        if (map[myKey] && state.user.displayName && map[myKey].name !== state.user.displayName) {
+          try {
+            await setDoc(doc(state.db, 'artifacts', appId, 'public', 'data', 'roleEmails', myKey), {
+              name: state.user.displayName
+            }, { merge: true });
+          } catch {}
         }
+
+        resolveEffectiveRole(true);
         renderAll();
-      }, (err) => console.error('ActiveAdmins snapshot error:', err));
+      });
 
       // 3. Levels (public)
-      onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'levels'), async (snap) => {
+      const u3 = onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'levels'), async (snap) => {
         const loaded = {};
         snap.forEach(d => { loaded[d.id] = { id: d.id, ...d.data() }; });
         if (!loaded.level2) {
@@ -1364,49 +1684,62 @@
         state.levels = loaded;
         if (!state.levels[state.currentLevelId]) state.currentLevelId = 'level2';
         renderAll();
-      }, (err) => console.error('Levels snapshot error:', err));
+      });
 
       // 4. Announcements (public)
-      onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'announcements'), (snap) => {
+      const u4 = onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'announcements'), (snap) => {
         const list = [];
         snap.forEach(d => list.push({ id: d.id, ...d.data() }));
         state.announcements = list;
         renderAll();
-      }, (err) => console.error('Announcements snapshot error:', err));
+      });
 
       // 5. Staff Overrides (public)
-      onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'sectionStaff'), (snap) => {
+      const u5 = onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'sectionStaff'), (snap) => {
         const map = {};
         snap.forEach(d => { map[d.id] = d.data(); });
         state.staffOverrides = map;
         renderAll();
-      }, (err) => console.error('Staff snapshot error:', err));
+      });
 
-      // 6. Personal User Preferences (private)
-      onSnapshot(doc(state.db, 'artifacts', appId, 'users', state.user.uid, 'prefs', 'main'), (snap) => {
+      // 6. Personal Account Preferences (private — syncs 'خلصته', section, theme, dev status across all devices!)
+      const u6 = onSnapshot(doc(state.db, 'artifacts', appId, 'users', state.user.uid, 'prefs', 'main'), async (snap) => {
         if (snap.exists()) {
           const data = snap.data();
           if (['auto', 'light', 'dark', 'special'].includes(data.themePref)) state.themePref = data.themePref;
           if (data.selectedSection) state.selectedSection = data.selectedSection;
           if (Array.isArray(data.doneIds)) state.doneIds = data.doneIds;
-          if (typeof data.authorName === 'string') state.authorName = data.authorName;
-          if (['viewer', 'admin', 'dev'].includes(data.role)) state.role = data.role;
+          if (typeof data.authorName === 'string' && data.authorName) state.authorName = data.authorName;
+          if (typeof data.adminSection === 'string') state.adminSection = data.adminSection;
+          if (data.isDevAccount === true || data.role === 'dev') state.isDevAccount = true;
           if (data.currentLevelId && state.levels[data.currentLevelId]) state.currentLevelId = data.currentLevelId;
           if (state.selectedSection !== 'ALL') state.settingsStaffSection = state.selectedSection;
+
+          resolveEffectiveRole(false);
+          renderAll();
+        } else {
+          // Initialize profile doc for new account
+          await saveUserPrefs();
+          resolveEffectiveRole(false);
           renderAll();
         }
-      }, (err) => console.error('Prefs snapshot error:', err));
+      });
+
+      state.unsubscribers = [u1, u2, u3, u4, u5, u6];
     }
 
     async function saveUserPrefs() {
       if (!state.db || !state.user) return;
       try {
         await setDoc(doc(state.db, 'artifacts', state.appId, 'users', state.user.uid, 'prefs', 'main'), {
+          email: normalizeEmail(state.user.email),
+          displayName: state.user.displayName || state.authorName || '',
           themePref: state.themePref,
           selectedSection: state.selectedSection,
           doneIds: state.doneIds,
           authorName: state.authorName,
-          role: state.role,
+          adminSection: state.adminSection,
+          isDevAccount: state.isDevAccount,
           currentLevelId: state.currentLevelId
         }, { merge: true });
       } catch (err) {
@@ -1424,66 +1757,89 @@
       renderAll();
     }
 
-    async function registerActiveAdmin(name, role) {
-      const uid = getEffectiveUid();
-      const entry = { uid, name: name || (role === 'dev' ? 'المطور' : 'أدمن'), role, joinedAt: Date.now(), revoked: false };
-      const idx = state.activeAdmins.findIndex(a => a.id === uid || a.uid === uid);
-      if (idx >= 0) state.activeAdmins[idx] = { id: uid, ...entry };
-      else state.activeAdmins.push({ id: uid, ...entry });
+    // ==================== DEV EMAIL ROLE MANAGEMENT ====================
+    async function assignRoleByEmail(email, role, assignedSection = '') {
+      if (!isDev()) return;
+      const cleanEmail = normalizeEmail(email);
+      const docId = emailToDocId(cleanEmail);
+      const existing = state.roleEmails[docId] || {};
 
+      const payload = {
+        email: cleanEmail,
+        name: existing.name || cleanEmail.split('@')[0],
+        role,
+        assignedSection: assignedSection || existing.assignedSection || '',
+        updatedAt: Date.now()
+      };
+
+      state.roleEmails[docId] = { id: docId, ...payload };
       if (state.db && state.user) {
         try {
-          await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'activeAdmins', uid), entry);
+          await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'roleEmails', docId), payload, { merge: true });
         } catch (e) { console.error(e); }
       }
+      showToast(`تم تعيين ${cleanEmail} كـ ${role === 'admin_plus' ? 'Admin+' : 'Admin'} ✅`, '#4ADE80');
+      renderAll();
     }
 
-    async function revokeAdminByUid(uid) {
-      const target = state.activeAdmins.find(a => a.id === uid || a.uid === uid);
-      if (target) target.revoked = true;
+    async function removeRoleByEmail(docId) {
+      if (!isDev()) return;
+      delete state.roleEmails[docId];
       if (state.db && state.user) {
         try {
-          await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'activeAdmins', uid), { revoked: true }, { merge: true });
+          await deleteDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'roleEmails', docId));
         } catch (e) { console.error(e); }
       }
-      showToast('تم إلغاء صلاحية الأدمن بنجاح 🚫', '#FFD60A');
+      showToast('تم إلغاء صلاحية الحساب وإرجاعه لمشاهد 🚫', '#FFD60A');
       renderAll();
     }
 
     // ==================== CRUD ACTIONS ====================
     async function saveAlert(payload, editId = null) {
       if (!canManage()) {
-        showToast('تحتاج صلاحية أدمن لتنفيذ هذا الإجراء 🔐', '#FF5C8D');
+        showToast('ليس لديك صلاحية إضافة أو تعديل التنبيهات 🔐', '#FF5C8D');
         return;
       }
+
+      // Enforce Admin Scope Guard
+      if (state.role === 'admin') {
+        const mySec = state.adminSection;
+        const myGrp = getAdminGroup();
+        const validSec = payload.targetType === 'section' && payload.targetValue === mySec;
+        const validGrp = payload.targetType === 'group' && payload.targetValue === myGrp;
+        if (!validSec && !validGrp) {
+          showToast(`صلاحيتك كأدمن مقيدة بسكشن ${mySec} وجروب ${myGrp} فقط 🔒`, '#FF5C8D');
+          return;
+        }
+      }
+
       if (state.db && state.user) {
         try {
           if (editId) {
             await updateDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'announcements', editId), payload);
             showToast('تم تعديل التنبيه بنجاح ✨', '#00D1B2');
           } else {
-            await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'announcements'), { ...payload, createdAt: Date.now() });
+            await addDoc(collection(state.db, 'artifacts', state.appId, 'public', 'data', 'announcements'), {
+              ...payload,
+              createdByUid: state.user.uid,
+              createdByEmail: normalizeEmail(state.user.email),
+              createdAt: Date.now()
+            });
             showToast('تم نشر التنبيه للدفعة كلها 🚀', '#4ADE80');
           }
         } catch (err) {
           console.error(err);
           showToast('حصل خطأ أثناء الحفظ', '#FF5C8D');
         }
-      } else {
-        if (editId) {
-          const i = state.announcements.findIndex(a => a.id === editId);
-          if (i !== -1) state.announcements[i] = { ...state.announcements[i], ...payload };
-          showToast('تم تعديل التنبيه ✨', '#00D1B2');
-        } else {
-          state.announcements.push({ id: 'local_' + Date.now(), ...payload, createdAt: Date.now() });
-          showToast('تم إضافة التنبيه 🚀', '#4ADE80');
-        }
-        renderAll();
       }
     }
 
     async function deleteAlert(id) {
-      if (!canManage()) return;
+      const ann = state.announcements.find(a => a.id === id);
+      if (!canModifyAlert(ann)) {
+        showToast('لا يمكنك حذف تنبيه خارج نطاق سكشنك/جروبك 🔒', '#FF5C8D');
+        return;
+      }
       if (state.db && state.user) {
         try {
           await deleteDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'announcements', id));
@@ -1492,15 +1848,14 @@
           console.error(err);
           showToast('تعذر الحذف', '#FF5C8D');
         }
-      } else {
-        state.announcements = state.announcements.filter(a => a.id !== id);
-        showToast('تم حذف التنبيه 🗑️', '#FFD60A');
-        renderAll();
       }
     }
 
     async function saveStaffOverrides(section, rows) {
-      if (!canManage()) return;
+      if (!isDev()) {
+        showToast('تعديل الدكاترة والمعيدين متاح للمطور فقط 🔒', '#FF5C8D');
+        return;
+      }
       for (const r of rows) {
         const key = `${state.currentLevelId}_${section}_${r.courseId}`;
         const data = { levelId: state.currentLevelId, section, courseId: r.courseId, taName: r.taName.trim(), room: r.room.trim() };
@@ -1516,7 +1871,7 @@
     }
 
     async function addNewLevel(levelObj) {
-      if (state.role !== 'dev') return;
+      if (!isDev()) return;
       state.levels[levelObj.id] = levelObj;
       if (state.db && state.user) {
         try {
@@ -1548,8 +1903,9 @@
       const backup = {
         exportedAt: new Date().toISOString(),
         app: 'BUA-Radar-Level2',
-        version: '2.0',
+        version: '3.0',
         config: state.config,
+        roleEmails: state.roleEmails,
         levels: state.levels,
         staffOverrides: state.staffOverrides,
         announcements: state.announcements
@@ -1576,6 +1932,13 @@
         }
 
         if (data.config) await saveConfig(data.config);
+        if (data.roleEmails && typeof data.roleEmails === 'object') {
+          for (const [k, v] of Object.entries(data.roleEmails)) {
+            if (state.db && state.user) {
+              await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'roleEmails', k), v);
+            }
+          }
+        }
         if (data.levels && typeof data.levels === 'object') {
           state.levels = { ...state.levels, ...data.levels };
           if (state.db && state.user) {
@@ -1597,10 +1960,6 @@
           const docId = id || ('restored_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6));
           if (state.db && state.user) {
             await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'announcements', docId), rest);
-          } else {
-            const exists = state.announcements.findIndex(x => x.id === docId);
-            if (exists >= 0) state.announcements[exists] = { id: docId, ...rest };
-            else state.announcements.push({ id: docId, ...rest });
           }
         }
         showToast(`تمت الاستعادة بنجاح (${data.announcements.length} تنبيه) ✅`, '#4ADE80');
@@ -1638,7 +1997,6 @@
       const lvl = getCurrentLevel();
       const secFilter = scope === 'MY_SECTION' ? state.selectedSection : 'ALL';
 
-      // Show/Hide sub-filters
       document.getElementById('recapRangeWrap').classList.toggle('hidden', mode !== 'ALL');
       document.getElementById('recapCourseWrap').classList.toggle('hidden', mode !== 'COURSE');
       document.getElementById('recapTagWrap').classList.toggle('hidden', mode !== 'TAG');
@@ -1730,6 +2088,8 @@
     // ==================== RENDER ENGINE ====================
     function renderAll() {
       applyTheme();
+      if (!state.user) return;
+
       renderHeaderAndHero();
       renderUrgentBar();
       renderSearchResults();
@@ -1763,7 +2123,19 @@
       const lvl = getCurrentLevel();
       document.getElementById('heroLevelPill').textContent = `${lvl.name} • ${lvl.term || 'Fall 2026'}`;
 
-      // Role Badge Pill (Only shown for Admin / Dev)
+      // Show/Hide Add Buttons based on Role
+      const allowedToAdd = canManage();
+      const quickAddBtn = document.getElementById('quickAddBtn');
+      const addInCourseBtn = document.getElementById('addInCourseBtn');
+      const calAddOnDayBtn = document.getElementById('calAddOnDayBtn');
+
+      quickAddBtn.classList.toggle('hidden', !allowedToAdd);
+      quickAddBtn.classList.toggle('flex', allowedToAdd);
+      addInCourseBtn.classList.toggle('hidden', !allowedToAdd);
+      addInCourseBtn.classList.toggle('inline-flex', allowedToAdd);
+      calAddOnDayBtn.classList.toggle('hidden', !allowedToAdd);
+
+      // Role Badge Pill (Shown for Admin, Admin+, or Dev)
       const roleBadge = document.getElementById('headerRoleBadge');
       const roleText = document.getElementById('headerRoleText');
       if (state.role === 'dev') {
@@ -1771,8 +2143,13 @@
         roleBadge.style.backgroundColor = '#A78BFA';
         roleBadge.classList.remove('hidden');
         roleBadge.classList.add('inline-flex');
+      } else if (state.role === 'admin_plus') {
+        roleText.textContent = `⭐ Admin+${state.adminSection ? ` (${state.adminSection})` : ''}`;
+        roleBadge.style.backgroundColor = '#00D1B2';
+        roleBadge.classList.remove('hidden');
+        roleBadge.classList.add('inline-flex');
       } else if (state.role === 'admin') {
-        roleText.textContent = '🔑 أدمن';
+        roleText.textContent = `🔑 Admin${state.adminSection ? ` (${state.adminSection})` : ''}`;
         roleBadge.style.backgroundColor = '#FFD60A';
         roleBadge.classList.remove('hidden');
         roleBadge.classList.add('inline-flex');
@@ -2018,7 +2395,7 @@
           <div class="nb-card p-10 text-center space-y-2">
             <div class="text-3xl">${state.courseStatusTab === 'active' ? '✨' : '🗄️'}</div>
             <p class="text-sm font-black">${state.courseStatusTab === 'active' ? 'لا توجد تنبيهات نشطة في القسم ده حالياً' : 'أرشيف المادة دي فاضي حالياً'}</p>
-            <p class="text-xs font-bold text-sec">${state.courseStatusTab === 'active' ? 'اضغط على + إضافة تنبيه لو فيه حاجة جديدة من الدكتور أو المعيد.' : 'أي تنبيه يعدي تاريخه بيتنقل هنا أوتوماتيك.'}</p>
+            <p class="text-xs font-bold text-sec">${state.courseStatusTab === 'active' ? 'التنبيهات الجديدة بتظهر هنا لايف بمجرد نشرها.' : 'أي تنبيه يعدي تاريخه بيتنقل هنا أوتوماتيك.'}</p>
           </div>
         `;
       } else {
@@ -2034,6 +2411,7 @@
       const aud = getTargetLabel(ann);
       const isSpecific = ann.targetType && ann.targetType !== 'all';
       const links = getAlertLinks(ann);
+      const allowEditDelete = canModifyAlert(ann);
 
       return `
         <article class="nb-card p-4 relative overflow-hidden transition ${done ? 'opacity-55' : ''}">
@@ -2094,7 +2472,7 @@
                   class="nb-btn-sm px-2.5 py-1 rounded-xl bg-[#4ADE80] nb-ink text-xs font-black">
                   📋 واتساب
                 </button>
-                ${canManage() ? `
+                ${allowEditDelete ? `
                   <button type="button" data-edit-alert="${escapeHtml(ann.id)}" title="تعديل"
                     class="nb-btn-sm w-8 h-8 rounded-xl bg-card text-xs font-black flex items-center justify-center">
                     ✏️
@@ -2201,14 +2579,14 @@
 
     // ==================== SETTINGS MODAL RENDER ====================
     function renderSettingsContent() {
-      const isDev = state.role === 'dev';
-      if (state.settingsTab === 'dev' && !isDev) state.settingsTab = 'staff';
+      const devMode = isDev();
+      if (state.settingsTab === 'dev' && !devMode) state.settingsTab = 'staff';
 
       const tabStaff = document.getElementById('settingsTabStaff');
       const tabAuth  = document.getElementById('settingsTabAuth');
       const tabDev   = document.getElementById('settingsTabDev');
 
-      tabDev.classList.toggle('hidden', !isDev);
+      tabDev.classList.toggle('hidden', !devMode);
 
       tabStaff.style.backgroundColor = state.settingsTab === 'staff' ? '#FFD60A' : '';
       tabStaff.classList.toggle('nb-ink', state.settingsTab === 'staff');
@@ -2221,7 +2599,7 @@
 
       document.getElementById('settingsPanelStaff').classList.toggle('hidden', state.settingsTab !== 'staff');
       document.getElementById('settingsPanelAuth').classList.toggle('hidden', state.settingsTab !== 'auth');
-      document.getElementById('settingsPanelDev').classList.toggle('hidden', state.settingsTab !== 'dev' || !isDev);
+      document.getElementById('settingsPanelDev').classList.toggle('hidden', state.settingsTab !== 'dev' || !devMode);
 
       const lvl = getCurrentLevel();
 
@@ -2237,11 +2615,12 @@
         const editForm = document.getElementById('settingsStaffEditForm');
         const editBtn = document.getElementById('toggleEditStaffBtn');
 
-        listEl.classList.toggle('hidden', state.editingStaff);
-        editForm.classList.toggle('hidden', !state.editingStaff);
-        editBtn.classList.toggle('hidden', state.editingStaff || !canManage());
+        // Requirement 1: Edit Doctors & TAs is strictly for DEV ONLY!
+        listEl.classList.toggle('hidden', state.editingStaff && devMode);
+        editForm.classList.toggle('hidden', !state.editingStaff || !devMode);
+        editBtn.classList.toggle('hidden', state.editingStaff || !devMode);
 
-        if (!state.editingStaff) {
+        if (!state.editingStaff || !devMode) {
           listEl.innerHTML = lvl.courses.map(c => {
             const info = getStaffInfo(state.settingsStaffSection, c.id);
             return `
@@ -2276,21 +2655,76 @@
           }).join('');
         }
       } else if (state.settingsTab === 'auth') {
-        const statusEl = document.getElementById('authCurrentStatus');
-        const logoutBtn = document.getElementById('logoutRoleBtn');
-        if (state.role === 'dev') {
-          statusEl.textContent = '🛠️ مطور (Dev) — صلاحيات كاملة';
-          logoutBtn.classList.remove('hidden');
-        } else if (state.role === 'admin') {
-          statusEl.textContent = `🔑 أدمن (Admin) ${state.authorName ? `— ${state.authorName}` : ''}`;
-          logoutBtn.classList.remove('hidden');
+        document.getElementById('accountDisplayName').textContent = state.user?.displayName || state.authorName || 'مستخدم مسجّل';
+        document.getElementById('accountDisplayEmail').textContent = state.user?.email || '—';
+        document.getElementById('authCurrentStatus').textContent = getRoleDisplayLabel(state.role);
+
+        const secPill = document.getElementById('authAdminSectionPill');
+        if ((state.role === 'admin' || state.role === 'admin_plus') && state.adminSection) {
+          secPill.textContent = `🎯 سكشنك: ${state.adminSection} (Group ${getAdminGroup()})`;
+          secPill.classList.remove('hidden');
         } else {
-          statusEl.textContent = '👁️ مشاهد (Viewer)';
-          logoutBtn.classList.add('hidden');
+          secPill.classList.add('hidden');
         }
-        document.getElementById('roleLoginName').value = state.authorName || '';
-      } else if (state.settingsTab === 'dev' && isDev) {
-        // 1. Special Theme Grid
+
+        // Hide dev PIN unlock form if already Dev
+        document.getElementById('roleLoginForm').classList.toggle('hidden', devMode);
+      } else if (state.settingsTab === 'dev' && devMode) {
+        // 1. Populate Section dropdown for assigning emails
+        const assignSecSel = document.getElementById('devAssignSectionSelect');
+        assignSecSel.innerHTML = `<option value="" class="bg-white text-black">يختاره عند الدخول</option>` +
+          lvl.sections.map(s => `<option value="${escapeHtml(s)}" class="bg-white text-black">سكشن ${escapeHtml(s)}</option>`).join('');
+
+        // 2. Render Assigned Admins & Admin+ List (Name + Email + Section + Role)
+        const entries = Object.values(state.roleEmails).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+        document.getElementById('devAdminsCountBadge').textContent = `${entries.length} مسجل`;
+        const adminsEl = document.getElementById('devAdminsList');
+
+        if (entries.length === 0) {
+          adminsEl.innerHTML = `<div class="text-xs font-bold text-sec py-2 text-center">لم تقم بترقية أي Admin أو Admin+ بالإيميل بعد.</div>`;
+        } else {
+          adminsEl.innerHTML = entries.map(item => {
+            const isPlus = item.role === 'admin_plus';
+            const secText = item.assignedSection ? `🎯 سكشن ${escapeHtml(item.assignedSection)}` : '⏳ لم يحدد سكشنه بعد';
+            const secOptions = `<option value="">— سكشن —</option>` + lvl.sections.map(s =>
+              `<option value="${escapeHtml(s)}" ${item.assignedSection === s ? 'selected' : ''}>${escapeHtml(s)}</option>`
+            ).join('');
+
+            return `
+              <div class="nb-card-sm p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div class="min-w-0 space-y-1">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="px-2 py-0.5 rounded-md border border-black nb-ink text-[10px] font-black" style="background:${isPlus ? '#00D1B2' : '#FFD60A'}">
+                      ${isPlus ? '⭐ Admin+' : '🔑 Admin'}
+                    </span>
+                    <span class="text-xs sm:text-sm font-black truncate">${escapeHtml(item.name || 'بدون اسم')}</span>
+                    <span class="px-2 py-0.5 rounded-md border border-nb bg-muted text-[11px] font-black">
+                      ${secText}
+                    </span>
+                  </div>
+                  <div class="text-[11px] font-bold text-sec font-en truncate">${escapeHtml(item.email)}</div>
+                </div>
+
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <select data-change-admin-sec="${escapeHtml(item.id)}" title="تغيير السكشن"
+                    class="nb-input px-2 py-1 text-[11px] font-black cursor-pointer">
+                    ${secOptions}
+                  </select>
+                  <button type="button" data-toggle-admin-role="${escapeHtml(item.id)}" title="تبديل بين Admin و Admin+"
+                    class="nb-btn-sm px-2 py-1 rounded-lg bg-[#A78BFA] nb-ink text-[11px] font-black">
+                    ${isPlus ? 'خليه Admin' : 'رقّيه +'}
+                  </button>
+                  <button type="button" data-remove-email-role="${escapeHtml(item.id)}" title="إزالة الصلاحية"
+                    class="nb-btn-sm px-2 py-1 rounded-lg bg-[#FF5C8D] nb-ink text-[11px] font-black">
+                    إزالة ✕
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        // 3. Special Theme Grid
         const curMode = state.config.specialThemeMode || 'auto';
         const eff = getEffectiveSpecialTheme();
         document.getElementById('devThemeActiveInfo').textContent = eff ? `نشط: ${SPECIAL_THEMES[eff].label}` : 'لا يوجد ثيم خاص نشط';
@@ -2306,37 +2740,13 @@
           `;
         }).join('');
 
-        // 2. Active Admins List
-        const admins = state.activeAdmins.filter(a => !a.revoked && a.role === 'admin');
-        const adminsEl = document.getElementById('devAdminsList');
-        if (admins.length === 0) {
-          adminsEl.innerHTML = `<div class="text-xs font-bold text-sec py-2">لا يوجد أدمن مسجلين حالياً.</div>`;
-        } else {
-          adminsEl.innerHTML = admins.map(a => `
-            <div class="nb-card-sm px-3 py-2 flex items-center justify-between gap-2">
-              <div class="min-w-0">
-                <div class="text-xs font-black truncate">🔑 ${escapeHtml(a.name || 'أدمن')}</div>
-                <div class="text-[10px] font-bold text-sec font-en truncate">${escapeHtml(a.uid || a.id)}</div>
-              </div>
-              <button type="button" data-revoke-admin="${escapeHtml(a.uid || a.id)}"
-                class="nb-btn-sm px-2.5 py-1 rounded-lg bg-[#FF5C8D] nb-ink text-[11px] font-black shrink-0">
-                طرد 🚫
-              </button>
-            </div>
-          `).join('');
-        }
-
-       const adminInput = document.getElementById('devNewAdminPin');
-        const devInput = document.getElementById('devNewDevPin');
-        const isAdminHashed = /^[a-f0-9]{64}$/.test(state.config.adminPin || '');
+        // 4. Dev Backup PIN Input placeholder (never exposes hash)
+        const devPinInput = document.getElementById('devNewDevPin');
         const isDevHashed = /^[a-f0-9]{64}$/.test(state.config.devPin || '');
+        devPinInput.value = '';
+        devPinInput.placeholder = isDevHashed ? '🔒 مشفر (اكتب كود جديد للتغيير)' : '⚠️ اكتب كود المطور الجديد لتشفيره';
 
-        adminInput.value = '';
-        devInput.value = '';
-        adminInput.placeholder = isAdminHashed ? '🔒 مشفر (اكتب كود جديد للتغيير)' : '⚠️ غير مشفر (اكتب كود جديد)';
-        devInput.placeholder = isDevHashed ? '🔒 مشفر (اكتب كود جديد للتغيير)' : '⚠️ غير مشفر (اكتب كود جديد)';
-
-        // 3. Levels List
+        // 5. Levels List
         document.getElementById('levelsList').innerHTML = Object.values(state.levels).map(l => {
           const active = l.id === state.currentLevelId;
           return `
@@ -2374,14 +2784,11 @@
       }
     }
 
-    function requireAdminOrPrompt(onAllowed) {
+    function requireManagerOrPrompt(onAllowed) {
       if (canManage()) {
         onAllowed();
       } else {
-        showToast('سجّل بكود الأدمن أولاً لإضافة أو تعديل التنبيهات 🔐', '#FFD60A');
-        state.settingsTab = 'auth';
-        renderSettingsContent();
-        openModal('settingsModal');
+        showToast('إضافة التنبيهات متاحة للـ Admin و Admin+ فقط 🔒', '#FFD60A');
       }
     }
 
@@ -2399,6 +2806,11 @@
     }
 
     function openAlertModal({ editAnn = null, presetCourseId = null, presetDate = null } = {}) {
+      if (editAnn && !canModifyAlert(editAnn)) {
+        showToast('لا يمكنك تعديل تنبيه خارج نطاق سكشنك/جروبك 🔒', '#FF5C8D');
+        return;
+      }
+
       const lvl = getCurrentLevel();
       document.getElementById('alertForm').reset();
       document.getElementById('formErrorMsg').classList.add('hidden');
@@ -2416,12 +2828,32 @@
       document.getElementById('formTagInput').value = tid;
       renderFormTagPills(tid);
 
-      setFormTargetType(editAnn?.targetType || 'all', editAnn?.targetValue || null);
+      // Enforce Target Audience rules by role:
+      // - Admin+ & Dev can choose 'all', 'group', or 'section'
+      // - Regular Admin CANNOT choose 'all', and is restricted to their own section (e.g. W3) or their own group (e.g. W)
+      const btnAll = document.getElementById('btnTargetAll');
+      const scopeHint = document.getElementById('targetScopeHint');
+
+      if (isAdminPlus()) {
+        btnAll.disabled = false;
+        btnAll.textContent = 'الكل';
+        scopeHint.textContent = '⭐ متاح النشر للكل أو لأي جروب/سكشن';
+        setFormTargetType(editAnn?.targetType || 'all', editAnn?.targetValue || null);
+      } else {
+        btnAll.disabled = true;
+        btnAll.textContent = 'الكل (Admin+ 🔒)';
+        const mySec = state.adminSection;
+        const myGrp = getAdminGroup();
+        scopeHint.textContent = `🔒 نطاقك: سكشن ${mySec} أو جروب ${myGrp}`;
+        const defaultType = (editAnn?.targetType === 'group' || editAnn?.targetType === 'section') ? editAnn.targetType : 'section';
+        const defaultVal = defaultType === 'group' ? myGrp : mySec;
+        setFormTargetType(defaultType, defaultVal);
+      }
 
       document.getElementById('formTitle').value = editAnn?.title || '';
       document.getElementById('formDate').value = editAnn?.date || presetDate || '';
       document.getElementById('formNote').value = editAnn?.note || '';
-      document.getElementById('formAuthor').value = editAnn?.author || state.authorName || '';
+      document.getElementById('formAuthor').value = editAnn?.author || state.authorName || state.user?.displayName || '';
 
       // Populate Multiple Links
       const linksContainer = document.getElementById('formLinksContainer');
@@ -2466,6 +2898,11 @@
     }
 
     function setFormTargetType(type, presetVal = null) {
+      // Prevent regular Admin from ever selecting 'all'
+      if (type === 'all' && !isAdminPlus()) {
+        type = 'section';
+      }
+
       state.formTargetType = type;
       const lvl = getCurrentLevel();
       document.querySelectorAll('.target-type-btn').forEach(b => {
@@ -2481,14 +2918,22 @@
         wrap.classList.add('hidden');
       } else if (type === 'group') {
         wrap.classList.remove('hidden');
-        sel.innerHTML = lvl.groups.map(g => `<option value="${escapeHtml(g)}" class="bg-white text-black">Group ${escapeHtml(g)}</option>`).join('');
-        if (presetVal && lvl.groups.includes(presetVal)) sel.value = presetVal;
-        else if (state.selectedSection !== 'ALL') sel.value = getGroupFromSection(state.selectedSection);
+        // Regular admin is restricted strictly to their own group (e.g. Group W)
+        const allowedGroups = isAdminPlus() ? lvl.groups : [getAdminGroup()].filter(Boolean);
+        sel.innerHTML = allowedGroups.map(g => `<option value="${escapeHtml(g)}" class="bg-white text-black">Group ${escapeHtml(g)}</option>`).join('');
+        if (presetVal && allowedGroups.includes(presetVal)) sel.value = presetVal;
+        else if (state.selectedSection !== 'ALL' && allowedGroups.includes(getGroupFromSection(state.selectedSection))) {
+          sel.value = getGroupFromSection(state.selectedSection);
+        }
       } else {
         wrap.classList.remove('hidden');
-        sel.innerHTML = lvl.sections.map(s => `<option value="${escapeHtml(s)}" class="bg-white text-black">سكشن ${escapeHtml(s)}</option>`).join('');
-        if (presetVal && lvl.sections.includes(presetVal)) sel.value = presetVal;
-        else if (state.selectedSection !== 'ALL') sel.value = state.selectedSection;
+        // Regular admin is restricted strictly to their own section (e.g. W3)
+        const allowedSections = isAdminPlus() ? lvl.sections : [state.adminSection].filter(Boolean);
+        sel.innerHTML = allowedSections.map(s => `<option value="${escapeHtml(s)}" class="bg-white text-black">سكشن ${escapeHtml(s)}</option>`).join('');
+        if (presetVal && allowedSections.includes(presetVal)) sel.value = presetVal;
+        else if (state.selectedSection !== 'ALL' && allowedSections.includes(state.selectedSection)) {
+          sel.value = state.selectedSection;
+        }
       }
     }
 
@@ -2504,7 +2949,6 @@
         scopeSel.value = 'MY_SECTION';
       }
 
-      // Populate dynamic selects
       document.getElementById('recapCourseSelect').innerHTML = lvl.courses
         .map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)} (${escapeHtml(c.shortName)})</option>`).join('');
       if (state.selectedCourseId) document.getElementById('recapCourseSelect').value = state.selectedCourseId;
@@ -2528,7 +2972,119 @@
       openModal('confirmModal');
     }
 
-    // ==================== EVENT LISTENERS ====================
+    // ==================== AUTH GATE EVENTS ====================
+    function setupAuthEvents() {
+      document.getElementById('authThemeToggleBtn').addEventListener('click', cycleTheme);
+
+      // Switch Login / Signup tabs
+      document.getElementById('authModeLoginBtn').addEventListener('click', () => {
+        state.authMode = 'login';
+        document.getElementById('emailSignupNameWrap').classList.add('hidden');
+        document.getElementById('emailAuthName').required = false;
+        document.getElementById('emailAuthSubmitBtn').textContent = 'دخول إلى الرادار 🚀';
+        document.getElementById('authModeLoginBtn').style.backgroundColor = '#00D1B2';
+        document.getElementById('authModeLoginBtn').classList.add('nb-ink');
+        document.getElementById('authModeSignupBtn').style.backgroundColor = '';
+        document.getElementById('authModeSignupBtn').classList.remove('nb-ink');
+        document.getElementById('authGateError').classList.add('hidden');
+      });
+
+      document.getElementById('authModeSignupBtn').addEventListener('click', () => {
+        state.authMode = 'signup';
+        document.getElementById('emailSignupNameWrap').classList.remove('hidden');
+        document.getElementById('emailAuthName').required = true;
+        document.getElementById('emailAuthSubmitBtn').textContent = 'إنشاء حساب جديد والدخول ✨';
+        document.getElementById('authModeSignupBtn').style.backgroundColor = '#FFD60A';
+        document.getElementById('authModeSignupBtn').classList.add('nb-ink');
+        document.getElementById('authModeLoginBtn').style.backgroundColor = '';
+        document.getElementById('authModeLoginBtn').classList.remove('nb-ink');
+        document.getElementById('authGateError').classList.add('hidden');
+      });
+
+      // Google Sign-In
+      document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+        const errEl = document.getElementById('authGateError');
+        errEl.classList.add('hidden');
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        try {
+          await signInWithPopup(state.auth, provider);
+        } catch (err) {
+          if (err.code === 'auth/popup-blocked') {
+            await signInWithRedirect(state.auth, provider);
+          } else if (err.code !== 'auth/popup-closed-by-user') {
+            errEl.textContent = `تعذر تسجيل الدخول بجوجل: ${err.message}`;
+            errEl.classList.remove('hidden');
+          }
+        }
+      });
+
+      // Email / Password Form
+      document.getElementById('emailAuthForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('emailAuthInput').value.trim();
+        const pass = document.getElementById('emailAuthPass').value;
+        const name = document.getElementById('emailAuthName').value.trim();
+        const errEl = document.getElementById('authGateError');
+        errEl.classList.add('hidden');
+
+        try {
+          if (state.authMode === 'signup') {
+            const cred = await createUserWithEmailAndPassword(state.auth, email, pass);
+            if (name) {
+              await updateProfile(cred.user, { displayName: name });
+              state.authorName = name;
+            }
+            showToast('تم إنشاء حسابك بنجاح! أهلاً بيك في رادار الدفعة 🎉', '#4ADE80');
+          } else {
+            await signInWithEmailAndPassword(state.auth, email, pass);
+            showToast('تم تسجيل الدخول بنجاح 🚀', '#4ADE80');
+          }
+        } catch (err) {
+          let msg = 'حدث خطأ في تسجيل الدخول. تأكد من البيانات.';
+          if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+            msg = 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+          } else if (err.code === 'auth/email-already-in-use') {
+            msg = 'هذا البريد مسجل بالفعل. جرب "تسجيل الدخول" بدلاً من حساب جديد.';
+          } else if (err.code === 'auth/weak-password') {
+            msg = 'كلمة المرور ضعيفة (يجب أن تكون 6 أحرف على الأقل).';
+          }
+          errEl.textContent = msg;
+          errEl.classList.remove('hidden');
+        }
+      });
+
+      // Mandatory Admin Section Form
+      document.getElementById('adminSectionForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const chosen = document.getElementById('adminSectionSelectInput').value;
+        if (!chosen) return;
+
+        state.adminSection = chosen;
+        state.selectedSection = chosen;
+        state.settingsStaffSection = chosen;
+
+        // Save both in personal prefs & public roleEmails so Dev sees it immediately
+        await saveUserPrefs();
+        if (state.user?.email) {
+          const docId = emailToDocId(state.user.email);
+          try {
+            await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'roleEmails', docId), {
+              assignedSection: chosen,
+              name: state.user.displayName || state.authorName || state.user.email.split('@')[0],
+              updatedAt: Date.now()
+            }, { merge: true });
+          } catch (err) { console.error(err); }
+        }
+
+        document.getElementById('adminSectionModal').classList.add('hidden');
+        if (state.openModals.length === 0) document.body.style.overflow = '';
+        showToast(`تم ربط حسابك بسكشن ${chosen} بنجاح 🎯`, '#4ADE80');
+        renderAll();
+      });
+    }
+
+    // ==================== MAIN APP EVENT LISTENERS ====================
     function setupEvents() {
       // Theme Cycle Button
       document.getElementById('toggleThemeBtn').addEventListener('click', cycleTheme);
@@ -2548,9 +3104,18 @@
         openModal('settingsModal');
       });
       document.getElementById('headerRoleBadge').addEventListener('click', () => {
-        state.settingsTab = state.role === 'dev' ? 'dev' : 'auth';
+        state.settingsTab = isDev() ? 'dev' : 'auth';
         renderSettingsContent();
         openModal('settingsModal');
+      });
+
+      // Account Sign Out
+      document.getElementById('accountSignOutBtn').addEventListener('click', () => {
+        openConfirm('تسجيل الخروج', 'هل تريد تسجيل الخروج من حسابك الحالي؟', async () => {
+          closeModal('settingsModal');
+          await signOut(state.auth);
+          showToast('تم تسجيل الخروج 👋', '#E5E7EB');
+        });
       });
 
       // Recap Modal Button
@@ -2575,7 +3140,7 @@
         renderAll();
       });
       document.getElementById('quickAddBtn').addEventListener('click', () => {
-        requireAdminOrPrompt(() => openAlertModal());
+        requireManagerOrPrompt(() => openAlertModal());
       });
 
       // Course Detail Controls
@@ -2583,7 +3148,7 @@
         navigateToView('home', null);
       });
       document.getElementById('addInCourseBtn').addEventListener('click', () => {
-        requireAdminOrPrompt(() => openAlertModal({ presetCourseId: state.selectedCourseId }));
+        requireManagerOrPrompt(() => openAlertModal({ presetCourseId: state.selectedCourseId }));
       });
       document.getElementById('tabCourseActive').addEventListener('click', () => {
         state.courseStatusTab = 'active';
@@ -2623,7 +3188,7 @@
         renderCalendar();
       });
       document.getElementById('calAddOnDayBtn').addEventListener('click', () => {
-        requireAdminOrPrompt(() => openAlertModal({ presetDate: state.calSelectedDate }));
+        requireManagerOrPrompt(() => openAlertModal({ presetDate: state.calSelectedDate }));
       });
 
       // Settings Modal Tabs
@@ -2637,19 +3202,19 @@
         renderSettingsContent();
       });
       document.getElementById('settingsTabDev').addEventListener('click', () => {
-        if (state.role !== 'dev') return;
+        if (!isDev()) return;
         state.settingsTab = 'dev';
         renderSettingsContent();
       });
 
-      // Staff Section & Editing
+      // Staff Section & Editing (Dev Only)
       document.getElementById('settingsStaffSection').addEventListener('change', (e) => {
         state.settingsStaffSection = e.target.value;
         state.editingStaff = false;
         renderSettingsContent();
       });
       document.getElementById('toggleEditStaffBtn').addEventListener('click', () => {
-        if (!canManage()) return;
+        if (!isDev()) return;
         state.editingStaff = true;
         renderSettingsContent();
       });
@@ -2659,6 +3224,7 @@
       });
       document.getElementById('settingsStaffEditForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (!isDev()) return;
         const lvl = getCurrentLevel();
         const rows = lvl.courses.map(c => ({
           courseId: c.id,
@@ -2670,7 +3236,7 @@
         renderSettingsContent();
       });
 
-     // Helper: SHA-256 Hashing & Verification
+      // SHA-256 Hashing & Verification for Dev Backup PIN
       async function hashPin(str) {
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
         return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -2679,80 +3245,63 @@
       async function verifyPin(input, stored) {
         if (!stored) return false;
         const isHashed = /^[a-f0-9]{64}$/.test(stored);
-        if (isHashed) {
-          return (await hashPin(input)) === stored;
-        }
-        return input === stored; // للسماح بالدخول بالكود القديم مرة أخيرة قبل التشفير
+        if (isHashed) return (await hashPin(input)) === stored;
+        return input === stored;
       }
 
-      // Role Login & Logout
+      // Dev Code Activation for Current Account
       document.getElementById('roleLoginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const pin = document.getElementById('roleLoginPin').value.trim();
-        const name = document.getElementById('roleLoginName').value.trim();
         const errEl = document.getElementById('roleLoginError');
         errEl.classList.add('hidden');
 
         if (await verifyPin(pin, state.config.devPin)) {
+          state.isDevAccount = true;
           state.role = 'dev';
-          if (name) state.authorName = name;
-          await registerActiveAdmin(name || 'المطور', 'dev');
           await saveUserPrefs();
           document.getElementById('roleLoginPin').value = '';
-          showToast('تم تفعيل صلاحيات المطور بنجاح 🛠️', '#A78BFA');
+          showToast('تم تفعيل صلاحيات المطور لحسابك بنجاح 🛠️', '#A78BFA');
           state.settingsTab = 'dev';
           renderAll();
-        } else if (await verifyPin(pin, state.config.adminPin)) {
-          state.role = 'admin';
-          if (name) state.authorName = name;
-          await registerActiveAdmin(name || 'أدمن', 'admin');
-          await saveUserPrefs();
-          document.getElementById('roleLoginPin').value = '';
-          showToast('تم تفعيل صلاحيات الأدمن بنجاح 🔑', '#FFD60A');
-          renderAll();
         } else {
-          errEl.textContent = 'الكود غير صحيح. تأكد من كود الأدمن أو المطور.';
+          errEl.textContent = 'كود المطور غير صحيح.';
           errEl.classList.remove('hidden');
         }
       });
 
-      document.getElementById('logoutRoleBtn').addEventListener('click', async () => {
-        state.role = 'viewer';
-        state.settingsTab = 'auth';
-        await saveUserPrefs();
-        showToast('تم الرجوع لوضع المشاهد 👁️', '#E5E7EB');
-        renderAll();
+      // Dev Panel: Assign / Promote Admin or Admin+ by Email
+      document.getElementById('devAssignEmailForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!isDev()) return;
+        const email = document.getElementById('devAssignEmailInput').value.trim();
+        const role = document.getElementById('devAssignRoleSelect').value;
+        const sec = document.getElementById('devAssignSectionSelect').value;
+        if (!email) return;
+
+        await assignRoleByEmail(email, role, sec);
+        document.getElementById('devAssignEmailInput').value = '';
       });
 
-      // Dev Panel: PINs Update
+      // Dev Panel: Dev PIN Update
       document.getElementById('devPinsForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (state.role !== 'dev') return;
-        const rawAdminPin = document.getElementById('devNewAdminPin').value.trim();
+        if (!isDev()) return;
         const rawDevPin = document.getElementById('devNewDevPin').value.trim();
-
-        if (!rawAdminPin && !rawDevPin) {
-          showToast('اكتب كود واحد على الأقل للتحديث ⚠️', '#FFD60A');
-          return;
-        }
-
-        const updates = {};
-        if (rawAdminPin) updates.adminPin = await hashPin(rawAdminPin);
-        if (rawDevPin) updates.devPin = await hashPin(rawDevPin);
-
-        await saveConfig(updates);
-        document.getElementById('devNewAdminPin').value = '';
+        if (!rawDevPin) return;
+        const devPin = await hashPin(rawDevPin);
+        await saveConfig({ devPin });
         document.getElementById('devNewDevPin').value = '';
-        showToast('تم تحديث وتشفير الأكواد بنجاح 🔒', '#4ADE80');
+        showToast('تم تحديث وتشفير كود المطور بنجاح 🔒', '#4ADE80');
       });
 
       // Dev Panel: Backup & Restore
       document.getElementById('devExportJsonBtn').addEventListener('click', () => {
-        if (state.role !== 'dev') return;
+        if (!isDev()) return;
         exportFullBackupJSON();
       });
       document.getElementById('devImportJsonInput').addEventListener('change', (e) => {
-        if (state.role !== 'dev') return;
+        if (!isDev()) return;
         const file = e.target.files?.[0];
         if (file) {
           openConfirm('استعادة نسخة احتياطية', 'سيتم دمج واستعادة البيانات من ملف JSON المحدد. هل تريد المتابعة؟', () => {
@@ -2765,7 +3314,7 @@
       // Dev Panel: Add New Level Form
       document.getElementById('addLevelForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (state.role !== 'dev') return;
+        if (!isDev()) return;
         const name = document.getElementById('newLevelName').value.trim();
         const groups = document.getElementById('newLevelGroups').value.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
         const secCount = parseInt(document.getElementById('newLevelSecCount').value, 10) || 4;
@@ -2804,7 +3353,10 @@
       });
 
       document.querySelectorAll('.target-type-btn').forEach(btn => {
-        btn.addEventListener('click', () => setFormTargetType(btn.dataset.targetType));
+        btn.addEventListener('click', () => {
+          if (btn.disabled) return;
+          setFormTargetType(btn.dataset.targetType);
+        });
       });
 
       document.getElementById('alertForm').addEventListener('submit', async (e) => {
@@ -2824,7 +3376,6 @@
           return;
         }
 
-        // Collect Named Links
         const links = [];
         document.querySelectorAll('#formLinksContainer .link-row').forEach(row => {
           const lbl = row.querySelector('.link-label')?.value.trim() || '';
@@ -2873,6 +3424,18 @@
         document.getElementById(mid).addEventListener('click', (e) => {
           if (e.target.id === mid) closeModal(mid);
         });
+      });
+
+      // Dev Panel: Inline Admin Section Change
+      document.addEventListener('change', async (e) => {
+        const secSel = e.target.closest('[data-change-admin-sec]');
+        if (secSel && isDev()) {
+          const docId = secSel.dataset.changeAdminSec;
+          const item = state.roleEmails[docId];
+          if (item) {
+            await assignRoleByEmail(item.email, item.role, secSel.value);
+          }
+        }
       });
 
       // Delegated Clicks
@@ -2929,7 +3492,7 @@
 
         // Dev Special Theme Switch
         const devTh = e.target.closest('[data-dev-theme]');
-        if (devTh && state.role === 'dev') {
+        if (devTh && isDev()) {
           const mode = devTh.dataset.devTheme;
           state.themePref = mode === 'none' ? 'light' : 'auto';
           saveConfig({ specialThemeMode: mode });
@@ -2937,11 +3500,24 @@
           return;
         }
 
-        // Dev Revoke Admin
-        const revAdm = e.target.closest('[data-revoke-admin]');
-        if (revAdm && state.role === 'dev') {
-          const uid = revAdm.dataset.revokeAdmin;
-          openConfirm('طرد أدمن', 'سيتم سحب صلاحية الأدمن من هذا الجهاز فوراً وإرجاعه لوضع المشاهد.', () => revokeAdminByUid(uid));
+        // Dev Toggle Admin <-> Admin+
+        const togRole = e.target.closest('[data-toggle-admin-role]');
+        if (togRole && isDev()) {
+          const docId = togRole.dataset.toggleAdminRole;
+          const item = state.roleEmails[docId];
+          if (item) {
+            const nextRole = item.role === 'admin_plus' ? 'admin' : 'admin_plus';
+            assignRoleByEmail(item.email, nextRole, item.assignedSection);
+          }
+          return;
+        }
+
+        // Dev Remove Admin Email
+        const remEmail = e.target.closest('[data-remove-email-role]');
+        if (remEmail && isDev()) {
+          const docId = remEmail.dataset.removeEmailRole;
+          const item = state.roleEmails[docId];
+          openConfirm('إزالة صلاحية', `سيتم سحب صلاحية ${item?.email || 'هذا الحساب'} وإرجاعه لوضع المشاهد فوراً.`, () => removeRoleByEmail(docId));
           return;
         }
 
@@ -2972,7 +3548,7 @@
         const editBtn = e.target.closest('[data-edit-alert]');
         if (editBtn) {
           const ann = state.announcements.find(a => a.id === editBtn.dataset.editAlert);
-          if (ann) requireAdminOrPrompt(() => openAlertModal({ editAnn: ann }));
+          if (ann) requireManagerOrPrompt(() => openAlertModal({ editAnn: ann }));
           return;
         }
 
@@ -2980,17 +3556,20 @@
         if (delBtn) {
           const id = delBtn.dataset.deleteAlert;
           const ann = state.announcements.find(a => a.id === id);
-          requireAdminOrPrompt(() => {
-            openConfirm('تأكيد الحذف', `هل أنت متأكد من حذف "${ann?.title || 'هذا التنبيه'}"؟ سيختفي عند الدفعة كلها.`, () => deleteAlert(id));
-          });
+          if (!canModifyAlert(ann)) {
+            showToast('لا يمكنك حذف تنبيه خارج نطاق سكشنك/جروبك 🔒', '#FF5C8D');
+            return;
+          }
+          openConfirm('تأكيد الحذف', `هل أنت متأكد من حذف "${ann?.title || 'هذا التنبيه'}"؟ سيختفي عند الدفعة كلها.`, () => deleteAlert(id));
           return;
         }
       });
     }
 
     // ==================== BOOTSTRAP ====================
+    setupAuthEvents();
     setupEvents();
-    renderAll();
+    applyTheme();
     initFirebase();
   </script>
 </body>
