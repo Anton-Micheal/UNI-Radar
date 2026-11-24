@@ -9,7 +9,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='4' width='56' height='56' rx='14' fill='%23FFD60A' stroke='%23000' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='19' fill='%2300D1B2' stroke='%23000' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='10' fill='none' stroke='%23000' stroke-width='3' stroke-dasharray='5 4'/%3E%3Cpath d='M32 32 L46 18' stroke='%23000' stroke-width='4.5' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='32' r='4.5' fill='%23000'/%3E%3Ccircle cx='44' cy='20' r='4.5' fill='%23FF5C8D' stroke='%23000' stroke-width='2.5'/%3E%3C/svg%3E" />
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='4' width='56' height='56' rx='14' fill='%23FFD60A' stroke='%23000' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='19' fill='%2300D1B2' stroke='%23000' stroke-width='4'/%3E%3Cpath d='M32 32 L46 18' stroke='%23000' stroke-width='4.5' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='32' r='4.5' fill='%23000'/%3E%3Ccircle cx='44' cy='20' r='4.5' fill='%23FF5C8D' stroke='%23000' stroke-width='2.5'/%3E%3C/svg%3E" />
 
-  <!-- Google Fonts: Cairo (Arabic Bold/Black) & Space Grotesk (English Neo-Brutalist) -->
+  <!-- Google Fonts: Cairo & Space Grotesk -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
@@ -34,6 +34,8 @@
       --accent-green: #4ADE80;
       --accent-orange: #FB923C;
       --hero-underline: #FFD60A;
+      --weekly-w: 255px;
+      --personal-w: 255px;
     }
 
     html.dark {
@@ -101,6 +103,11 @@
       transition: background-color 0.2s ease, color 0.2s ease;
     }
 
+    body.is-resizing {
+      cursor: col-resize !important;
+      user-select: none !important;
+    }
+
     .font-en { font-family: 'Space Grotesk', 'Cairo', sans-serif; }
 
     /* ==================== CORE NEO-BRUTALIST PRIMITIVES ==================== */
@@ -118,7 +125,7 @@
       border-radius: 12px;
     }
 
-    /* Animation 7: Mechanical Button Press (3px down & right, zero shadow on active) */
+    /* Animation 7: Mechanical Button Press */
     .nb-btn {
       border: 2.5px solid var(--border-color);
       box-shadow: 4px 4px 0px var(--shadow-color);
@@ -154,7 +161,6 @@
       cursor: not-allowed;
     }
 
-    /* Animation 9: Search Bar Focus Pop */
     .nb-input {
       background-color: var(--bg-card);
       color: var(--text-primary);
@@ -162,15 +168,176 @@
       box-shadow: 3px 3px 0px var(--shadow-color);
       border-radius: 12px;
       outline: none;
-      transition: box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1), transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1), transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease;
     }
     .nb-input:focus {
-      transform: translate(-1px, -1px);
+      transform: translate(-1.5px, -1.5px);
       box-shadow: 5px 5px 0px var(--shadow-color);
     }
     .nb-input::placeholder {
       color: var(--text-secondary);
       opacity: 0.8;
+    }
+
+    /* Animation 9: Dedicated Search Bar Focus Pop + Glow */
+    .search-box-wrap {
+      position: relative;
+      flex: 1;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .search-box-wrap:focus-within {
+      transform: translateY(-2px);
+    }
+    .search-box-wrap:focus-within .search-hash-icon {
+      color: var(--accent-teal);
+      transform: translateY(-50%) scale(1.22);
+    }
+    .search-hash-icon {
+      transition: color 0.2s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    #quickSearchInput:focus {
+      transform: none;
+      box-shadow: 0 0 0 3px var(--accent-yellow), 6px 6px 0px var(--shadow-color);
+    }
+
+    /* ==================== 3-PANE RESIZABLE & STICKY DESKTOP WORKSPACE ==================== */
+    #threeColWorkspace {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .pane-resizer {
+      display: none;
+    }
+
+    #colCenterMain {
+      container-type: inline-size;
+      container-name: center-pane;
+      min-width: 0;
+    }
+
+    /* 3x2 Course Grid whenever center pane has comfortable width (default on desktop!) */
+    #coursesFolderGrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    @container center-pane (min-width: 610px) {
+      #coursesFolderGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.15rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      #threeColWorkspace {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 0;
+      }
+
+      #colWeeklyBriefing {
+        width: var(--weekly-w);
+        flex-shrink: 0;
+        position: sticky;
+        top: 14px;
+        height: calc(100vh - 28px);
+        transition: width 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      #colPersonalTasks {
+        width: var(--personal-w);
+        flex-shrink: 0;
+        position: sticky;
+        top: 14px;
+        height: calc(100vh - 28px);
+        transition: width 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      body.is-resizing #colWeeklyBriefing,
+      body.is-resizing #colPersonalTasks {
+        transition: none !important;
+      }
+
+      #colWeeklyBriefing.is-collapsed,
+      #colPersonalTasks.is-collapsed {
+        width: 54px !important;
+      }
+
+      #colCenterMain {
+        flex: 1 1 0%;
+        min-width: 0;
+        padding-inline: 6px;
+      }
+
+      .side-pane-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .side-pane-scroll {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        min-height: 0;
+      }
+
+      /* Vertical Slim Rail when collapsed on desktop */
+      .collapsed-rail-btn {
+        display: none;
+      }
+      .is-collapsed .expanded-pane-content {
+        display: none !important;
+      }
+      .is-collapsed .collapsed-rail-btn {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        height: 100%;
+        width: 100%;
+        padding: 12px 6px;
+        cursor: pointer;
+      }
+      .rail-vertical-text {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        font-weight: 900;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+      }
+
+      /* Draggable Neo-Brutalist Splitter Handle */
+      .pane-resizer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 14px;
+        height: calc(100vh - 28px);
+        cursor: col-resize;
+        z-index: 15;
+        touch-action: none;
+      }
+      .pane-resizer-pill {
+        width: 6px;
+        height: 54px;
+        border-radius: 999px;
+        background-color: var(--bg-muted);
+        border: 2px solid var(--border-color);
+        transition: background-color 0.15s ease, height 0.18s ease, transform 0.15s ease;
+      }
+      .pane-resizer:hover .pane-resizer-pill,
+      .pane-resizer.dragging .pane-resizer-pill {
+        background-color: var(--accent-yellow);
+        height: 86px;
+        transform: scaleX(1.25);
+      }
     }
 
     /* ==================== FOLDER CARD STYLING & ANIMATION 3 (FOLDER PEEK) ==================== */
@@ -209,7 +376,7 @@
       transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .nb-folder-wrapper:hover .folder-course-icon {
-      transform: rotate(-7deg) scale(1.07);
+      transform: rotate(-7deg) scale(1.08);
     }
 
     .nb-folder-body {
@@ -264,7 +431,6 @@
     .nb-modal-backdrop {
       backdrop-filter: blur(4px);
       -webkit-backdrop-filter: blur(4px);
-      transition: opacity 0.2s ease;
     }
     @keyframes popIn {
       from { opacity: 0; transform: translateY(10px) scale(0.95); }
@@ -274,43 +440,56 @@
       animation: popIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
-    /* Animation 2 & 27 & 31: Staggered Card / Row Entrance */
-    @keyframes staggerUp {
-      from { opacity: 0; transform: translateY(12px) scale(0.98); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
+    /* Animation 2 & 27 & 31: Staggered Drop-In Cascade (Cards descend smoothly one by one) */
+    @keyframes staggerDrop {
+      0%   { opacity: 0; transform: translateY(-22px) scale(0.96); }
+      75%  { opacity: 1; transform: translateY(2px) scale(1.005); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .stagger-item {
+    .stagger-drop {
       opacity: 0;
-      animation: staggerUp 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-      animation-delay: calc(var(--stagger, 0) * 35ms);
+      animation: staggerDrop 0.34s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      animation-delay: calc(var(--stagger, 0) * 60ms);
     }
 
-    /* Animation 1: Strike-through Wipe on "خلصته" */
+    /* Animation 1: Strike-through Marker Wipe (RTL right -> left) + Greyed-out Transition */
+    .alert-card-root, .pt-card-root {
+      transition: opacity 0.3s ease, filter 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+    }
+    .is-greyed-done {
+      opacity: 0.56 !important;
+      filter: grayscale(0.82);
+    }
     .strike-title {
       position: relative;
       display: inline;
+      background-image: linear-gradient(var(--text-primary), var(--text-primary));
+      background-repeat: no-repeat;
+      background-position: right 54%;
+      background-size: 0% 3px;
+      transition: background-size 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
     }
-    .strike-title::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: 52%;
-      height: 3px;
-      width: 0%;
-      background-color: var(--text-primary);
-      transition: width 0.26s cubic-bezier(0.22, 1, 0.36, 1);
-      pointer-events: none;
+    .strike-title.is-done {
+      background-size: 100% 3px;
     }
-    .strike-title.is-done::after {
-      width: 100%;
-    }
+
     @keyframes donePulse {
-      0% { transform: scale(1); }
-      45% { transform: scale(1.14); }
-      100% { transform: scale(1); }
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.18) rotate(-3deg); }
+      100% { transform: scale(1) rotate(0deg); }
     }
     .animate-done-pulse {
-      animation: donePulse 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: donePulse 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes chipExit {
+      to { opacity: 0; transform: scale(0.7) translateY(-8px); max-width: 0; padding: 0; margin: 0; border-width: 0; }
+    }
+    .animate-chip-exit {
+      animation: chipExit 0.28s ease-in forwards;
+      overflow: hidden;
     }
 
     /* Animation 4: Urgent Badge Radar Pulse */
@@ -322,7 +501,7 @@
       animation: urgentPulse 2.1s infinite ease-in-out;
     }
 
-    /* Animation 30: Exam Theme Subtle Glow on Urgent Cards */
+    /* Animation 30: Exam Theme Subtle Glow */
     @keyframes examGlow {
       0%, 100% { box-shadow: 4px 4px 0px var(--shadow-color), 0 0 0px rgba(255, 46, 99, 0); }
       50%      { box-shadow: 4px 4px 0px var(--shadow-color), 0 0 14px rgba(255, 46, 99, 0.45); }
@@ -398,7 +577,7 @@
 
     /* Animation 11: New Task Drop-In */
     @keyframes taskDropIn {
-      0%   { opacity: 0; transform: translateY(-14px) scale(0.95); background-color: #FFD60A; }
+      0%   { opacity: 0; transform: translateY(-16px) scale(0.94); background-color: #FFD60A; }
       60%  { opacity: 1; transform: translateY(2px) scale(1.01); background-color: #FFD60A; }
       100% { opacity: 1; transform: translateY(0) scale(1); }
     }
@@ -408,23 +587,30 @@
 
     /* Animation 12: Card Slide-Out */
     @keyframes cardSlideOut {
-      to { opacity: 0; transform: translateX(-24px) scale(0.92); max-height: 0; margin: 0; padding-top: 0; padding-bottom: 0; }
+      to { opacity: 0; transform: translateX(-28px) scale(0.92); max-height: 0; margin: 0; padding-top: 0; padding-bottom: 0; border-width: 0; }
     }
     .animate-slide-out {
-      animation: cardSlideOut 0.24s ease-in forwards;
+      animation: cardSlideOut 0.26s ease-in forwards;
       overflow: hidden;
     }
 
-    /* Animation 13: View Cross-Slide (RTL) */
-    @keyframes viewSlideRtl {
-      from { opacity: 0; transform: translateX(-14px); }
+    /* Animation 13: View Cross-Slide (RTL Directional) */
+    @keyframes viewSlideForwardRtl {
+      from { opacity: 0; transform: translateX(-34px); }
       to   { opacity: 1; transform: translateX(0); }
     }
-    .animate-view-enter {
-      animation: viewSlideRtl 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    @keyframes viewSlideBackRtl {
+      from { opacity: 0; transform: translateX(34px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .animate-view-forward {
+      animation: viewSlideForwardRtl 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .animate-view-back {
+      animation: viewSlideBackRtl 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
-    /* Animation 17: Settings Gear Mechanical Spin */
+    /* Animation 17: Settings Gear Spin */
     #openSettingsBtn svg {
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -443,12 +629,12 @@
       animation: iconFlip3d 0.32s ease;
     }
 
-    /* Animation 19: Course Progress Fill */
+    /* Animation 19: Animated Course Progress Fill */
     .nb-progress-fill {
-      transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    /* Animation 21: Calendar Today Ring Pulse */
+    /* Animation 21, 22, 23: Calendar Micro-Animations */
     @keyframes todayRing {
       0%, 100% { box-shadow: 0 0 0 0 rgba(255, 92, 141, 0.6); }
       50%      { box-shadow: 0 0 0 4px rgba(255, 92, 141, 0); }
@@ -456,22 +642,20 @@
     .cal-today-badge {
       animation: todayRing 2.2s infinite ease-in-out;
     }
-
-    /* Animation 22 & 23: Calendar Month Flip & Day Bounce */
     @keyframes calMonthSlide {
-      from { opacity: 0; transform: translateX(10px); }
+      from { opacity: 0; transform: translateX(14px); }
       to   { opacity: 1; transform: translateX(0); }
     }
     .animate-cal-grid {
-      animation: calMonthSlide 0.2s ease-out;
+      animation: calMonthSlide 0.24s ease-out;
     }
     @keyframes dayBounce {
-      0%   { transform: scale(0.94); }
-      60%  { transform: scale(1.04); }
+      0%   { transform: scale(0.93); }
+      60%  { transform: scale(1.05); }
       100% { transform: scale(1); }
     }
     .cal-day-selected {
-      animation: dayBounce 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: dayBounce 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     /* Animation 24: Radar Sweep Logo */
@@ -526,12 +710,6 @@
       animation: confettiFall 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    /* Animation 15: Smooth Drawer Slide & 3-Column Transition */
-    .drawer-body {
-      transition: opacity 0.2s ease;
-    }
-
-    /* Decorative Theme Overlays */
     .theme-overlay {
       pointer-events: none;
       position: fixed;
@@ -540,7 +718,6 @@
       overflow: hidden;
     }
 
-    /* Accessibility: Respect Reduced Motion */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -551,7 +728,7 @@
     }
   </style>
 </head>
-<body class="min-h-screen pb-16 relative">
+<body class="min-h-screen pb-14 relative">
 
   <!-- Animation 16: Top Scroll Progress Line -->
   <div id="scrollProgressBar" aria-hidden="true"></div>
@@ -613,7 +790,6 @@
         </button>
       </div>
 
-      <!-- Blocked Banner (Shown immediately if kicked or blocked email tries to enter) -->
       <div id="authBlockedBanner" class="hidden nb-card-sm p-3.5 bg-[#FF5C8D] nb-ink text-xs font-black leading-relaxed">
         🚫 تم حظر هذا الحساب من الوصول إلى رادار الدفعة.
       </div>
@@ -670,11 +846,11 @@
     </div>
   </div>
 
-  <!-- ==================== MAIN CONTAINER (SHOWN WHEN LOGGED IN) ==================== -->
-  <div id="appShell" class="hidden relative z-10 max-w-[1440px] mx-auto px-3 sm:px-6 pt-4 sm:pt-6">
+  <!-- ==================== FULL-WIDTH MAIN CONTAINER ==================== -->
+  <div id="appShell" class="hidden relative z-10 w-full px-3 sm:px-5 pt-3.5 sm:pt-4">
 
     <!-- ==================== TOP UTILITY BAR ==================== -->
-    <header class="flex items-center justify-between gap-2 sm:gap-3 mb-5">
+    <header class="flex items-center justify-between gap-2 sm:gap-3 mb-4">
       <!-- Right (RTL start): Settings Gear, Sync Status, Role Badge -->
       <div class="flex items-center gap-2 sm:gap-2.5">
         <button id="openSettingsBtn" type="button" title="الإعدادات"
@@ -685,13 +861,11 @@
           </svg>
         </button>
 
-        <!-- Live Sync Status Pill -->
         <div id="syncBadge" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-nb bg-card text-xs font-extrabold">
           <span id="syncDot" class="animate-sync-dot w-2.5 h-2.5 rounded-full bg-amber-400 border border-black"></span>
           <span id="syncText">جاري الاتصال...</span>
         </div>
 
-        <!-- Role Badge Pill -->
         <button id="headerRoleBadge" type="button" class="nb-btn-sm px-2.5 py-1.5 rounded-xl nb-ink text-xs font-black inline-flex items-center gap-1">
           <span id="headerRoleText">🎓 Student</span>
         </button>
@@ -699,8 +873,8 @@
 
       <!-- Left (RTL end): Calendar Toggle, WhatsApp Export, Theme Switcher -->
       <div class="flex items-center gap-2 sm:gap-2.5">
-        <button id="toggleCalendarBtn" type="button" title="النتيجة"
-          class="nb-btn w-11 h-11 rounded-xl bg-card flex items-center justify-center">
+        <button id="toggleCalendarBtn" type="button" title="النتيجة (Ctrl + Alt + C)"
+          class="nb-btn w-11 h-11 rounded-xl bg-card flex items-center justify-center relative">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
             <rect x="3" y="4" width="18" height="18" rx="3" ry="3"></rect>
             <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -723,30 +897,45 @@
       </div>
     </header>
 
-    <!-- ==================== 3-COLUMN WORKSPACE GRID ==================== -->
-    <div id="threeColWorkspace" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+    <!-- ==================== 3-COLUMN RESIZABLE & STICKY WORKSPACE ==================== -->
+    <div id="threeColWorkspace">
 
       <!-- ==================== RIGHT COLUMN (RTL START): VISUAL WEEKLY BRIEFING ==================== -->
-      <aside id="colWeeklyBriefing" class="lg:col-span-3 order-2 lg:order-1">
-        <div class="nb-card p-3.5 sm:p-4 space-y-3">
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 min-w-0">
-              <span class="w-7 h-7 rounded-lg border-2 border-nb bg-[#00D1B2] nb-ink flex items-center justify-center text-sm shrink-0">📆</span>
-              <h2 class="text-sm font-black truncate">موجز الـ 7 أيام</h2>
-              <span id="weeklyCountBadge" class="px-1.5 py-0.5 rounded-md border-2 border-nb bg-[#FFD60A] nb-ink text-[11px] font-black shrink-0">0</span>
-            </div>
-            <button id="toggleWeeklyBtn" type="button" title="طيّ / فرد الموجز"
-              class="nb-btn-sm px-2.5 py-1 rounded-lg bg-card text-xs font-black shrink-0">
-              <span id="weeklyToggleLabel">طيّ ▴</span>
-            </button>
-          </div>
+      <aside id="colWeeklyBriefing" class="order-2 lg:order-none">
+        <div class="nb-card side-pane-card p-3 sm:p-3.5">
+          <!-- Collapsed Desktop Vertical Rail -->
+          <button id="expandWeeklyRailBtn" type="button" title="فرد موجز الـ 7 أيام" class="collapsed-rail-btn">
+            <span class="w-8 h-8 rounded-lg border-2 border-nb bg-[#00D1B2] nb-ink flex items-center justify-center text-sm shrink-0">📆</span>
+            <span id="weeklyRailCount" class="px-1.5 py-0.5 rounded-md border-2 border-nb bg-[#FFD60A] nb-ink text-[10px] font-black">0</span>
+            <span class="rail-vertical-text text-sec">موجز الـ 7 أيام</span>
+          </button>
 
-          <div id="weeklyBriefingBody" class="drawer-body space-y-2 max-h-[540px] overflow-y-auto no-scrollbar"></div>
+          <!-- Expanded Pane Content -->
+          <div class="expanded-pane-content flex flex-col h-full min-h-0 gap-3">
+            <div class="flex items-center justify-between gap-2 shrink-0">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-7 h-7 rounded-lg border-2 border-nb bg-[#00D1B2] nb-ink flex items-center justify-center text-sm shrink-0">📆</span>
+                <h2 class="text-sm font-black truncate">موجز الـ 7 أيام</h2>
+                <span id="weeklyCountBadge" class="px-1.5 py-0.5 rounded-md border-2 border-nb bg-[#FFD60A] nb-ink text-[11px] font-black shrink-0">0</span>
+              </div>
+              <button id="toggleWeeklyBtn" type="button" title="طيّ / فرد الموجز"
+                class="nb-btn-sm px-2.5 py-1 rounded-lg bg-card text-xs font-black shrink-0">
+                <span id="weeklyToggleLabel">طيّ ▴</span>
+              </button>
+            </div>
+
+            <div id="weeklyBriefingBody" class="side-pane-scroll space-y-2 no-scrollbar pb-1"></div>
+          </div>
         </div>
       </aside>
 
+      <!-- DRAGGABLE RESIZER 1 (Between Weekly & Center) -->
+      <div id="resizerWeekly" class="pane-resizer" title="اسحب لتغيير العرض (ضغطتين لإعادة الضبط)">
+        <div class="pane-resizer-pill"></div>
+      </div>
+
       <!-- ==================== CENTER COLUMN: HERO + MAIN VIEWS ==================== -->
-      <div id="colCenterMain" class="lg:col-span-6 order-1 lg:order-2 min-w-0">
+      <div id="colCenterMain" class="order-1 lg:order-none">
 
         <!-- HERO SECTION -->
         <section id="heroSection" class="mb-5">
@@ -765,7 +954,6 @@
               </h1>
             </div>
 
-            <!-- Global Section Selector Pill -->
             <div class="flex items-center gap-2 self-start sm:self-end">
               <div class="nb-card-sm px-3 py-2 flex items-center gap-2">
                 <span class="text-xs font-black text-sec whitespace-nowrap">🎯 سكشنك:</span>
@@ -779,8 +967,8 @@
 
           <!-- Quick Search & Yellow Square '+' Add Button Row -->
           <div class="mt-4 flex items-stretch gap-2.5">
-            <div class="relative flex-1">
-              <span class="absolute right-3.5 top-1/2 -translate-y-1/2 font-black text-lg text-sec pointer-events-none">#</span>
+            <div class="search-box-wrap">
+              <span class="search-hash-icon absolute right-3.5 top-1/2 -translate-y-1/2 font-black text-lg text-sec pointer-events-none">#</span>
               <input id="quickSearchInput" type="search"
                 placeholder="ابحث في التنبيهات، المواد، أو التاجز..."
                 class="nb-input w-full h-12 pr-9 pl-4 text-sm font-bold" />
@@ -811,8 +999,8 @@
           <div id="searchResultsList" class="space-y-3"></div>
         </section>
 
-        <!-- VIEW 1: HOME (6 COURSE FOLDERS) -->
-        <main id="view-home" class="animate-view-enter">
+        <!-- VIEW 1: HOME (6 COURSE FOLDERS — 3x2 ON DESKTOP) -->
+        <main id="view-home">
           <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <h2 class="text-base sm:text-lg font-black flex items-center gap-2">
               <span>موادك الدراسية</span>
@@ -820,7 +1008,6 @@
             </h2>
 
             <div class="flex items-center gap-3">
-              <!-- Hide/Show Done Toggle Switch -->
               <label class="inline-flex items-center gap-2 cursor-pointer select-none">
                 <span class="text-xs font-black text-sec">إخفاء "خلصته"</span>
                 <button type="button" role="switch" aria-checked="false" data-toggle-hide-done
@@ -832,11 +1019,11 @@
             </div>
           </div>
 
-          <div id="coursesFolderGrid" class="grid grid-cols-2 gap-3.5 sm:gap-4"></div>
+          <div id="coursesFolderGrid"></div>
         </main>
 
         <!-- VIEW 2: COURSE DETAIL + PER-COURSE ARCHIVE -->
-        <section id="view-course-detail" class="hidden space-y-4 animate-view-enter">
+        <section id="view-course-detail" class="hidden space-y-4">
           <div class="flex items-center justify-between gap-2">
             <button id="backToHomeBtn" type="button"
               class="nb-btn-sm px-3.5 py-2 rounded-xl bg-card text-xs sm:text-sm font-black inline-flex items-center gap-1.5">
@@ -851,10 +1038,8 @@
             </button>
           </div>
 
-          <!-- Course Colored Banner + Animated Progress Bar -->
           <div id="courseBanner" class="nb-card p-4 sm:p-5 nb-ink"></div>
 
-          <!-- Per-Course Status Switcher: Active vs Archive + Hide Done Toggle -->
           <div class="flex flex-wrap items-center justify-between gap-2.5">
             <div class="grid grid-cols-2 gap-2 flex-1 min-w-[210px]">
               <button id="tabCourseActive" type="button"
@@ -878,15 +1063,13 @@
             </label>
           </div>
 
-          <!-- Tag Filter Pills -->
           <div id="courseTagBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1"></div>
 
-          <!-- Course Alerts List -->
           <div id="courseAlertsList" class="space-y-3.5"></div>
         </section>
 
         <!-- VIEW 3: CALENDAR VIEW -->
-        <section id="view-calendar" class="hidden space-y-4 animate-view-enter">
+        <section id="view-calendar" class="hidden space-y-4">
           <div class="nb-card p-4 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div class="flex items-center gap-2">
@@ -936,39 +1119,50 @@
 
       </div>
 
+      <!-- DRAGGABLE RESIZER 2 (Between Center & Personal Tasks) -->
+      <div id="resizerPersonal" class="pane-resizer" title="اسحب لتغيير العرض (ضغطتين لإعادة الضبط)">
+        <div class="pane-resizer-pill"></div>
+      </div>
+
       <!-- ==================== LEFT COLUMN (RTL END): PERSONAL TASKS ==================== -->
-      <aside id="colPersonalTasks" class="lg:col-span-3 order-3">
-        <div class="nb-card p-3.5 sm:p-4 space-y-3">
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 min-w-0">
-              <span class="w-7 h-7 rounded-lg border-2 border-nb bg-[#A78BFA] nb-ink flex items-center justify-center text-sm shrink-0">🔒</span>
-              <div class="min-w-0">
+      <aside id="colPersonalTasks" class="order-3 lg:order-none">
+        <div class="nb-card side-pane-card p-3 sm:p-3.5">
+          <!-- Collapsed Desktop Vertical Rail -->
+          <button id="expandPersonalRailBtn" type="button" title="فرد مهامي الخاصة" class="collapsed-rail-btn">
+            <span class="w-8 h-8 rounded-lg border-2 border-nb bg-[#A78BFA] nb-ink flex items-center justify-center text-sm shrink-0">🔒</span>
+            <span id="personalRailCount" class="px-1.5 py-0.5 rounded-md border-2 border-nb bg-[#4ADE80] nb-ink text-[10px] font-black">0</span>
+            <span class="rail-vertical-text text-sec">مهامي الخاصة</span>
+          </button>
+
+          <!-- Expanded Pane Content -->
+          <div class="expanded-pane-content flex flex-col h-full min-h-0 gap-3">
+            <div class="flex items-center justify-between gap-2 shrink-0">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-7 h-7 rounded-lg border-2 border-nb bg-[#A78BFA] nb-ink flex items-center justify-center text-sm shrink-0">🔒</span>
                 <h2 id="personalTasksHeading" class="text-sm font-black truncate">مهامي الخاصة</h2>
+                <span id="personalTasksCountBadge" class="px-1.5 py-0.5 rounded-md border-2 border-nb bg-[#4ADE80] nb-ink text-[11px] font-black shrink-0">0/50</span>
               </div>
-              <span id="personalTasksCountBadge" class="px-1.5 py-0.5 rounded-md border-2 border-nb bg-[#4ADE80] nb-ink text-[11px] font-black shrink-0">0/50</span>
-            </div>
-            <button id="togglePersonalBtn" type="button" title="طيّ / فرد المهام الخاصة"
-              class="nb-btn-sm px-2.5 py-1 rounded-lg bg-card text-xs font-black shrink-0">
-              <span id="personalToggleLabel">طيّ ▴</span>
-            </button>
-          </div>
-
-          <div id="personalTasksBody" class="drawer-body space-y-3">
-            <!-- Quick Add Personal Task Form -->
-            <form id="personalTaskForm" class="bg-muted p-2.5 rounded-xl border-2 border-nb space-y-2">
-              <input id="ptTitleInput" type="text" required maxlength="120" placeholder="أضف مهمة خاصة..."
-                class="nb-input w-full px-2.5 py-1.5 text-xs font-bold" />
-              <div class="grid grid-cols-2 gap-1.5">
-                <select id="ptCourseSelect" class="nb-input px-2 py-1.5 text-[11px] font-black cursor-pointer"></select>
-                <input id="ptDateInput" type="date" class="nb-input px-2 py-1.5 text-[11px] font-bold" />
-              </div>
-              <button type="submit" class="nb-btn-sm w-full py-1.5 rounded-lg bg-[#FFD60A] nb-ink text-xs font-black">
-                + إضافة مهمة خاصة
+              <button id="togglePersonalBtn" type="button" title="طيّ / فرد المهام الخاصة"
+                class="nb-btn-sm px-2.5 py-1 rounded-lg bg-card text-xs font-black shrink-0">
+                <span id="personalToggleLabel">طيّ ▴</span>
               </button>
-            </form>
+            </div>
 
-            <!-- Personal Tasks List -->
-            <div id="personalTasksList" class="space-y-2 max-h-[420px] overflow-y-auto no-scrollbar"></div>
+            <div id="personalTasksBody" class="flex flex-col flex-1 min-h-0 gap-3">
+              <form id="personalTaskForm" class="bg-muted p-2.5 rounded-xl border-2 border-nb space-y-2 shrink-0">
+                <input id="ptTitleInput" type="text" required maxlength="120" placeholder="أضف مهمة خاصة..."
+                  class="nb-input w-full px-2.5 py-1.5 text-xs font-bold" />
+                <div class="grid grid-cols-2 gap-1.5">
+                  <select id="ptCourseSelect" class="nb-input px-2 py-1.5 text-[11px] font-black cursor-pointer"></select>
+                  <input id="ptDateInput" type="date" class="nb-input px-2 py-1.5 text-[11px] font-bold" />
+                </div>
+                <button type="submit" class="nb-btn-sm w-full py-1.5 rounded-lg bg-[#FFD60A] nb-ink text-xs font-black">
+                  + إضافة مهمة خاصة
+                </button>
+              </form>
+
+              <div id="personalTasksList" class="side-pane-scroll space-y-2 no-scrollbar pb-1"></div>
+            </div>
           </div>
         </div>
       </aside>
@@ -1010,34 +1204,30 @@
   <div id="alertModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 nb-modal-backdrop p-0 sm:p-4">
     <div class="animate-pop nb-card w-full sm:max-w-lg max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-2xl">
       <div class="sticky top-0 z-10 bg-card border-b-[2.5px] border-nb px-5 py-3.5 flex items-center justify-between">
-        <h3 id="alertModalTitle" class="text-base font-black">➕ إضافة تنبيه جديد</h3>
+        <h3 id="alertModalTitle" class="text-base font-black">➕ إضافة تنبيه</h3>
         <button type="button" data-close-modal="alertModal" class="nb-btn-sm w-8 h-8 rounded-lg bg-card font-black text-sm">✕</button>
       </div>
 
       <form id="alertForm" class="p-5 space-y-4">
         <input type="hidden" id="editAlertId" />
 
-        <!-- Fixed Read-only Publisher Badge -->
         <div class="nb-card-sm px-3.5 py-2 bg-muted flex items-center justify-between gap-2">
           <span class="text-xs font-black">✍️ الناشر: <span id="formFixedAuthorBadge" class="text-[#00D1B2] underline"></span></span>
           <span id="formPublisherRoleBadge" class="px-2 py-0.5 rounded-md border border-nb bg-card text-[11px] font-black"></span>
         </div>
 
-        <!-- Course -->
         <div>
           <label class="block text-xs font-black mb-2">المادة <span class="text-[#FF5C8D]">*</span></label>
           <div id="formCoursePills" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
           <input type="hidden" id="formCourseInput" required />
         </div>
 
-        <!-- Tag -->
         <div>
           <label class="block text-xs font-black mb-2">التصنيف <span class="text-[#FF5C8D]">*</span></label>
           <div id="formTagPills" class="grid grid-cols-3 gap-2"></div>
           <input type="hidden" id="formTagInput" required />
         </div>
 
-        <!-- Target Audience -->
         <div class="space-y-2">
           <div class="flex items-center justify-between gap-2">
             <label class="block text-xs font-black">موجه لـ</label>
@@ -1053,20 +1243,17 @@
           </div>
         </div>
 
-        <!-- Title -->
         <div>
           <label for="formTitle" class="block text-xs font-black mb-1.5">عنوان التنبيه <span class="text-[#FF5C8D]">*</span></label>
           <input id="formTitle" type="text" required placeholder="مثال: تسليم Assignment 2 - ER Diagram"
             class="nb-input w-full px-3.5 py-2.5 text-sm font-bold" />
         </div>
 
-        <!-- Date -->
         <div>
           <label for="formDate" class="block text-xs font-black mb-1.5">تاريخ الديدلاين <span class="text-sec">(اختياري)</span></label>
           <input id="formDate" type="date" class="nb-input w-full px-3 py-2 text-sm font-bold" />
         </div>
 
-        <!-- Multiple Named Hyperlinks -->
         <div class="space-y-2">
           <div class="flex items-center justify-between">
             <label class="block text-xs font-black">🔗 الروابط <span class="text-sec">(اختياري)</span></label>
@@ -1077,7 +1264,6 @@
           <div id="formLinksContainer" class="space-y-2"></div>
         </div>
 
-        <!-- Note -->
         <div>
           <label for="formNote" class="block text-xs font-black mb-1.5">ملاحظة <span class="text-sec">(اختياري)</span></label>
           <textarea id="formNote" rows="3" placeholder="تفاصيل إضافية..."
@@ -1098,7 +1284,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: SETTINGS GEAR (STAFF + ACCOUNT + DEV PANEL) ==================== -->
+  <!-- ==================== MODAL: SETTINGS GEAR ==================== -->
   <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 nb-modal-backdrop p-0 sm:p-4">
     <div class="animate-pop nb-card w-full sm:max-w-3xl max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-2xl">
       <div class="sticky top-0 z-10 bg-card border-b-[2.5px] border-nb px-5 py-3.5 flex items-center justify-between">
@@ -1106,7 +1292,6 @@
         <button type="button" data-close-modal="settingsModal" class="nb-btn-sm w-8 h-8 rounded-lg bg-card font-black text-sm">✕</button>
       </div>
 
-      <!-- Settings Modal Tabs -->
       <div id="settingsTabsBar" class="p-4 border-b-2 border-nb bg-muted flex flex-wrap gap-2">
         <button id="settingsTabStaff" type="button" class="nb-btn-sm flex-1 min-w-[120px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black">
           👨‍🏫 الدكاترة والمعيدين
@@ -1119,7 +1304,7 @@
         </button>
       </div>
 
-      <!-- TAB 1: FACULTY & TAs (EDITABLE BY CO-DEV & THE LORD ONLY) -->
+      <!-- TAB 1: FACULTY & TAs -->
       <div id="settingsPanelStaff" class="p-5 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-2">
@@ -1179,10 +1364,8 @@
         </div>
       </div>
 
-      <!-- TAB 3: DEVELOPER PANEL (CO-DEV & THE LORD ONLY) -->
+      <!-- TAB 3: DEVELOPER PANEL -->
       <div id="settingsPanelDev" class="hidden p-5 space-y-6">
-
-        <!-- Search & Section Filter Bar for Management & Students -->
         <div class="nb-card-sm p-3.5 bg-muted space-y-2.5">
           <div class="text-xs font-black">🔍 بحث وفلترة القوائم</div>
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
@@ -1198,7 +1381,6 @@
           </div>
         </div>
 
-        <!-- 1. Role Assignment & Management (Admin / Admin+ / Co-Dev) -->
         <div class="nb-card-sm p-4 space-y-4">
           <div class="flex items-center justify-between gap-2">
             <h4 class="text-sm font-black">👥 فريق الإدارة والصلاحيات</h4>
@@ -1233,7 +1415,6 @@
           <div id="devAdminsList" class="space-y-2"></div>
         </div>
 
-        <!-- 2. Registered Students Directory -->
         <div class="nb-card-sm p-4 space-y-3">
           <div class="flex items-center justify-between gap-2">
             <h4 class="text-sm font-black">🎓 قائمة الطلاب (Students)</h4>
@@ -1242,7 +1423,6 @@
           <div id="devStudentsList" class="space-y-2 max-h-80 overflow-y-auto no-scrollbar"></div>
         </div>
 
-        <!-- 3. Blocked Accounts -->
         <div class="nb-card-sm p-4 space-y-3">
           <div class="flex items-center justify-between gap-2">
             <h4 class="text-sm font-black">🚫 الحسابات المحظورة</h4>
@@ -1251,7 +1431,6 @@
           <div id="devBlockedList" class="space-y-2"></div>
         </div>
 
-        <!-- 4. Special Theme Controller -->
         <div class="nb-card-sm p-4 space-y-3">
           <div class="flex items-center justify-between gap-2">
             <h4 class="text-sm font-black">🎨 ثيمات الدفعة</h4>
@@ -1260,7 +1439,6 @@
           <div id="devThemeGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
         </div>
 
-        <!-- 5. Backup & Restore (JSON) -->
         <div class="nb-card-sm p-4 space-y-3">
           <h4 class="text-sm font-black">💾 النسخ الاحتياطي (JSON)</h4>
           <div class="flex flex-wrap items-center gap-2.5">
@@ -1274,7 +1452,6 @@
           </div>
         </div>
 
-        <!-- 6. Levels Manager -->
         <div class="nb-card-sm p-4 space-y-4">
           <div>
             <h4 class="text-sm font-black mb-2.5">🎓 المراحل الدراسية</h4>
@@ -1297,12 +1474,11 @@
             </form>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- ==================== MODAL: ADVANCED WHATSAPP EXPORT ==================== -->
+  <!-- ==================== MODAL: WHATSAPP EXPORT ==================== -->
   <div id="recapModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 nb-modal-backdrop p-0 sm:p-4">
     <div class="animate-pop nb-card w-full sm:max-w-xl max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-2xl">
       <div class="sticky top-0 z-10 bg-card border-b-[2.5px] border-nb px-5 py-3.5 flex items-center justify-between">
@@ -1498,20 +1674,17 @@
       unsubscribers: [],
       appId: typeof __app_id !== 'undefined' ? __app_id : 'bua-ai-radar-nb-v2',
 
-      config: {
-        specialThemeMode: 'auto'
-      },
-
+      config: { specialThemeMode: 'auto' },
       levels: { level2: DEFAULT_LEVEL_2 },
       currentLevelId: 'level2',
       announcements: [],
       staffOverrides: {},
-      roleEmails: {},     // { [emailKey]: { email, name, role: 'admin'|'admin_plus'|'co_dev', assignedSection, updatedAt } }
-      usersDirectory: {}, // { [uid]: { uid, username, email, selectedSection, lastActive } }
-      blockedEmails: {},  // { [emailKey]: { email, blockedAt, blockedBy } }
+      roleEmails: {},
+      usersDirectory: {},
+      blockedEmails: {},
 
-      // Personal Account Preferences (Firestore: users/{uid}/prefs/main)
-      role: 'student', // 'student' | 'admin' | 'admin_plus' | 'co_dev' | 'lord'
+      // Personal Account Preferences
+      role: 'student',
       username: '',
       usernameConfirmed: false,
       sectionConfirmed: false,
@@ -1520,14 +1693,23 @@
       selectedSection: 'ALL',
       doneIds: [],
       hideDone: false,
-      personalTasks: [], // Max 50: { id, title, courseId, date, done, createdAt }
+      personalTasks: [],
       lastCreatedTaskId: null,
 
-      // Side Drawers Collapse State
+      // Resizable Sidebars State
+      weeklyWidth: 255,
+      personalWidth: 255,
       weeklyCollapsed: false,
       personalCollapsed: false,
 
-      // Dev Panel Search & Filter State
+      // Animation Control Flags
+      shouldStaggerHome: true,
+      shouldStaggerAlerts: true,
+      animateCourseProgressFromZero: false,
+      lastCoursePct: 0,
+      busyDoneToggle: new Set(),
+
+      // Dev Panel Search & Filter
       devSearchQuery: '',
       devSectionFilter: 'ALL',
 
@@ -1538,6 +1720,8 @@
 
       // Navigation & UI State
       activeView: 'home',
+      prevViewBeforeCal: 'home',
+      prevCourseBeforeCal: null,
       selectedCourseId: null,
       courseStatusTab: 'active',
       courseTagFilter: 'ALL',
@@ -1562,33 +1746,13 @@
     };
 
     // ==================== 5-TIER ROLE & PERMISSION HELPERS ====================
-    function normalizeEmail(email) {
-      return (email || '').trim().toLowerCase();
-    }
-
-    function emailToDocId(email) {
-      return normalizeEmail(email).replace(/\//g, '_');
-    }
-
-    function isLordEmail(email) {
-      return normalizeEmail(email) === normalizeEmail(LORD_EMAIL);
-    }
-
-    function isLord() {
-      return state.role === 'lord';
-    }
-
-    function isDevPanelUser() {
-      return state.role === 'co_dev' || state.role === 'lord';
-    }
-
-    function isAdminPlus() {
-      return state.role === 'admin_plus' || state.role === 'co_dev' || state.role === 'lord';
-    }
-
-    function canManage() {
-      return ['admin', 'admin_plus', 'co_dev', 'lord'].includes(state.role);
-    }
+    function normalizeEmail(email) { return (email || '').trim().toLowerCase(); }
+    function emailToDocId(email) { return normalizeEmail(email).replace(/\//g, '_'); }
+    function isLordEmail(email) { return normalizeEmail(email) === normalizeEmail(LORD_EMAIL); }
+    function isLord() { return state.role === 'lord'; }
+    function isDevPanelUser() { return state.role === 'co_dev' || state.role === 'lord'; }
+    function isAdminPlus() { return state.role === 'admin_plus' || state.role === 'co_dev' || state.role === 'lord'; }
+    function canManage() { return ['admin', 'admin_plus', 'co_dev', 'lord'].includes(state.role); }
 
     function getAdminGroup() {
       if (!state.adminSection) return null;
@@ -1680,9 +1844,7 @@
       return [];
     }
 
-    function getCurrentLevel() {
-      return state.levels[state.currentLevelId] || DEFAULT_LEVEL_2;
-    }
+    function getCurrentLevel() { return state.levels[state.currentLevelId] || DEFAULT_LEVEL_2; }
 
     function getCourse(courseId) {
       const lvl = getCurrentLevel();
@@ -1691,9 +1853,7 @@
       };
     }
 
-    function getTag(tagId) {
-      return TAGS.find(t => t.id === tagId) || TAGS[TAGS.length - 1];
-    }
+    function getTag(tagId) { return TAGS.find(t => t.id === tagId) || TAGS[TAGS.length - 1]; }
 
     function getGroupFromSection(sec) {
       if (!sec || sec === 'ALL') return null;
@@ -1724,9 +1884,7 @@
 
     function getStaffInfo(section, courseId) {
       const overrideKey = `${state.currentLevelId}_${section}_${courseId}`;
-      if (state.staffOverrides[overrideKey]) {
-        return state.staffOverrides[overrideKey];
-      }
+      if (state.staffOverrides[overrideKey]) return state.staffOverrides[overrideKey];
       if (state.currentLevelId === 'level2' && DEFAULT_STAFF_MAP[section]?.[courseId]) {
         return DEFAULT_STAFF_MAP[section][courseId];
       }
@@ -1742,7 +1900,6 @@
       });
     }
 
-    // Animation 26: Toast Slide-Up
     function showToast(msg, bg = '#4ADE80') {
       const stack = document.getElementById('toastStack');
       const el = document.createElement('div');
@@ -1755,10 +1912,9 @@
         el.style.transform = 'translateY(12px)';
         el.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
         setTimeout(() => el.remove(), 220);
-      }, 2800);
+      }, 2700);
     }
 
-    // Animation 29: All-Clear Confetti Burst
     function triggerConfettiBurst(originEl = null) {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const colors = ['#FFD60A', '#00D1B2', '#FF5C8D', '#A78BFA', '#4ADE80', '#FB923C'];
@@ -1766,16 +1922,16 @@
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
 
-      for (let i = 0; i < 22; i++) {
+      for (let i = 0; i < 24; i++) {
         const p = document.createElement('div');
         p.className = 'nb-confetti-piece';
         p.style.backgroundColor = colors[i % colors.length];
         p.style.left = `${cx}px`;
         p.style.top = `${cy}px`;
-        const angle = (Math.PI * 2 * i) / 22 + (Math.random() * 0.4);
-        const dist = 55 + Math.random() * 90;
+        const angle = (Math.PI * 2 * i) / 24 + (Math.random() * 0.4);
+        const dist = 55 + Math.random() * 95;
         p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
-        p.style.setProperty('--dy', `${Math.sin(angle) * dist - 20}px`);
+        p.style.setProperty('--dy', `${Math.sin(angle) * dist - 22}px`);
         document.body.appendChild(p);
         setTimeout(() => p.remove(), 1000);
       }
@@ -1794,7 +1950,6 @@
         const ok = document.execCommand('copy');
         document.body.removeChild(ta);
         if (ok) {
-          // Animation 5: Button Pop to '✓ اتنسخ!'
           if (btnEl) {
             const origHtml = btnEl.innerHTML;
             btnEl.innerHTML = '✓ اتنسخ!';
@@ -1811,6 +1966,115 @@
       } catch {
         showToast('تعذر النسخ التلقائي', '#FF5C8D');
       }
+    }
+
+    // ==================== RESIZABLE 3-COLUMN LAYOUT ENGINE ====================
+    function loadSavedPaneLayout() {
+      try {
+        const wW = parseInt(localStorage.getItem('radar_weekly_w'), 10);
+        const pW = parseInt(localStorage.getItem('radar_personal_w'), 10);
+        if (wW >= 180 && wW <= 480) state.weeklyWidth = wW;
+        if (pW >= 180 && pW <= 480) state.personalWidth = pW;
+        state.weeklyCollapsed = localStorage.getItem('radar_weekly_collapsed') === '1';
+        state.personalCollapsed = localStorage.getItem('radar_personal_collapsed') === '1';
+      } catch {}
+      applyPaneWidths();
+    }
+
+    function savePaneLayout() {
+      try {
+        localStorage.setItem('radar_weekly_w', String(Math.round(state.weeklyWidth)));
+        localStorage.setItem('radar_personal_w', String(Math.round(state.personalWidth)));
+        localStorage.setItem('radar_weekly_collapsed', state.weeklyCollapsed ? '1' : '0');
+        localStorage.setItem('radar_personal_collapsed', state.personalCollapsed ? '1' : '0');
+      } catch {}
+    }
+
+    function applyPaneWidths() {
+      document.documentElement.style.setProperty('--weekly-w', `${state.weeklyWidth}px`);
+      document.documentElement.style.setProperty('--personal-w', `${state.personalWidth}px`);
+      document.getElementById('colWeeklyBriefing')?.classList.toggle('is-collapsed', state.weeklyCollapsed);
+      document.getElementById('colPersonalTasks')?.classList.toggle('is-collapsed', state.personalCollapsed);
+    }
+
+    function setupPaneResizers() {
+      const initDrag = (resizerId, side) => {
+        const resizer = document.getElementById(resizerId);
+        if (!resizer) return;
+
+        // Double click resets width to crisp default
+        resizer.addEventListener('dblclick', () => {
+          if (side === 'weekly') {
+            state.weeklyCollapsed = false;
+            state.weeklyWidth = 255;
+          } else {
+            state.personalCollapsed = false;
+            state.personalWidth = 255;
+          }
+          applyPaneWidths();
+          savePaneLayout();
+          renderWeeklyBriefing();
+          renderPersonalTasks();
+        });
+
+        resizer.addEventListener('pointerdown', (e) => {
+          if (window.innerWidth < 1024) return;
+          e.preventDefault();
+
+          const startX = e.clientX;
+          const startWidth = side === 'weekly'
+            ? (state.weeklyCollapsed ? 54 : state.weeklyWidth)
+            : (state.personalCollapsed ? 54 : state.personalWidth);
+
+          resizer.classList.add('dragging');
+          document.body.classList.add('is-resizing');
+
+          const onMove = (ev) => {
+            const dx = ev.clientX - startX;
+            // In RTL:
+            // - Weekly is on the RIGHT: dragging LEFT (dx < 0) widens it
+            // - Personal is on the LEFT: dragging RIGHT (dx > 0) widens it
+            let rawW = side === 'weekly' ? (startWidth - dx) : (startWidth + dx);
+
+            const otherW = side === 'weekly'
+              ? (state.personalCollapsed ? 54 : state.personalWidth)
+              : (state.weeklyCollapsed ? 54 : state.weeklyWidth);
+
+            const maxAllowed = Math.min(480, Math.max(200, window.innerWidth - otherW - 480));
+
+            if (rawW < 115) {
+              if (side === 'weekly') state.weeklyCollapsed = true;
+              else state.personalCollapsed = true;
+            } else {
+              const clamped = Math.max(185, Math.min(maxAllowed, rawW));
+              if (side === 'weekly') {
+                state.weeklyCollapsed = false;
+                state.weeklyWidth = clamped;
+              } else {
+                state.personalCollapsed = false;
+                state.personalWidth = clamped;
+              }
+            }
+            applyPaneWidths();
+          };
+
+          const onUp = () => {
+            resizer.classList.remove('dragging');
+            document.body.classList.remove('is-resizing');
+            window.removeEventListener('pointermove', onMove);
+            window.removeEventListener('pointerup', onUp);
+            savePaneLayout();
+            renderWeeklyBriefing();
+            renderPersonalTasks();
+          };
+
+          window.addEventListener('pointermove', onMove);
+          window.addEventListener('pointerup', onUp);
+        });
+      };
+
+      initDrag('resizerWeekly', 'weekly');
+      initDrag('resizerPersonal', 'personal');
     }
 
     // ==================== SPECIAL THEME ENGINE ====================
@@ -1832,9 +2096,7 @@
       const special = getEffectiveSpecialTheme();
       if (state.themePref === 'light') return 'light';
       if (state.themePref === 'dark') return 'dark';
-      if (state.themePref === 'special' || state.themePref === 'auto') {
-        return special || 'light';
-      }
+      if (state.themePref === 'special' || state.themePref === 'auto') return special || 'light';
       return 'light';
     }
 
@@ -1899,9 +2161,17 @@
       saveUserPrefs();
     }
 
-    // ==================== HISTORY API (MOBILE BACK BUTTON SUPPORT) ====================
+    // ==================== VIEW CROSS-SLIDE & NAVIGATION ====================
     function pushNavState(kind, detail = '') {
       try { window.history.pushState({ radarNav: kind, detail }, ''); } catch (e) {}
+    }
+
+    function triggerViewCrossSlide(viewElId, direction = 'forward') {
+      const el = document.getElementById(viewElId);
+      if (!el) return;
+      el.classList.remove('animate-view-forward', 'animate-view-back');
+      void el.offsetWidth;
+      el.classList.add(direction === 'back' ? 'animate-view-back' : 'animate-view-forward');
     }
 
     window.addEventListener('popstate', () => {
@@ -1912,37 +2182,61 @@
         return;
       }
       if (state.activeView !== 'home') {
-        state.activeView = 'home';
-        state.selectedCourseId = null;
-        renderAll();
+        navigateToView('home', null, 'back', true);
       }
     });
 
-    function navigateToView(view, courseId = null) {
-      if (state.activeView !== view || state.selectedCourseId !== courseId) {
+    function navigateToView(view, courseId = null, direction = null, fromPop = false) {
+      const prevView = state.activeView;
+      const dir = direction || (view === 'home' && prevView !== 'home' ? 'back' : 'forward');
+
+      if (!fromPop && (state.activeView !== view || state.selectedCourseId !== courseId)) {
         if (view !== 'home') pushNavState('view', view);
       }
+
       state.activeView = view;
       state.selectedCourseId = courseId;
+
+      if (view === 'home') state.shouldStaggerHome = true;
+      if (view === 'course') {
+        state.shouldStaggerAlerts = true;
+        state.animateCourseProgressFromZero = true;
+      }
+
       renderAll();
+
+      const viewIdMap = { home: 'view-home', course: 'view-course-detail', calendar: 'view-calendar' };
+      triggerViewCrossSlide(viewIdMap[view], dir);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleCalendarShortcut() {
+      if (!state.user || !document.getElementById('onboardingModal').classList.contains('hidden')) return;
+      state.searchQuery = '';
+      document.getElementById('quickSearchInput').value = '';
+
+      if (state.activeView === 'calendar') {
+        const backView = state.prevViewBeforeCal || 'home';
+        const backCourse = backView === 'course' ? state.prevCourseBeforeCal : null;
+        navigateToView(backView, backCourse, 'back');
+      } else {
+        state.prevViewBeforeCal = state.activeView;
+        state.prevCourseBeforeCal = state.selectedCourseId;
+        navigateToView('calendar', null, 'forward');
+      }
     }
 
     // ==================== INSTANT BLOCK ENFORCEMENT ====================
     async function enforceBlockCheck() {
       if (!state.user || state.user.isAnonymous) return false;
       const cleanEmail = normalizeEmail(state.user.email);
-      if (isLordEmail(cleanEmail)) return false; // Absolute immunity for The Lord
+      if (isLordEmail(cleanEmail)) return false;
 
       const emailKey = emailToDocId(cleanEmail);
       if (state.blockedEmails[emailKey]) {
         const uid = state.user.uid;
-        try {
-          await deleteDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'usersDirectory', uid));
-        } catch {}
-        try {
-          await deleteDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'roleEmails', emailKey));
-        } catch {}
+        try { await deleteDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'usersDirectory', uid)); } catch {}
+        try { await deleteDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'roleEmails', emailKey)); } catch {}
         document.getElementById('authBlockedBanner').classList.remove('hidden');
         try { await signOut(state.auth); } catch {}
         return true;
@@ -1969,9 +2263,7 @@
         state.role = assigned.role;
         if (assigned.assignedSection) {
           state.adminSection = assigned.assignedSection;
-          if (state.selectedSection === 'ALL') {
-            state.selectedSection = assigned.assignedSection;
-          }
+          if (state.selectedSection === 'ALL') state.selectedSection = assigned.assignedSection;
         }
       } else {
         state.role = 'student';
@@ -1979,15 +2271,10 @@
       }
 
       if (notify && prevRole !== state.role) {
-        if (state.role === 'co_dev') {
-          showToast('🛠️ تمت ترقيتك إلى Co-Dev!', '#A78BFA');
-        } else if (state.role === 'admin_plus') {
-          showToast('⭐ تمت ترقيتك إلى Admin+!', '#00D1B2');
-        } else if (state.role === 'admin') {
-          showToast('🔑 تمت ترقيتك إلى Admin!', '#FFD60A');
-        } else if (['admin', 'admin_plus', 'co_dev'].includes(prevRole)) {
-          showToast('تم تحديث رتبتك إلى Student 🎓', '#FFD60A');
-        }
+        if (state.role === 'co_dev') showToast('🛠️ تمت ترقيتك إلى Co-Dev!', '#A78BFA');
+        else if (state.role === 'admin_plus') showToast('⭐ تمت ترقيتك إلى Admin+!', '#00D1B2');
+        else if (state.role === 'admin') showToast('🔑 تمت ترقيتك إلى Admin!', '#FFD60A');
+        else if (['admin', 'admin_plus', 'co_dev'].includes(prevRole)) showToast('تم تحديث رتبتك إلى Student 🎓', '#FFD60A');
       }
 
       checkMandatoryOnboarding();
@@ -2052,7 +2339,6 @@
         await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'usersDirectory', state.user.uid), payload, { merge: true });
       } catch (e) { console.error('Directory sync error:', e); }
 
-      // Keep fixed username synced in roleEmails if assigned
       if (state.roleEmails[emailKey] && state.roleEmails[emailKey].name !== uname) {
         try {
           await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'roleEmails', emailKey), {
@@ -2091,9 +2377,7 @@
           clearSubscriptions();
 
           if (!user || user.isAnonymous) {
-            if (user?.isAnonymous) {
-              try { await signOut(state.auth); } catch {}
-            }
+            if (user?.isAnonymous) { try { await signOut(state.auth); } catch {} }
             state.user = null;
             state.role = 'student';
             state.username = '';
@@ -2112,6 +2396,7 @@
 
           state.user = user;
           state.prefsLoaded = false;
+          state.shouldStaggerHome = true;
           document.getElementById('authBlockedBanner').classList.add('hidden');
           document.getElementById('authGate').classList.add('hidden');
           document.getElementById('appShell').classList.remove('hidden');
@@ -2133,39 +2418,30 @@
       if (!state.db || !state.user) return;
       const appId = state.appId;
 
-      // 1. Config
       const u1 = onSnapshot(doc(state.db, 'artifacts', appId, 'public', 'data', 'config', 'main'), async (snap) => {
-        if (snap.exists()) {
-          state.config = { ...state.config, ...snap.data() };
-        } else {
-          try {
-            await setDoc(doc(state.db, 'artifacts', appId, 'public', 'data', 'config', 'main'), state.config);
-          } catch (e) { console.error(e); }
+        if (snap.exists()) state.config = { ...state.config, ...snap.data() };
+        else {
+          try { await setDoc(doc(state.db, 'artifacts', appId, 'public', 'data', 'config', 'main'), state.config); } catch {}
         }
         renderAll();
       });
 
-      // 2. Blocked Emails (Instant kick if current user is blocked live)
       const uBlocked = onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'blockedEmails'), async (snap) => {
         const map = {};
         snap.forEach(d => { map[d.id] = { id: d.id, ...d.data() }; });
         state.blockedEmails = map;
-
         const kicked = await enforceBlockCheck();
         if (!kicked) renderAll();
       });
 
-      // 3. Role Emails
       const u2 = onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'roleEmails'), (snap) => {
         const map = {};
         snap.forEach(d => { map[d.id] = { id: d.id, ...d.data() }; });
         state.roleEmails = map;
-
         resolveEffectiveRole(true);
         renderAll();
       });
 
-      // 4. Users Directory (Public Students List)
       const uDir = onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'usersDirectory'), (snap) => {
         const map = {};
         snap.forEach(d => { map[d.id] = { id: d.id, ...d.data() }; });
@@ -2173,22 +2449,18 @@
         renderAll();
       });
 
-      // 5. Levels
       const u3 = onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'levels'), async (snap) => {
         const loaded = {};
         snap.forEach(d => { loaded[d.id] = { id: d.id, ...d.data() }; });
         if (!loaded.level2) {
           loaded.level2 = DEFAULT_LEVEL_2;
-          try {
-            await setDoc(doc(state.db, 'artifacts', appId, 'public', 'data', 'levels', 'level2'), DEFAULT_LEVEL_2);
-          } catch (e) { console.error(e); }
+          try { await setDoc(doc(state.db, 'artifacts', appId, 'public', 'data', 'levels', 'level2'), DEFAULT_LEVEL_2); } catch {}
         }
         state.levels = loaded;
         if (!state.levels[state.currentLevelId]) state.currentLevelId = 'level2';
         renderAll();
       });
 
-      // 6. Announcements
       const u4 = onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'announcements'), (snap) => {
         const list = [];
         snap.forEach(d => list.push({ id: d.id, ...d.data() }));
@@ -2196,7 +2468,6 @@
         renderAll();
       });
 
-      // 7. Staff Overrides
       const u5 = onSnapshot(collection(state.db, 'artifacts', appId, 'public', 'data', 'sectionStaff'), (snap) => {
         const map = {};
         snap.forEach(d => { map[d.id] = d.data(); });
@@ -2204,7 +2475,6 @@
         renderAll();
       });
 
-      // 8. Personal Account Preferences
       const u6 = onSnapshot(doc(state.db, 'artifacts', appId, 'users', state.user.uid, 'prefs', 'main'), async (snap) => {
         if (snap.exists()) {
           const data = snap.data();
@@ -2232,12 +2502,9 @@
 
           state.prefsLoaded = true;
           resolveEffectiveRole(false);
-          if (state.usernameConfirmed && state.sectionConfirmed) {
-            syncUsersDirectory();
-          }
+          if (state.usernameConfirmed && state.sectionConfirmed) syncUsersDirectory();
           renderAll();
         } else {
-          // New account initialization
           if (state.pendingSignupName) {
             state.username = state.pendingSignupName;
             state.usernameConfirmed = true;
@@ -2270,9 +2537,7 @@
           adminSection: state.adminSection,
           currentLevelId: state.currentLevelId
         }, { merge: true });
-      } catch (err) {
-        console.error('Save prefs error:', err);
-      }
+      } catch (err) { console.error('Save prefs error:', err); }
     }
 
     async function saveConfig(partial) {
@@ -2290,8 +2555,6 @@
       if (!isDevPanelUser()) return;
       const cleanEmail = normalizeEmail(email);
       if (!cleanEmail || isLordEmail(cleanEmail)) return;
-
-      // Only The Lord can assign Co-Dev
       if (role === 'co_dev' && !isLord()) {
         showToast('تعيين Co-Dev متاح لـ The Lord فقط 👑', '#FF5C8D');
         return;
@@ -2301,7 +2564,6 @@
       const existing = state.roleEmails[docId] || {};
       const dirMatch = Object.values(state.usersDirectory).find(u => normalizeEmail(u.email) === cleanEmail);
 
-      // Co-Dev cannot overwrite another Co-Dev
       if (existing.role === 'co_dev' && !isLord()) {
         showToast('تعديل Co-Dev متاح لـ The Lord فقط 👑', '#FF5C8D');
         return;
@@ -2348,7 +2610,6 @@
       if (!isDevPanelUser()) return;
       const cleanEmail = normalizeEmail(email);
       if (!cleanEmail) return;
-
       if (isLordEmail(cleanEmail)) {
         showToast('لا يمكن حظر حساب The Lord 👑', '#FF5C8D');
         return;
@@ -2375,7 +2636,6 @@
           await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'blockedEmails', emailKey), payload);
           await deleteDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'roleEmails', emailKey));
 
-          // Remove from usersDirectory
           const targetUids = uid
             ? [uid]
             : Object.values(state.usersDirectory).filter(u => normalizeEmail(u.email) === cleanEmail).map(u => u.uid);
@@ -2403,7 +2663,7 @@
       renderAll();
     }
 
-    // ==================== CRUD ACTIONS ====================
+    // ==================== CRUD ACTIONS & ANIMATED DONE TOGGLE ====================
     async function saveAlert(payload, editId = null) {
       if (!canManage()) {
         showToast('ليس لديك صلاحية النشر 🔐', '#FF5C8D');
@@ -2426,8 +2686,7 @@
         try {
           if (editId) {
             await updateDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'announcements', editId), {
-              ...payload,
-              author: fixedAuthor
+              ...payload, author: fixedAuthor
             });
             showToast('تم تعديل التنبيه ✨', '#00D1B2');
           } else {
@@ -2453,10 +2712,9 @@
         showToast('لا يمكنك حذف تنبيه خارج نطاقك 🔒', '#FF5C8D');
         return;
       }
-      // Animation 12: Card Slide-Out
       if (cardEl) {
         cardEl.classList.add('animate-slide-out');
-        await new Promise(r => setTimeout(r, 220));
+        await new Promise(r => setTimeout(r, 250));
       }
       if (state.db && state.user) {
         try {
@@ -2476,9 +2734,7 @@
         const data = { levelId: state.currentLevelId, section, courseId: r.courseId, taName: r.taName.trim(), room: r.room.trim() };
         state.staffOverrides[key] = data;
         if (state.db && state.user) {
-          try {
-            await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'sectionStaff', key), data);
-          } catch (e) { console.error(e); }
+          try { await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'sectionStaff', key), data); } catch {}
         }
       }
       showToast(`تم حفظ معيدين سكشن ${section} ✅`, '#4ADE80');
@@ -2489,9 +2745,7 @@
       if (!isDevPanelUser()) return;
       state.levels[levelObj.id] = levelObj;
       if (state.db && state.user) {
-        try {
-          await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'levels', levelObj.id), levelObj);
-        } catch (e) { console.error(e); }
+        try { await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'levels', levelObj.id), levelObj); } catch {}
       }
       state.currentLevelId = levelObj.id;
       state.selectedSection = 'ALL';
@@ -2503,28 +2757,76 @@
       renderAll();
     }
 
-    function togglePersonalDone(id, btnEl = null) {
+    // Live-animated "خلصته" toggle (plays full RTL marker wipe + pulse + grey-out + urgent exit BEFORE syncing)
+    async function togglePersonalDone(id, btnEl = null) {
+      if (state.busyDoneToggle.has(id)) return;
+      state.busyDoneToggle.add(id);
+
       const wasDone = state.doneIds.includes(id);
-      if (wasDone) {
-        state.doneIds = state.doneIds.filter(x => x !== id);
-      } else {
-        state.doneIds = [...state.doneIds, id];
-        // Animation 1: Pulse on "خلصته"
-        if (btnEl) {
-          btnEl.classList.add('animate-done-pulse');
-        }
-        // Check if 100% of current course active tasks are now done -> Confetti!
-        if (state.activeView === 'course' && state.selectedCourseId) {
-          const activeItems = state.announcements.filter(a =>
-            a.levelId === state.currentLevelId && a.courseId === state.selectedCourseId && !isPastDue(a) && matchesSection(a)
-          );
-          if (activeItems.length > 0 && activeItems.every(a => state.doneIds.includes(a.id))) {
-            triggerConfettiBurst(btnEl);
-            showToast('عاش! خلّصت كل مهام المادة دي 🎉', '#4ADE80');
-          }
+      const nextDone = !wasDone;
+      const cardEl = btnEl?.closest('[data-alert-card]');
+      const titleSpan = cardEl?.querySelector('.strike-title');
+
+      // 1. Update live DOM immediately so CSS transitions ACTUALLY play!
+      if (titleSpan) titleSpan.classList.toggle('is-done', nextDone);
+      if (cardEl) cardEl.classList.toggle('is-greyed-done', nextDone);
+
+      if (btnEl) {
+        btnEl.classList.remove('animate-done-pulse');
+        void btnEl.offsetWidth;
+        btnEl.classList.add('animate-done-pulse');
+        btnEl.textContent = nextDone ? '✓ خلصته' : 'خلصته';
+        if (nextDone) {
+          btnEl.classList.add('bg-[#4ADE80]', 'nb-ink');
+          btnEl.classList.remove('bg-card');
+        } else {
+          btnEl.classList.remove('bg-[#4ADE80]', 'nb-ink');
+          btnEl.classList.add('bg-card');
         }
       }
-      saveUserPrefs();
+
+      // Smoothly exit matching chip from Urgent Bar if marking done
+      if (nextDone) {
+        const urgentChip = document.querySelector(`[data-urgent-chip="${CSS.escape(id)}"]`);
+        if (urgentChip) urgentChip.classList.add('animate-chip-exit');
+      }
+
+      // Update state array
+      if (wasDone) state.doneIds = state.doneIds.filter(x => x !== id);
+      else state.doneIds = [...state.doneIds, id];
+
+      // Animate live progress bar fill immediately if inside course detail!
+      if (state.activeView === 'course' && state.selectedCourseId) {
+        const activeItems = state.announcements.filter(a =>
+          a.levelId === state.currentLevelId && a.courseId === state.selectedCourseId && !isPastDue(a) && matchesSection(a)
+        );
+        const doneCount = activeItems.filter(a => state.doneIds.includes(a.id)).length;
+        const pct = activeItems.length > 0 ? Math.round((doneCount / activeItems.length) * 100) : 0;
+        const fillEl = document.getElementById('courseProgressFill');
+        const labelEl = document.getElementById('courseProgressLabel');
+        const pctEl = document.getElementById('courseProgressPct');
+        if (fillEl) fillEl.style.width = `${pct}%`;
+        if (labelEl) labelEl.textContent = `نسبة الإنجاز (${doneCount}/${activeItems.length})`;
+        if (pctEl) pctEl.textContent = `${pct}%`;
+        state.lastCoursePct = pct;
+
+        if (nextDone && activeItems.length > 0 && doneCount === activeItems.length) {
+          triggerConfettiBurst(btnEl);
+          showToast('عاش! خلّصت كل مهام المادة دي 🎉', '#4ADE80');
+        }
+      }
+
+      // Let the RTL wipe + grey-out animation finish visibly
+      await new Promise(r => setTimeout(r, 360));
+
+      // If hideDone is ON and card was just marked done, slide it out cleanly
+      if (nextDone && state.hideDone && cardEl) {
+        cardEl.classList.add('animate-slide-out');
+        await new Promise(r => setTimeout(r, 240));
+      }
+
+      state.busyDoneToggle.delete(id);
+      await saveUserPrefs();
       renderAll();
     }
 
@@ -2547,28 +2849,60 @@
       state.lastCreatedTaskId = id;
       saveUserPrefs();
       renderAll();
-      setTimeout(() => { state.lastCreatedTaskId = null; }, 600);
+      setTimeout(() => { state.lastCreatedTaskId = null; }, 650);
       return true;
     }
 
-    function togglePersonalTaskDone(taskId, el = null) {
-      let becameDone = false;
-      state.personalTasks = state.personalTasks.map(t => {
-        if (t.id === taskId) {
-          becameDone = !t.done;
-          return { ...t, done: !t.done };
+    async function togglePersonalTaskDone(taskId, btnEl = null) {
+      if (state.busyDoneToggle.has(taskId)) return;
+      state.busyDoneToggle.add(taskId);
+
+      const cur = state.personalTasks.find(t => t.id === taskId);
+      if (!cur) { state.busyDoneToggle.delete(taskId); return; }
+      const nextDone = !cur.done;
+
+      const cardEl = btnEl?.closest('[data-pt-card]');
+      const titleSpan = cardEl?.querySelector('.strike-title');
+
+      if (titleSpan) titleSpan.classList.toggle('is-done', nextDone);
+      if (cardEl) cardEl.classList.toggle('is-greyed-done', nextDone);
+      if (btnEl) {
+        btnEl.classList.remove('animate-done-pulse');
+        void btnEl.offsetWidth;
+        btnEl.classList.add('animate-done-pulse');
+        btnEl.textContent = nextDone ? '✓' : '';
+        if (nextDone) {
+          btnEl.classList.add('bg-[#4ADE80]', 'nb-ink');
+          btnEl.classList.remove('bg-card');
+        } else {
+          btnEl.classList.remove('bg-[#4ADE80]', 'nb-ink');
+          btnEl.classList.add('bg-card');
         }
-        return t;
-      });
-      if (becameDone && state.personalTasks.length > 0 && state.personalTasks.every(t => t.done)) {
-        triggerConfettiBurst(el);
+      }
+
+      state.personalTasks = state.personalTasks.map(t => t.id === taskId ? { ...t, done: nextDone } : t);
+
+      if (nextDone && state.personalTasks.length > 0 && state.personalTasks.every(t => t.done)) {
+        triggerConfettiBurst(btnEl);
         showToast('أنجزت كل مهامك الخاصة 🎉', '#4ADE80');
       }
+
+      await new Promise(r => setTimeout(r, 340));
+      if (nextDone && state.hideDone && cardEl) {
+        cardEl.classList.add('animate-slide-out');
+        await new Promise(r => setTimeout(r, 230));
+      }
+
+      state.busyDoneToggle.delete(taskId);
       saveUserPrefs();
       renderAll();
     }
 
-    function deletePersonalTask(taskId) {
+    async function deletePersonalTask(taskId, cardEl = null) {
+      if (cardEl) {
+        cardEl.classList.add('animate-slide-out');
+        await new Promise(r => setTimeout(r, 240));
+      }
       state.personalTasks = state.personalTasks.filter(t => t.id !== taskId);
       saveUserPrefs();
       renderAll();
@@ -2579,7 +2913,7 @@
       const backup = {
         exportedAt: new Date().toISOString(),
         app: 'BUA-Radar-Level2',
-        version: '4.0',
+        version: '4.1',
         config: state.config,
         roleEmails: state.roleEmails,
         blockedEmails: state.blockedEmails,
@@ -2607,13 +2941,10 @@
           showToast('ملف غير صالح ❌', '#FF5C8D');
           return;
         }
-
         if (data.config) await saveConfig(data.config);
         if (data.roleEmails && typeof data.roleEmails === 'object') {
           for (const [k, v] of Object.entries(data.roleEmails)) {
-            if (state.db && state.user) {
-              await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'roleEmails', k), v);
-            }
+            if (state.db && state.user) await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'roleEmails', k), v);
           }
         }
         if (data.levels && typeof data.levels === 'object') {
@@ -2635,9 +2966,7 @@
         for (const ann of data.announcements) {
           const { id, ...rest } = ann;
           const docId = id || ('restored_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6));
-          if (state.db && state.user) {
-            await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'announcements', docId), rest);
-          }
+          if (state.db && state.user) await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'announcements', docId), rest);
         }
         showToast(`تمت الاستعادة (${data.announcements.length} تنبيه) ✅`, '#4ADE80');
         renderAll();
@@ -2659,9 +2988,7 @@
       ];
       if (ann.date) lines.push(`📅 *الديدلاين:* ${formatArabicDate(ann.date)} (${ann.date})`);
       if (ann.note) lines.push(`📝 *ملاحظات:* ${ann.note}`);
-      links.forEach(l => {
-        lines.push(`🔗 *${l.label || 'اللينك'}:* ${safeUrl(l.url)}`);
-      });
+      links.forEach(l => lines.push(`🔗 *${l.label || 'اللينك'}:* ${safeUrl(l.url)}`));
       if (ann.author) lines.push(`✍️ _بواسطة: ${ann.author}_`);
       lines.push(`\n— رادار الدفعة (${getCurrentLevel().name} - BUA)`);
       return lines.join('\n');
@@ -2706,9 +3033,8 @@
         }
       } else if (mode === 'COURSE') {
         const cid = document.getElementById('recapCourseSelect').value;
-        const c = getCourse(cid);
         items = items.filter(a => a.courseId === cid);
-        subtitle = `مادة ${c.name}`;
+        subtitle = `مادة ${getCourse(cid).name}`;
       } else if (mode === 'TAG') {
         const tid = document.getElementById('recapTagSelect').value;
         const t = getTag(tid);
@@ -2740,21 +3066,15 @@
       });
 
       Object.keys(grouped).forEach(k => {
-        if (k === 'OPEN') {
-          out.push(`\n📌 *تنبيهات عامة:*`);
-        } else {
-          const cd = getCountdownInfo(k);
-          out.push(`\n📅 *${formatArabicDate(k)}* (${cd.text})`);
-        }
+        if (k === 'OPEN') out.push(`\n📌 *تنبيهات عامة:*`);
+        else out.push(`\n📅 *${formatArabicDate(k)}* (${getCountdownInfo(k).text})`);
         grouped[k].forEach(ann => {
           const c = getCourse(ann.courseId);
           const t = getTag(ann.tag);
           const aud = ann.targetType && ann.targetType !== 'all' ? ` [${getTargetLabel(ann)}]` : '';
           out.push(`  • ${t.emoji} *${c.shortName}* (${t.label})${aud}: ${ann.title}`);
           if (ann.note) out.push(`     ↳ _${ann.note}_`);
-          getAlertLinks(ann).forEach(l => {
-            out.push(`     🔗 ${l.label || 'اللينك'}: ${safeUrl(l.url)}`);
-          });
+          getAlertLinks(ann).forEach(l => out.push(`     🔗 ${l.label || 'اللينك'}: ${safeUrl(l.url)}`));
         });
       });
 
@@ -2767,6 +3087,7 @@
       applyTheme(false);
       if (!state.user) return;
 
+      applyPaneWidths();
       renderHeaderAndHero();
       syncHideDoneSwitches();
       renderWeeklyBriefing();
@@ -2820,7 +3141,6 @@
       addInCourseBtn.classList.toggle('inline-flex', allowedToAdd);
       calAddOnDayBtn.classList.toggle('hidden', !allowedToAdd);
 
-      // Role Badge Pill (All 5 tiers)
       const roleBadge = document.getElementById('headerRoleBadge');
       const roleText = document.getElementById('headerRoleText');
       if (state.role === 'lord') {
@@ -2840,7 +3160,6 @@
         roleBadge.style.backgroundColor = '#4ADE80';
       }
 
-      // Global Section Dropdown
       const sel = document.getElementById('globalSectionSelect');
       let optHtml = `<option value="ALL" class="bg-white text-black">الكل</option>`;
       lvl.groups.forEach(g => {
@@ -2873,11 +3192,13 @@
       const body = document.getElementById('weeklyBriefingBody');
       const label = document.getElementById('weeklyToggleLabel');
       const badge = document.getElementById('weeklyCountBadge');
+      const railBadge = document.getElementById('weeklyRailCount');
 
-      body.classList.toggle('hidden', state.weeklyCollapsed);
+      // On mobile (<1024px) toggle body visibility; on desktop CSS collapses the whole rail cleanly
+      const isDesktop = window.innerWidth >= 1024;
+      body.classList.toggle('hidden', !isDesktop && state.weeklyCollapsed);
       label.textContent = state.weeklyCollapsed ? 'فرد ▾' : 'طيّ ▴';
 
-      // 1. Public announcements within next 7 days (0..7)
       const pubItems = state.announcements
         .filter(a => {
           if (a.levelId !== state.currentLevelId || !a.date || !matchesSection(a)) return false;
@@ -2886,16 +3207,10 @@
           return diff !== null && diff >= 0 && diff <= 7;
         })
         .map(a => ({
-          kind: 'public',
-          id: a.id,
-          courseId: a.courseId,
-          tag: a.tag,
-          title: a.title,
-          date: a.date,
-          done: state.doneIds.includes(a.id)
+          kind: 'public', id: a.id, courseId: a.courseId, tag: a.tag,
+          title: a.title, date: a.date, done: state.doneIds.includes(a.id)
         }));
 
-      // 2. Personal tasks with date within next 7 days (0..7)
       const privItems = state.personalTasks
         .filter(t => {
           if (!t.date) return false;
@@ -2904,24 +3219,20 @@
           return diff !== null && diff >= 0 && diff <= 7;
         })
         .map(t => ({
-          kind: 'private',
-          id: t.id,
-          courseId: t.courseId,
-          tag: null,
-          title: t.title,
-          date: t.date,
-          done: t.done
+          kind: 'private', id: t.id, courseId: t.courseId, tag: null,
+          title: t.title, date: t.date, done: t.done
         }));
 
       const combined = [...pubItems, ...privItems].sort((a, b) => a.date.localeCompare(b.date));
       badge.textContent = combined.length;
+      if (railBadge) railBadge.textContent = combined.length;
 
       if (combined.length === 0) {
         body.innerHTML = `<div class="py-6 text-center text-xs font-bold text-sec">لا توجد مواعيد خلال الـ 7 أيام القادمة 🎉</div>`;
         return;
       }
 
-      body.innerHTML = combined.map((item, idx) => {
+      body.innerHTML = combined.map(item => {
         const c = getCourse(item.courseId);
         const cd = getCountdownInfo(item.date);
         const isPriv = item.kind === 'private';
@@ -2929,17 +3240,16 @@
 
         return `
           <div ${!isPriv ? `data-jump-course="${escapeHtml(item.courseId)}"` : ''}
-            style="--stagger:${idx}"
-            class="stagger-item nb-card-sm p-2.5 relative overflow-hidden ${!isPriv ? 'cursor-pointer hover:bg-muted' : ''} ${item.done ? 'opacity-50' : ''}">
+            class="nb-card-sm p-2.5 relative overflow-hidden ${!isPriv ? 'cursor-pointer hover:bg-muted' : ''} ${item.done ? 'is-greyed-done' : ''}">
             <div class="absolute top-0 bottom-0 right-0 w-1.5 border-l border-nb" style="background:${c.color}"></div>
             <div class="pr-2 space-y-1.5">
-              <div class="flex items-center justify-between gap-1.5">
+              <div class="flex items-center justify-between gap-1">
                 <div class="flex items-center gap-1 min-w-0">
                   <span class="px-1.5 py-0.5 rounded-md border border-black nb-ink text-[10px] font-black font-en shrink-0" style="background:${c.color}">
                     ${escapeHtml(c.shortName)}
                   </span>
                   ${isPriv
-                    ? `<span class="px-1.5 py-0.5 rounded-md border border-nb bg-[#A78BFA] nb-ink text-[10px] font-black truncate">🔒 مهمة خاصة</span>`
+                    ? `<span class="px-1.5 py-0.5 rounded-md border border-nb bg-[#A78BFA] nb-ink text-[10px] font-black truncate">🔒 خاصة</span>`
                     : `<span class="px-1.5 py-0.5 rounded-md border border-nb bg-muted text-[10px] font-black truncate">${tagObj.emoji} ${tagObj.label}</span>`
                   }
                 </div>
@@ -2947,11 +3257,9 @@
                   ${cd.text}
                 </span>
               </div>
-
-              <div class="text-xs font-black leading-snug ${item.done ? 'line-through' : ''}">
-                ${escapeHtml(item.title)}
+              <div class="text-xs font-black leading-snug">
+                <span class="strike-title ${item.done ? 'is-done' : ''}">${escapeHtml(item.title)}</span>
               </div>
-
               <div class="text-[10px] font-bold text-sec">📅 ${formatArabicDate(item.date)}</div>
             </div>
           </div>
@@ -2964,13 +3272,16 @@
       const body = document.getElementById('personalTasksBody');
       const label = document.getElementById('personalToggleLabel');
       const badge = document.getElementById('personalTasksCountBadge');
+      const railBadge = document.getElementById('personalRailCount');
       const heading = document.getElementById('personalTasksHeading');
       const courseSel = document.getElementById('ptCourseSelect');
       const listEl = document.getElementById('personalTasksList');
 
-      body.classList.toggle('hidden', state.personalCollapsed);
+      const isDesktop = window.innerWidth >= 1024;
+      body.classList.toggle('hidden', !isDesktop && state.personalCollapsed);
       label.textContent = state.personalCollapsed ? 'فرد ▾' : 'طيّ ▴';
       badge.textContent = `${state.personalTasks.length}/50`;
+      if (railBadge) railBadge.textContent = state.personalTasks.length;
 
       const lvl = getCurrentLevel();
       const inCourseDetail = state.activeView === 'course' && state.selectedCourseId && !state.searchQuery.trim();
@@ -2980,41 +3291,36 @@
         .join('');
       if (inCourseDetail) {
         courseSel.value = state.selectedCourseId;
-        const curCourse = getCourse(state.selectedCourseId);
-        heading.textContent = `مهامي (${curCourse.shortName})`;
+        heading.textContent = `مهامي (${getCourse(state.selectedCourseId).shortName})`;
       } else {
         heading.textContent = 'مهامي الخاصة';
       }
 
       let tasks = [...state.personalTasks];
-      if (inCourseDetail) {
-        tasks = tasks.filter(t => t.courseId === state.selectedCourseId);
-      }
-      if (state.hideDone) {
-        tasks = tasks.filter(t => !t.done);
-      }
+      if (inCourseDetail) tasks = tasks.filter(t => t.courseId === state.selectedCourseId);
+      if (state.hideDone) tasks = tasks.filter(t => !t.done);
 
       if (tasks.length === 0) {
         listEl.innerHTML = `<div class="py-5 text-center text-xs font-bold text-sec">${inCourseDetail ? 'لا توجد مهام خاصة لهذه المادة' : 'لا توجد مهام خاصة حالياً'}</div>`;
         return;
       }
 
-      listEl.innerHTML = tasks.map((t, idx) => {
+      listEl.innerHTML = tasks.map(t => {
         const c = getCourse(t.courseId);
         const isJustCreated = t.id === state.lastCreatedTaskId;
         const cd = t.date ? getCountdownInfo(t.date) : null;
 
         return `
-          <div style="--stagger:${idx}"
-            class="${isJustCreated ? 'animate-task-drop' : 'stagger-item'} nb-card-sm p-2.5 flex items-start justify-between gap-2 ${t.done ? 'opacity-55' : ''}">
+          <div data-pt-card="${escapeHtml(t.id)}"
+            class="pt-card-root ${isJustCreated ? 'animate-task-drop' : ''} nb-card-sm p-2.5 flex items-start justify-between gap-2 ${t.done ? 'is-greyed-done' : ''}">
             <div class="flex items-start gap-2 min-w-0 flex-1">
               <button type="button" data-toggle-pt="${escapeHtml(t.id)}"
                 class="nb-btn-sm w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black shrink-0 mt-0.5 ${t.done ? 'bg-[#4ADE80] nb-ink' : 'bg-card'}">
                 ${t.done ? '✓' : ''}
               </button>
               <div class="min-w-0 flex-1 space-y-1">
-                <div class="text-xs font-black leading-snug break-words strike-title ${t.done ? 'is-done' : ''}">
-                  ${escapeHtml(t.title)}
+                <div class="text-xs font-black leading-snug break-words">
+                  <span class="strike-title ${t.done ? 'is-done' : ''}">${escapeHtml(t.title)}</span>
                 </div>
                 <div class="flex flex-wrap items-center gap-1">
                   <span class="px-1.5 py-0.5 rounded-md border border-black nb-ink text-[10px] font-black font-en" style="background:${c.color}">
@@ -3061,7 +3367,7 @@
         const t = getTag(ann.tag);
         const cd = getCountdownInfo(ann.date);
         return `
-          <button type="button" data-jump-course="${escapeHtml(ann.courseId)}"
+          <button type="button" data-urgent-chip="${escapeHtml(ann.id)}" data-jump-course="${escapeHtml(ann.courseId)}"
             class="nb-btn-sm px-2.5 py-1 rounded-xl bg-card flex items-center gap-1.5 text-xs font-extrabold shrink-0">
             <span class="w-2.5 h-2.5 rounded-full border border-black shrink-0" style="background:${c.color}"></span>
             <span>${t.emoji}</span>
@@ -3097,7 +3403,7 @@
       if (matches.length === 0) {
         listEl.innerHTML = `<div class="nb-card p-8 text-center text-sm font-black text-sec">لا توجد نتائج مطابقة</div>`;
       } else {
-        listEl.innerHTML = matches.map((a, idx) => renderAlertCard(a, true, idx)).join('');
+        listEl.innerHTML = matches.map((a, idx) => renderAlertCard(a, true, idx, true)).join('');
       }
     }
 
@@ -3105,6 +3411,7 @@
       const lvl = getCurrentLevel();
       const grid = document.getElementById('coursesFolderGrid');
       const now = Date.now();
+      const stagger = state.shouldStaggerHome;
       let totalActive = 0;
 
       grid.innerHTML = lvl.courses.map((c, idx) => {
@@ -3133,9 +3440,9 @@
         const iconSvg = COURSE_ICONS[c.id] || COURSE_ICONS.default;
 
         return `
-          <div data-open-course="${escapeHtml(c.id)}" style="--stagger:${idx}" class="stagger-item nb-folder-wrapper">
+          <div data-open-course="${escapeHtml(c.id)}" style="--stagger:${idx}" class="${stagger ? 'stagger-drop' : ''} nb-folder-wrapper">
             <div class="nb-folder-tab" style="background:${c.color}"></div>
-            <div class="nb-folder-body p-3.5 sm:p-4 flex flex-col justify-between min-h-[164px] sm:min-h-[178px] gap-2.5">
+            <div class="nb-folder-body p-3.5 sm:p-4 flex flex-col justify-between min-h-[168px] sm:min-h-[180px] gap-2.5">
               <div class="flex items-start justify-between gap-2">
                 <div class="folder-course-icon w-10 h-10 sm:w-11 sm:h-11 rounded-xl border-2 border-nb nb-ink flex items-center justify-center shrink-0"
                   style="background:${c.color}">
@@ -3161,6 +3468,7 @@
         `;
       }).join('');
 
+      state.shouldStaggerHome = false;
       document.getElementById('totalActiveCounter').textContent = `${totalActive} نشط`;
     }
 
@@ -3175,9 +3483,10 @@
       const activeItems = allCourseItems.filter(a => !isPastDue(a));
       const archivedItems = allCourseItems.filter(a => isPastDue(a));
 
-      // Course Completion Progress
       const doneCount = activeItems.filter(a => state.doneIds.includes(a.id)).length;
       const pct = activeItems.length > 0 ? Math.round((doneCount / activeItems.length) * 100) : 0;
+      const startFromZero = state.animateCourseProgressFromZero;
+      const initialWidth = startFromZero ? 0 : pct;
 
       const banner = document.getElementById('courseBanner');
       banner.style.backgroundColor = c.color;
@@ -3206,16 +3515,28 @@
           ${activeItems.length > 0 ? `
             <div class="pt-1 space-y-1">
               <div class="flex items-center justify-between text-[11px] font-black">
-                <span>نسبة الإنجاز (${doneCount}/${activeItems.length})</span>
-                <span class="font-en">${pct}%</span>
+                <span id="courseProgressLabel">نسبة الإنجاز (${doneCount}/${activeItems.length})</span>
+                <span id="courseProgressPct" class="font-en">${pct}%</span>
               </div>
-              <div class="w-full h-3 rounded-full border-2 border-black bg-white overflow-hidden">
-                <div class="nb-progress-fill h-full bg-[#4ADE80]" style="width:${pct}%"></div>
+              <div class="w-full h-3.5 rounded-full border-2 border-black bg-white overflow-hidden">
+                <div id="courseProgressFill" class="nb-progress-fill h-full bg-[#4ADE80]" style="width:${initialWidth}%"></div>
               </div>
             </div>
           ` : ''}
         </div>
       `;
+
+      // Smoothly animate progress fill from 0% -> pct% on entering course!
+      if (startFromZero) {
+        state.animateCourseProgressFromZero = false;
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const fill = document.getElementById('courseProgressFill');
+            if (fill) fill.style.width = `${pct}%`;
+          });
+        });
+      }
+      state.lastCoursePct = pct;
 
       const visibleActive = state.hideDone ? activeItems.filter(a => !state.doneIds.includes(a.id)) : activeItems;
       const visibleArchive = state.hideDone ? archivedItems.filter(a => !state.doneIds.includes(a.id)) : archivedItems;
@@ -3266,6 +3587,7 @@
         ? sortAlerts(filtered)
         : [...filtered].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
+      const stagger = state.shouldStaggerAlerts;
       const listEl = document.getElementById('courseAlertsList');
       if (filtered.length === 0) {
         listEl.innerHTML = `
@@ -3275,11 +3597,12 @@
           </div>
         `;
       } else {
-        listEl.innerHTML = filtered.map((a, idx) => renderAlertCard(a, false, idx)).join('');
+        listEl.innerHTML = filtered.map((a, idx) => renderAlertCard(a, false, idx, stagger)).join('');
       }
+      state.shouldStaggerAlerts = false;
     }
 
-    function renderAlertCard(ann, showCoursePill = false, staggerIdx = 0) {
+    function renderAlertCard(ann, showCoursePill = false, staggerIdx = 0, useStagger = false) {
       const c = getCourse(ann.courseId);
       const t = getTag(ann.tag);
       const cd = getCountdownInfo(ann.date);
@@ -3293,7 +3616,7 @@
 
       return `
         <article data-alert-card="${escapeHtml(ann.id)}" style="--stagger:${staggerIdx}"
-          class="stagger-item nb-card p-4 relative overflow-hidden transition ${done ? 'opacity-60' : ''} ${isExamUrgent ? 'exam-urgent-card' : ''}">
+          class="alert-card-root ${useStagger ? 'stagger-drop' : ''} nb-card p-4 relative overflow-hidden ${done ? 'is-greyed-done' : ''} ${isExamUrgent ? 'exam-urgent-card' : ''}">
           <div class="absolute top-0 bottom-0 right-0 w-2 border-l-2 border-nb" style="background:${c.color}"></div>
 
           <div class="pr-3 space-y-2.5">
@@ -3369,7 +3692,7 @@
     }
 
     // ==================== CALENDAR RENDER ====================
-    function renderCalendar(animateMonth = false) {
+    function renderCalendar(animateMonth = false, staggerDayAlerts = false) {
       const lvl = getCurrentLevel();
 
       const cSel = document.getElementById('calCourseFilter');
@@ -3458,7 +3781,7 @@
       if (selItems.length === 0) {
         listEl.innerHTML = `<div class="py-6 text-center text-xs font-bold text-sec">لا توجد تنبيهات في هذا اليوم 📅</div>`;
       } else {
-        listEl.innerHTML = selItems.map((a, idx) => renderAlertCard(a, true, idx)).join('');
+        listEl.innerHTML = selItems.map((a, idx) => renderAlertCard(a, true, idx, staggerDayAlerts)).join('');
       }
     }
 
@@ -3490,9 +3813,7 @@
 
       if (state.settingsTab === 'staff') {
         const secSel = document.getElementById('settingsStaffSection');
-        if (!lvl.sections.includes(state.settingsStaffSection)) {
-          state.settingsStaffSection = lvl.sections[0] || 'W1';
-        }
+        if (!lvl.sections.includes(state.settingsStaffSection)) state.settingsStaffSection = lvl.sections[0] || 'W1';
         secSel.innerHTML = lvl.sections.map(s => `<option value="${escapeHtml(s)}" class="bg-white text-black">سكشن ${escapeHtml(s)}</option>`).join('');
         secSel.value = state.settingsStaffSection;
 
@@ -3508,7 +3829,7 @@
           listEl.innerHTML = lvl.courses.map((c, idx) => {
             const info = getStaffInfo(state.settingsStaffSection, c.id);
             return `
-              <div style="--stagger:${idx}" class="stagger-item nb-card-sm p-3 space-y-2 relative overflow-hidden">
+              <div style="--stagger:${idx}" class="stagger-drop nb-card-sm p-3 space-y-2 relative overflow-hidden">
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-xs font-black font-en truncate">${escapeHtml(c.name)}</span>
                   <span class="px-2 py-0.5 rounded-md border border-black nb-ink text-[10px] font-black shrink-0" style="background:${c.color}">${escapeHtml(c.shortName)}</span>
@@ -3560,13 +3881,11 @@
       const q = state.devSearchQuery.trim().toLowerCase();
       const secFilter = state.devSectionFilter;
 
-      // Populate Section Filter Dropdown
       const secFilterSel = document.getElementById('devSectionFilterSelect');
       secFilterSel.innerHTML = `<option value="ALL">كل السكاشن</option><option value="NONE">بدون سكشن</option>` +
         lvl.sections.map(s => `<option value="${escapeHtml(s)}">سكشن ${escapeHtml(s)}</option>`).join('');
       secFilterSel.value = secFilter;
 
-      // Role Assign Select: Only The Lord can assign Co-Dev
       const assignRoleSel = document.getElementById('devAssignRoleSelect');
       const curAssignRole = assignRoleSel.value;
       assignRoleSel.innerHTML = `
@@ -3574,15 +3893,12 @@
         <option value="admin_plus">⭐ Admin+</option>
         ${isLord() ? `<option value="co_dev">🛠️ Co-Dev</option>` : ''}
       `;
-      if ([...assignRoleSel.options].some(o => o.value === curAssignRole)) {
-        assignRoleSel.value = curAssignRole;
-      }
+      if ([...assignRoleSel.options].some(o => o.value === curAssignRole)) assignRoleSel.value = curAssignRole;
 
       const assignSecSel = document.getElementById('devAssignSectionSelect');
       assignSecSel.innerHTML = `<option value="" class="bg-white text-black">تلقائي / عند الدخول</option>` +
         lvl.sections.map(s => `<option value="${escapeHtml(s)}" class="bg-white text-black">سكشن ${escapeHtml(s)}</option>`).join('');
 
-      // Helper for filtering by search + section
       const matchesDevFilters = (username, email, sec) => {
         if (q) {
           const hay = `${username || ''} ${email || ''}`.toLowerCase();
@@ -3596,7 +3912,6 @@
         return true;
       };
 
-      // 1. Render Management Team (The Lord + Co-Dev + Admin+ + Admin)
       const allDirUsers = Object.values(state.usersDirectory);
       const lordDirEntry = allDirUsers.find(u => isLordEmail(u.email));
       const lordEntry = {
@@ -3647,7 +3962,7 @@
           `;
 
           return `
-            <div style="--stagger:${idx}" class="stagger-item nb-card-sm p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div style="--stagger:${idx}" class="stagger-drop nb-card-sm p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div class="min-w-0 space-y-1">
                 <div class="flex flex-wrap items-center gap-1.5">
                   <span class="px-2 py-0.5 rounded-md border border-black nb-ink text-[10px] font-black" style="background:${badgeBg}">
@@ -3690,7 +4005,6 @@
         }).join('');
       }
 
-      // 2. Render Registered Students List (Exclude Lord & Staff already listed above)
       const staffEmailsSet = new Set([
         normalizeEmail(LORD_EMAIL),
         ...Object.values(state.roleEmails).map(r => normalizeEmail(r.email))
@@ -3710,7 +4024,7 @@
         studentsEl.innerHTML = students.map((st, idx) => {
           const secLabel = st.selectedSection && st.selectedSection !== 'ALL' ? `🎯 ${escapeHtml(st.selectedSection)}` : 'بدون سكشن';
           return `
-            <div style="--stagger:${idx}" class="stagger-item nb-card-sm p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div style="--stagger:${idx}" class="stagger-drop nb-card-sm p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div class="min-w-0 space-y-0.5">
                 <div class="flex flex-wrap items-center gap-1.5">
                   <span class="text-xs sm:text-sm font-black truncate">🎓 ${escapeHtml(st.username || 'طالب')}</span>
@@ -3738,7 +4052,6 @@
         }).join('');
       }
 
-      // 3. Render Blocked Accounts
       const blockedList = Object.values(state.blockedEmails)
         .filter(b => matchesDevFilters('', b.email, 'ALL'))
         .sort((a, b) => (b.blockedAt || 0) - (a.blockedAt || 0));
@@ -3750,7 +4063,7 @@
         blockedEl.innerHTML = `<div class="text-xs font-bold text-sec py-2 text-center">لا توجد حسابات محظورة</div>`;
       } else {
         blockedEl.innerHTML = blockedList.map((b, idx) => `
-          <div style="--stagger:${idx}" class="stagger-item nb-card-sm p-2.5 flex items-center justify-between gap-2 bg-muted">
+          <div style="--stagger:${idx}" class="stagger-drop nb-card-sm p-2.5 flex items-center justify-between gap-2 bg-muted">
             <div class="min-w-0">
               <div class="text-xs font-black font-en truncate">🚫 ${escapeHtml(b.email)}</div>
               ${b.blockedBy ? `<div class="text-[10px] font-bold text-sec">بواسطة: ${escapeHtml(b.blockedBy)}</div>` : ''}
@@ -3763,7 +4076,6 @@
         `).join('');
       }
 
-      // 4. Special Theme Grid
       const curMode = state.config.specialThemeMode || 'auto';
       const eff = getEffectiveSpecialTheme();
       document.getElementById('devThemeActiveInfo').textContent = eff ? `نشط: ${SPECIAL_THEMES[eff].label}` : 'عادي';
@@ -3771,7 +4083,7 @@
         const active = curMode === th.id;
         return `
           <button type="button" data-dev-theme="${th.id}"
-            class="nb-btn-sm py-2 px-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 ${active ? 'nb-ink' : 'bg-card'}"
+    class="nb-btn-sm py-2 px-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 ${active ? 'nb-ink' : 'bg-card'}"
             style="${active ? `background:${th.bg}` : ''}">
             <span>${th.emoji}</span>
             <span>${th.label}</span>
@@ -3779,7 +4091,6 @@
         `;
       }).join('');
 
-      // 5. Levels List
       document.getElementById('levelsList').innerHTML = Object.values(state.levels).map(l => {
         const active = l.id === state.currentLevelId;
         return `
@@ -3817,11 +4128,8 @@
     }
 
     function requireManagerOrPrompt(onAllowed) {
-      if (canManage()) {
-        onAllowed();
-      } else {
-        showToast('إضافة التنبيهات متاحة للـ Admin و Admin+ فقط 🔒', '#FFD60A');
-      }
+      if (canManage()) onAllowed();
+      else showToast('إضافة التنبيهات متاحة للـ Admin و Admin+ فقط 🔒', '#FFD60A');
     }
 
     // ==================== MULTIPLE LINKS FORM BUILDER ====================
@@ -3854,7 +4162,6 @@
       document.getElementById('alertSubmitBtn').textContent = isEdit ? 'حفظ التعديلات ✨' : 'نشر التنبيه 🚀';
       document.getElementById('editAlertId').value = isEdit ? editAnn.id : '';
 
-      // Read-only Fixed Username Badge
       document.getElementById('formFixedAuthorBadge').textContent = getFixedUsername();
       document.getElementById('formPublisherRoleBadge').textContent = getRoleDisplayLabel(state.role);
 
@@ -3892,11 +4199,8 @@
       const linksContainer = document.getElementById('formLinksContainer');
       linksContainer.innerHTML = '';
       const existingLinks = editAnn ? getAlertLinks(editAnn) : [];
-      if (existingLinks.length > 0) {
-        existingLinks.forEach(l => appendLinkRow(l.label, l.url));
-      } else {
-        appendLinkRow('', '');
-      }
+      if (existingLinks.length > 0) existingLinks.forEach(l => appendLinkRow(l.label, l.url));
+      else appendLinkRow('', '');
 
       openModal('alertModal');
     }
@@ -3931,12 +4235,10 @@
     }
 
     function setFormTargetType(type, presetVal = null) {
-      if (type === 'all' && !isAdminPlus()) {
-        type = 'section';
-      }
-
+      if (type === 'all' && !isAdminPlus()) type = 'section';
       state.formTargetType = type;
       const lvl = getCurrentLevel();
+
       document.querySelectorAll('.target-type-btn').forEach(b => {
         const active = b.dataset.targetType === type;
         b.style.backgroundColor = active ? '#00D1B2' : '';
@@ -4073,11 +4375,8 @@
           }
         } catch (err) {
           let msg = 'تأكد من البريد الإلكتروني وكلمة المرور.';
-          if (err.code === 'auth/email-already-in-use') {
-            msg = 'هذا البريد مسجل بالفعل. استخدم "تسجيل الدخول".';
-          } else if (err.code === 'auth/weak-password') {
-            msg = 'كلمة المرور يجب ألا تقل عن 6 أحرف.';
-          }
+          if (err.code === 'auth/email-already-in-use') msg = 'هذا البريد مسجل بالفعل. استخدم "تسجيل الدخول".';
+          else if (err.code === 'auth/weak-password') msg = 'كلمة المرور يجب ألا تقل عن 6 أحرف.';
           errEl.textContent = msg;
           errEl.classList.remove('hidden');
           const form = document.getElementById('emailAuthForm');
@@ -4087,7 +4386,6 @@
         }
       });
 
-      // Mandatory Onboarding Form (Username + Section for all new users)
       document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const uname = document.getElementById('onboardingUsernameInput').value.trim();
@@ -4100,14 +4398,12 @@
         state.sectionConfirmed = true;
         state.settingsStaffSection = chosenSec;
 
-        if (state.role === 'admin' || state.role === 'admin_plus') {
-          state.adminSection = chosenSec;
-        }
+        if (state.role === 'admin' || state.role === 'admin_plus') state.adminSection = chosenSec;
 
         await saveUserPrefs();
         await syncUsersDirectory();
 
-        if (state.user?.email && (state.role === 'admin' || state.role === 'admin_plus' || state.role === 'co_dev')) {
+        if (state.user?.email && ['admin', 'admin_plus', 'co_dev'].includes(state.role)) {
           const docId = emailToDocId(state.user.email);
           try {
             await setDoc(doc(state.db, 'artifacts', state.appId, 'public', 'data', 'roleEmails', docId), {
@@ -4127,30 +4423,64 @@
 
     // ==================== MAIN APP EVENT LISTENERS ====================
     function setupEvents() {
-      // Animation 16: Top Scroll Progress Line
+      // Top Scroll Progress Line
       window.addEventListener('scroll', () => {
         const docH = document.documentElement.scrollHeight - window.innerHeight;
         const pct = docH > 0 ? Math.min(100, Math.max(0, (window.scrollY / docH) * 100)) : 0;
         document.getElementById('scrollProgressBar').style.width = `${pct}%`;
       }, { passive: true });
 
+      // Responsive sync for side panes on window resize
+      window.addEventListener('resize', () => {
+        if (!state.user) return;
+        applyPaneWidths();
+        renderWeeklyBriefing();
+        renderPersonalTasks();
+      }, { passive: true });
+
+      // Keyboard Shortcut: Ctrl + Alt + C toggles Calendar (works in Arabic & English keyboard layouts)
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.altKey && (e.code === 'KeyC' || e.key?.toLowerCase() === 'c')) {
+          e.preventDefault();
+          if (state.openModals.length > 0) {
+            const top = state.openModals[state.openModals.length - 1];
+            if (top === 'onboardingModal') return;
+            closeModal(top);
+          }
+          toggleCalendarShortcut();
+        }
+      });
+
       // Theme Cycle
       document.getElementById('toggleThemeBtn').addEventListener('click', cycleTheme);
 
       // Calendar View Toggle
-      document.getElementById('toggleCalendarBtn').addEventListener('click', () => {
-        state.searchQuery = '';
-        document.getElementById('quickSearchInput').value = '';
-        navigateToView(state.activeView === 'calendar' ? 'home' : 'calendar');
-      });
+      document.getElementById('toggleCalendarBtn').addEventListener('click', toggleCalendarShortcut);
 
-      // Side Drawers Toggle
+      // Side Drawers Toggle & Desktop Vertical Rail Expand
       document.getElementById('toggleWeeklyBtn').addEventListener('click', () => {
         state.weeklyCollapsed = !state.weeklyCollapsed;
+        applyPaneWidths();
+        savePaneLayout();
         renderWeeklyBriefing();
       });
+      document.getElementById('expandWeeklyRailBtn').addEventListener('click', () => {
+        state.weeklyCollapsed = false;
+        applyPaneWidths();
+        savePaneLayout();
+        renderWeeklyBriefing();
+      });
+
       document.getElementById('togglePersonalBtn').addEventListener('click', () => {
         state.personalCollapsed = !state.personalCollapsed;
+        applyPaneWidths();
+        savePaneLayout();
+        renderPersonalTasks();
+      });
+      document.getElementById('expandPersonalRailBtn').addEventListener('click', () => {
+        state.personalCollapsed = false;
+        applyPaneWidths();
+        savePaneLayout();
         renderPersonalTasks();
       });
 
@@ -4192,7 +4522,7 @@
       // Recap Modal
       document.getElementById('openRecapBtn').addEventListener('click', openRecapModal);
 
-      // Global Section Filter (Syncs with Directory)
+      // Global Section Filter
       document.getElementById('globalSectionSelect').addEventListener('change', (e) => {
         state.selectedSection = e.target.value;
         if (state.selectedSection !== 'ALL') {
@@ -4220,7 +4550,7 @@
 
       // Course Detail Controls
       document.getElementById('backToHomeBtn').addEventListener('click', () => {
-        navigateToView('home', null);
+        navigateToView('home', null, 'back');
       });
       document.getElementById('addInCourseBtn').addEventListener('click', () => {
         requireManagerOrPrompt(() => openAlertModal({ presetCourseId: state.selectedCourseId }));
@@ -4228,11 +4558,13 @@
       document.getElementById('tabCourseActive').addEventListener('click', () => {
         state.courseStatusTab = 'active';
         state.courseTagFilter = 'ALL';
+        state.shouldStaggerAlerts = true;
         renderCourseDetail();
       });
       document.getElementById('tabCourseArchive').addEventListener('click', () => {
         state.courseStatusTab = 'archive';
         state.courseTagFilter = 'ALL';
+        state.shouldStaggerAlerts = true;
         renderCourseDetail();
       });
 
@@ -4240,27 +4572,27 @@
       document.getElementById('calPrevBtn').addEventListener('click', () => {
         state.calMonth--;
         if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; }
-        renderCalendar(true);
+        renderCalendar(true, false);
       });
       document.getElementById('calNextBtn').addEventListener('click', () => {
         state.calMonth++;
         if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
-        renderCalendar(true);
+        renderCalendar(true, false);
       });
       document.getElementById('calTodayBtn').addEventListener('click', () => {
         const now = new Date();
         state.calYear = now.getFullYear();
         state.calMonth = now.getMonth();
         state.calSelectedDate = getLocalTodayStr();
-        renderCalendar(true);
+        renderCalendar(true, true);
       });
       document.getElementById('calCourseFilter').addEventListener('change', (e) => {
         state.calCourseFilter = e.target.value;
-        renderCalendar();
+        renderCalendar(false, true);
       });
       document.getElementById('calTagFilter').addEventListener('change', (e) => {
         state.calTagFilter = e.target.value;
-        renderCalendar();
+        renderCalendar(false, true);
       });
       document.getElementById('calAddOnDayBtn').addEventListener('click', () => {
         requireManagerOrPrompt(() => openAlertModal({ presetDate: state.calSelectedDate }));
@@ -4329,7 +4661,6 @@
         const role = document.getElementById('devAssignRoleSelect').value;
         const sec = document.getElementById('devAssignSectionSelect').value;
         if (!email) return;
-
         await assignRoleByEmail(email, role, sec);
         document.getElementById('devAssignEmailInput').value = '';
       });
@@ -4454,7 +4785,7 @@
         closeModal('confirmModal');
       });
 
-      // Close modal triggers & backdrops
+      // Close Modal Triggers & Backdrops
       document.querySelectorAll('[data-close-modal]').forEach(btn => {
         btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
       });
@@ -4470,9 +4801,7 @@
         if (secSel && isDevPanelUser()) {
           const docId = secSel.dataset.changeAdminSec;
           const item = state.roleEmails[docId];
-          if (item) {
-            await assignRoleByEmail(item.email, item.role, secSel.value);
-          }
+          if (item) await assignRoleByEmail(item.email, item.role, secSel.value);
           return;
         }
 
@@ -4480,15 +4809,12 @@
         if (roleSel && isDevPanelUser()) {
           const docId = roleSel.dataset.changeAdminRole;
           const item = state.roleEmails[docId];
-          if (item) {
-            await assignRoleByEmail(item.email, roleSel.value, item.assignedSection);
-          }
+          if (item) await assignRoleByEmail(item.email, roleSel.value, item.assignedSection);
         }
       });
 
       // Delegated Clicks
       document.addEventListener('click', (e) => {
-        // Hide/Show Done Toggle Switches
         const hideDoneSwitch = e.target.closest('[data-toggle-hide-done]');
         if (hideDoneSwitch) {
           state.hideDone = !state.hideDone;
@@ -4497,7 +4823,6 @@
           return;
         }
 
-        // Personal Task Actions
         const togPt = e.target.closest('[data-toggle-pt]');
         if (togPt) {
           togglePersonalTaskDone(togPt.dataset.togglePt, togPt);
@@ -4505,39 +4830,36 @@
         }
         const delPt = e.target.closest('[data-delete-pt]');
         if (delPt) {
-          deletePersonalTask(delPt.dataset.deletePt);
+          deletePersonalTask(delPt.dataset.deletePt, delPt.closest('[data-pt-card]'));
           return;
         }
 
-        // Open Course Folder
         const openC = e.target.closest('[data-open-course]');
         if (openC) {
           state.courseStatusTab = 'active';
           state.courseTagFilter = 'ALL';
-          navigateToView('course', openC.dataset.openCourse);
+          navigateToView('course', openC.dataset.openCourse, 'forward');
           return;
         }
 
-        // Urgent / Weekly Chip Jump
         const jumpC = e.target.closest('[data-jump-course]');
         if (jumpC) {
           state.searchQuery = '';
           document.getElementById('quickSearchInput').value = '';
           state.courseStatusTab = 'active';
           state.courseTagFilter = 'ALL';
-          navigateToView('course', jumpC.dataset.jumpCourse);
+          navigateToView('course', jumpC.dataset.jumpCourse, 'forward');
           return;
         }
 
-        // Course Detail Tag Filter
         const cTag = e.target.closest('[data-course-tag]');
         if (cTag) {
           state.courseTagFilter = cTag.dataset.courseTag;
+          state.shouldStaggerAlerts = true;
           renderCourseDetail();
           return;
         }
 
-        // Form Course / Tag Pickers
         const pickC = e.target.closest('[data-pick-course]');
         if (pickC) {
           document.getElementById('formCourseInput').value = pickC.dataset.pickCourse;
@@ -4551,15 +4873,13 @@
           return;
         }
 
-        // Calendar Day Select
         const calDay = e.target.closest('[data-cal-day]');
         if (calDay) {
           state.calSelectedDate = calDay.dataset.calDay;
-          renderCalendar(false);
+          renderCalendar(false, true);
           return;
         }
 
-        // Dev Special Theme Switch
         const devTh = e.target.closest('[data-dev-theme]');
         if (devTh && isDevPanelUser()) {
           const mode = devTh.dataset.devTheme;
@@ -4569,7 +4889,6 @@
           return;
         }
 
-        // Dev Remove Admin / Co-Dev Role
         const remEmail = e.target.closest('[data-remove-email-role]');
         if (remEmail && isDevPanelUser()) {
           const docId = remEmail.dataset.removeEmailRole;
@@ -4578,16 +4897,12 @@
           return;
         }
 
-        // Promote Student to Admin directly
         const promBtn = e.target.closest('[data-promote-student-email]');
         if (promBtn && isDevPanelUser()) {
-          const email = promBtn.dataset.promoteStudentEmail;
-          const sec = promBtn.dataset.promoteStudentSec || '';
-          assignRoleByEmail(email, 'admin', sec);
+          assignRoleByEmail(promBtn.dataset.promoteStudentEmail, 'admin', promBtn.dataset.promoteStudentSec || '');
           return;
         }
 
-        // Block User Email
         const blockBtn = e.target.closest('[data-block-email]');
         if (blockBtn && isDevPanelUser()) {
           const email = blockBtn.dataset.blockEmail;
@@ -4596,27 +4911,25 @@
           return;
         }
 
-        // Unblock User Email
         const unblockBtn = e.target.closest('[data-unblock-email]');
         if (unblockBtn && isDevPanelUser()) {
           unblockUserEmail(unblockBtn.dataset.unblockEmail);
           return;
         }
 
-        // Switch Level from Settings
         const selLvl = e.target.closest('[data-select-level]');
         if (selLvl) {
           state.currentLevelId = selLvl.dataset.selectLevel;
           state.selectedSection = 'ALL';
           state.selectedCourseId = null;
           state.activeView = 'home';
+          state.shouldStaggerHome = true;
           saveUserPrefs();
           closeModal('settingsModal');
           renderAll();
           return;
         }
 
-        // Alert Card Actions
         const doneBtn = e.target.closest('[data-toggle-done]');
         if (doneBtn) {
           togglePersonalDone(doneBtn.dataset.toggleDone, doneBtn);
@@ -4653,6 +4966,8 @@
     }
 
     // ==================== BOOTSTRAP ====================
+    loadSavedPaneLayout();
+    setupPaneResizers();
     setupAuthEvents();
     setupEvents();
     applyTheme(false);
