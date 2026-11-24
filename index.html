@@ -1286,18 +1286,18 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ==================== FIREBASE SETUP & REAL-TIME SYNC ====================
+  // ==================== FIREBASE SETUP & REAL-TIME SYNC ====================
     async function initFirebase() {
       const dot = document.getElementById('syncDot');
       const text = document.getElementById('syncText');
       try {
         const firebaseConfig = {
-         apiKey: "AIzaSyB9jPDkdCorGkM1UsJoL-__pCQmmYi0mZs",
-         authDomain: "uni-radar-e8a8a.firebaseapp.com",
-         projectId: "uni-radar-e8a8a",
-         storageBucket: "uni-radar-e8a8a.firebasestorage.app",
-         messagingSenderId: "707595984172",
-         appId: "1:707595984172:web:4351e1ba66fb51dfed6089"
+          apiKey: "AIzaSyB9jPDkdCorGkM1UsJoL-__pCQmmYi0mZs",
+          authDomain: "uni-radar-e8a8a.firebaseapp.com",
+          projectId: "uni-radar-e8a8a",
+          storageBucket: "uni-radar-e8a8a.firebasestorage.app",
+          messagingSenderId: "707595984172",
+          appId: "1:707595984172:web:4351e1ba66fb51dfed6089"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -1307,31 +1307,6 @@
         // Authenticate BEFORE any Firestore queries
         const cred = await signInAnonymously(state.auth);
         state.user = cred.user;
-
-        dot.style.backgroundColor = '#4ADE80';
-        text.textContent = 'متصل لايف';
-        subscribeRealtime();
-      } catch (err) {
-        console.error('Firebase init error:', err);
-        dot.style.backgroundColor = '#FB923C';
-        text.textContent = 'وضع محلي';
-        renderAll();
-      }
-    }
-
-        const app = initializeApp(JSON.parse(cfgStr));
-        state.auth = getAuth(app);
-        state.db = getFirestore(app);
-
-        // RULE 3: Authenticate BEFORE any Firestore queries
-        const customToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        if (customToken) {
-          const cred = await signInWithCustomToken(state.auth, customToken);
-          state.user = cred.user;
-        } else {
-          const cred = await signInAnonymously(state.auth);
-          state.user = cred.user;
-        }
 
         dot.style.backgroundColor = '#4ADE80';
         text.textContent = 'متصل لايف';
