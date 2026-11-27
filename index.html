@@ -510,6 +510,9 @@
     .alert-card-root, .pt-card-root {
       transition: opacity 0.3s ease, filter 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
     }
+    .mobile-swipe-active {
+      transition: none !important;
+    }
     .is-greyed-done {
       opacity: 0.56 !important;
       filter: grayscale(0.82);
@@ -2294,6 +2297,167 @@
         state.prevCourseBeforeCal = state.selectedCourseId;
         navigateToView('calendar', null, 'forward');
       }
+    }
+
+    // Mobile-only horizontal gestures; vertical page scrolling remains native.
+    function setupMobileTouchGestures() {
+      const SWIPE_THRESHOLD = 76;
+      let gesture = null;
+
+      const getElementTarget = target => target?.nodeType === 1 ? target : target?.parentElement;
+      const isInsideHorizontalScroller = target => {
+        for (let el = target; el && el !== document.body; el = el.parentElement) {
+          if (el.id === 'urgentBar') return true;
+          const overflowX = getComputedStyle(el).overflowX;
+          if (['auto', 'scroll', 'overlay'].includes(overflowX)) return true;
+        }
+        return false;
+      };
+      const isInteractiveTarget = target => Boolean(target.closest(
+        'a, button, input, select, textarea, label, [contenteditable="true"], [role="switch"]'
+      ));
+      const resetGestureCard = current => {
+        if (!current?.card) return;
+        current.card.classList.remove('mobile-swipe-active');
+        current.card.style.transform = '';
+      };
+      const navigateBySwipe = deltaX => {
+        if (!state.user || state.searchQuery.trim() || state.openModals.length > 0) return;
+        if (!document.getElementById('onboardingModal').classList.contains('hidden')) return;
+
+        // In RTL, swiping left advances and swiping right goes back.
+        if (deltaX < 0) {
+          if (state.activeView === 'home' || state.activeView === 'course') {
+            if (state.activeView === 'course') {
+              state.prevViewBeforeCal = 'course';
+              state.prevCourseBeforeCal = state.selectedCourseId;
+            } else {
+              state.prevViewBeforeCal = 'home';
+              state.prevCourseBeforeCal = null;
+            }
+            navigateToView('calendar', null, 'forward');
+          } else if (state.activeView === 'calendar') {
+            navigateToView('home', null, 'forward');
+          }
+          return;
+        }
+
+        if (state.activeView === 'calendar') {
+          const backView = state.prevViewBeforeCal === 'course' ? 'course' : 'home';
+          const backCourse = backView === 'course' ? state.prevCourseBeforeCal : null;
+          navigateToView(backView, backCourse, 'back');
+        } else if (state.activeView === 'course') {
+          navigateToView('home', null, 'back');
+        }
+      };
+
+      document.addEventListener('touchstart', event => {
+        if (window.innerWidth >= 1024 || event.touches.length !== 1) {
+          gesture = null;
+          return;
+        }
+
+        const target = getElementTarget(event.target);
+        if (!target || isInsideHorizontalScroller(target)) {
+          gesture = null;
+          return;
+        }
+
+        const touch = event.touches[0];
+        const alertCard = target.closest('[data-alert-card]');
+        const personalCard = target.closest('[data-pt-card]');
+        const taskCard = alertCard?.querySelector('[data-toggle-done]') ? alertCard : personalCard;
+
+        if (taskCard) {
+          if (isInteractiveTarget(target)) {
+            gesture = null;
+            return;
+          }
+          gesture = {
+            mode: 'task',
+            card: taskCard,
+            id: taskCard.dataset.alertCard || taskCard.dataset.ptCard,
+            isPersonal: Boolean(personalCard),
+            wasDone: personalCard
+              ? Boolean(state.personalTasks.find(task => task.id === personalCard.dataset.ptCard)?.done)
+              : state.doneIds.includes(taskCard.dataset.alertCard),
+            startX: touch.clientX,
+            startY: touch.clientY,
+            axis: null
+          };
+          return;
+        }
+
+        if (alertCard || personalCard || !target.closest('#colCenterMain') || isInteractiveTarget(target)) {
+          gesture = null;
+          return;
+        }
+
+        gesture = {
+          mode: 'navigation',
+          startX: touch.clientX,
+          startY: touch.clientY,
+          axis: null
+        };
+      }, { passive: true });
+
+      document.addEventListener('touchmove', event => {
+        if (!gesture || event.touches.length !== 1 || window.innerWidth >= 1024) return;
+        const touch = event.touches[0];
+        const dx = touch.clientX - gesture.startX;
+        const dy = touch.clientY - gesture.startY;
+        const absX = Math.abs(dx);
+        const absY = Math.abs(dy);
+
+        if (!gesture.axis) {
+          if (absX < 14 && absY < 14) return;
+          if (absY > absX * 1.2) {
+            gesture = null;
+            return;
+          }
+          if (absX < 18 || absX < absY * 1.65) return;
+          gesture.axis = 'x';
+        }
+
+        if (gesture.axis !== 'x') return;
+        event.preventDefault();
+        if (gesture.mode === 'task' && gesture.card?.isConnected) {
+          gesture.card.classList.add('mobile-swipe-active');
+          gesture.card.style.transform = `translateX(${Math.max(-54, Math.min(54, dx * 0.3))}px)`;
+        }
+      }, { passive: false });
+
+      document.addEventListener('touchend', event => {
+        if (!gesture) return;
+        const finished = gesture;
+        gesture = null;
+        resetGestureCard(finished);
+
+        if (window.innerWidth >= 1024 || finished.axis !== 'x') return;
+        const touch = event.changedTouches[0];
+        const dx = touch.clientX - finished.startX;
+        const dy = touch.clientY - finished.startY;
+        if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.65) return;
+
+        if (finished.mode === 'task') {
+          // RTL: swipe left to complete, swipe right to undo.
+          const shouldToggle = dx < 0 ? !finished.wasDone : finished.wasDone;
+          if (!shouldToggle || !finished.card?.isConnected) return;
+          if (finished.isPersonal) {
+            togglePersonalTaskDone(finished.id, finished.card.querySelector('[data-toggle-pt]'));
+          } else {
+            togglePersonalDone(finished.id, finished.card.querySelector('[data-toggle-done]'));
+          }
+          return;
+        }
+
+        navigateBySwipe(dx);
+      }, { passive: true });
+
+      document.addEventListener('touchcancel', () => {
+        resetGestureCard(gesture);
+        gesture = null;
+      }, { passive: true });
     }
 
     // ==================== INSTANT BLOCK ENFORCEMENT ====================
@@ -4575,6 +4739,7 @@
     // ==================== MAIN APP EVENT LISTENERS ====================
     function setupEvents() {
       setupUrgentBarInteractions();
+      setupMobileTouchGestures();
 
       // Top Scroll Progress Line
       window.addEventListener('scroll', () => {
