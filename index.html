@@ -207,6 +207,48 @@
       gap: 1.25rem;
     }
 
+    .mobile-section-divider {
+      display: none;
+    }
+
+    @media (max-width: 1023px) {
+      #colCenterMain { order: 1; }
+      #colWeeklyBriefing { order: 3; }
+      #colPersonalTasks { order: 5; }
+
+      .mobile-divider-after-main { order: 2; }
+      .mobile-divider-after-weekly { order: 4; }
+
+      .mobile-section-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        min-height: 24px;
+        margin-block: 0.1rem;
+        pointer-events: none;
+      }
+      .mobile-section-divider::before,
+      .mobile-section-divider::after {
+        content: "";
+        flex: 1;
+        height: 3px;
+        border: 1px solid var(--border-color);
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--hero-underline), var(--bg-muted));
+        box-shadow: 2px 2px 0 var(--shadow-color);
+      }
+      .mobile-section-divider span {
+        width: 13px;
+        height: 13px;
+        flex: 0 0 13px;
+        transform: rotate(45deg);
+        border: 2px solid var(--border-color);
+        background: var(--hero-underline);
+        box-shadow: 2px 2px 0 var(--shadow-color);
+      }
+    }
+
     .pane-resizer {
       display: none;
     }
@@ -929,6 +971,8 @@
         </div>
       </aside>
 
+      <div class="mobile-section-divider mobile-divider-after-weekly" aria-hidden="true"><span></span></div>
+
       <!-- DRAGGABLE RESIZER 1 (Between Weekly & Center) -->
       <div id="resizerWeekly" class="pane-resizer" title="اسحب لتغيير العرض (ضغطتين لإعادة الضبط)">
         <div class="pane-resizer-pill"></div>
@@ -1118,6 +1162,8 @@
         </section>
 
       </div>
+
+      <div class="mobile-section-divider mobile-divider-after-main" aria-hidden="true"><span></span></div>
 
       <!-- DRAGGABLE RESIZER 2 (Between Center & Personal Tasks) -->
       <div id="resizerPersonal" class="pane-resizer" title="اسحب لتغيير العرض (ضغطتين لإعادة الضبط)">
