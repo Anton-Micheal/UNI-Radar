@@ -1228,6 +1228,14 @@
           <input type="hidden" id="formTagInput" required />
         </div>
 
+        <div>
+          <label for="formItemType" class="block text-xs font-black mb-1.5">نوع العنصر</label>
+          <select id="formItemType" class="nb-input w-full px-3 py-2 text-sm font-black cursor-pointer">
+            <option value="task">✅ تاسك — مطلوب تنفيذه</option>
+            <option value="alert">ℹ️ تنبيه — معلومة للمتابعة</option>
+          </select>
+        </div>
+
         <div class="space-y-2">
           <div class="flex items-center justify-between gap-2">
             <label class="block text-xs font-black">موجه لـ</label>
@@ -1244,7 +1252,7 @@
         </div>
 
         <div>
-          <label for="formTitle" class="block text-xs font-black mb-1.5">عنوان التنبيه <span class="text-[#FF5C8D]">*</span></label>
+          <label for="formTitle" class="block text-xs font-black mb-1.5">عنوان العنصر <span class="text-[#FF5C8D]">*</span></label>
           <input id="formTitle" type="text" required placeholder="مثال: تسليم Assignment 2 - ER Diagram"
             class="nb-input w-full px-3.5 py-2.5 text-sm font-bold" />
         </div>
@@ -1843,6 +1851,10 @@
       }
       return [];
     }
+
+    // Older Firestore records behaved as completable items, so keep them as tasks.
+    function getItemType(item) { return item?.itemType === 'alert' ? 'alert' : 'task'; }
+    function isTaskItem(item) { return getItemType(item) === 'task'; }
 
     function getCurrentLevel() { return state.levels[state.currentLevelId] || DEFAULT_LEVEL_2; }
 
@@ -2759,6 +2771,8 @@
 
     // Live-animated "خلصته" toggle (plays full RTL marker wipe + pulse + grey-out + urgent exit BEFORE syncing)
     async function togglePersonalDone(id, btnEl = null) {
+      const item = state.announcements.find(a => a.id === id);
+      if (!item || !isTaskItem(item)) return;
       if (state.busyDoneToggle.has(id)) return;
       state.busyDoneToggle.add(id);
 
@@ -2797,20 +2811,20 @@
 
       // Animate live progress bar fill immediately if inside course detail!
       if (state.activeView === 'course' && state.selectedCourseId) {
-        const activeItems = state.announcements.filter(a =>
-          a.levelId === state.currentLevelId && a.courseId === state.selectedCourseId && !isPastDue(a) && matchesSection(a)
+        const activeTasks = state.announcements.filter(a =>
+          a.levelId === state.currentLevelId && a.courseId === state.selectedCourseId && isTaskItem(a) && !isPastDue(a) && matchesSection(a)
         );
-        const doneCount = activeItems.filter(a => state.doneIds.includes(a.id)).length;
-        const pct = activeItems.length > 0 ? Math.round((doneCount / activeItems.length) * 100) : 0;
+        const doneCount = activeTasks.filter(a => state.doneIds.includes(a.id)).length;
+        const pct = activeTasks.length > 0 ? Math.round((doneCount / activeTasks.length) * 100) : 0;
         const fillEl = document.getElementById('courseProgressFill');
         const labelEl = document.getElementById('courseProgressLabel');
         const pctEl = document.getElementById('courseProgressPct');
         if (fillEl) fillEl.style.width = `${pct}%`;
-        if (labelEl) labelEl.textContent = `نسبة الإنجاز (${doneCount}/${activeItems.length})`;
+        if (labelEl) labelEl.textContent = `إنجاز التاسكات (${doneCount}/${activeTasks.length})`;
         if (pctEl) pctEl.textContent = `${pct}%`;
         state.lastCoursePct = pct;
 
-        if (nextDone && activeItems.length > 0 && doneCount === activeItems.length) {
+        if (nextDone && activeTasks.length > 0 && doneCount === activeTasks.length) {
           triggerConfettiBurst(btnEl);
           showToast('عاش! خلّصت كل مهام المادة دي 🎉', '#4ADE80');
         }
@@ -2981,9 +2995,10 @@
       const c = getCourse(ann.courseId);
       const t = getTag(ann.tag);
       const links = getAlertLinks(ann);
+      const itemLabel = isTaskItem(ann) ? 'تاسك مطلوب' : 'تنبيه للمتابعة';
       const lines = [
         `${t.emoji} *[${c.name}] — ${t.label}*`,
-        `📌 *التنبيه:* ${ann.title}`,
+        `${isTaskItem(ann) ? '✅' : 'ℹ️'} *${itemLabel}:* ${ann.title}`,
         `🎯 *موجه لـ:* ${getTargetLabel(ann)}`
       ];
       if (ann.date) lines.push(`📅 *الديدلاين:* ${formatArabicDate(ann.date)} (${ann.date})`);
@@ -3013,7 +3028,7 @@
       if (mode === 'SINGLE') {
         const singleId = document.getElementById('recapSingleSelect').value;
         const found = activePool.find(a => a.id === singleId) || state.announcements.find(a => a.id === singleId);
-        document.getElementById('recapCountBadge').textContent = found ? '1 تنبيه' : '0 تنبيه';
+        document.getElementById('recapCountBadge').textContent = found ? '1 عنصر' : '0 عنصر';
         return found ? formatSingleAlertWA(found) : 'لا يوجد تنبيه محدد.';
       }
 
@@ -3043,7 +3058,7 @@
       }
 
       items = sortAlerts(items);
-      document.getElementById('recapCountBadge').textContent = `${items.length} تنبيه`;
+      document.getElementById('recapCountBadge').textContent = `${items.length} عناصر`;
 
       const scopeTitle = secFilter === 'ALL' ? `الدفعة كلها (${lvl.name})` : `سكشن ${secFilter} (+ العام)`;
       const out = [
@@ -3054,7 +3069,7 @@
       ];
 
       if (items.length === 0) {
-        out.push(`\n🎉 مفيش تنبيهات مطابقة حالياً.`);
+        out.push(`\n🎉 مفيش عناصر مطابقة حالياً.`);
         return out.join('\n');
       }
 
@@ -3066,13 +3081,14 @@
       });
 
       Object.keys(grouped).forEach(k => {
-        if (k === 'OPEN') out.push(`\n📌 *تنبيهات عامة:*`);
+        if (k === 'OPEN') out.push(`\n📌 *عناصر عامة:*`);
         else out.push(`\n📅 *${formatArabicDate(k)}* (${getCountdownInfo(k).text})`);
         grouped[k].forEach(ann => {
           const c = getCourse(ann.courseId);
           const t = getTag(ann.tag);
           const aud = ann.targetType && ann.targetType !== 'all' ? ` [${getTargetLabel(ann)}]` : '';
-          out.push(`  • ${t.emoji} *${c.shortName}* (${t.label})${aud}: ${ann.title}`);
+          const itemKind = isTaskItem(ann) ? '✅ تاسك' : 'ℹ️ تنبيه';
+          out.push(`  • ${itemKind} — ${t.emoji} *${c.shortName}* (${t.label})${aud}: ${ann.title}`);
           if (ann.note) out.push(`     ↳ _${ann.note}_`);
           getAlertLinks(ann).forEach(l => out.push(`     🔗 ${l.label || 'اللينك'}: ${safeUrl(l.url)}`));
         });
@@ -3202,13 +3218,13 @@
       const pubItems = state.announcements
         .filter(a => {
           if (a.levelId !== state.currentLevelId || !a.date || !matchesSection(a)) return false;
-          if (state.hideDone && state.doneIds.includes(a.id)) return false;
+          if (state.hideDone && isTaskItem(a) && state.doneIds.includes(a.id)) return false;
           const diff = getDaysDiff(a.date);
           return diff !== null && diff >= 0 && diff <= 7;
         })
         .map(a => ({
-          kind: 'public', id: a.id, courseId: a.courseId, tag: a.tag,
-          title: a.title, date: a.date, done: state.doneIds.includes(a.id)
+          kind: 'public', id: a.id, courseId: a.courseId, tag: a.tag, itemType: getItemType(a),
+          title: a.title, date: a.date, done: isTaskItem(a) && state.doneIds.includes(a.id)
         }));
 
       const privItems = state.personalTasks
@@ -3252,6 +3268,7 @@
                     ? `<span class="px-1.5 py-0.5 rounded-md border border-nb bg-[#A78BFA] nb-ink text-[10px] font-black truncate">🔒 خاصة</span>`
                     : `<span class="px-1.5 py-0.5 rounded-md border border-nb bg-muted text-[10px] font-black truncate">${tagObj.emoji} ${tagObj.label}</span>`
                   }
+                  ${!isPriv ? `<span class="px-1.5 py-0.5 rounded-md border border-nb ${item.itemType === 'task' ? 'bg-[#4ADE80] nb-ink' : 'bg-card'} text-[10px] font-black shrink-0">${item.itemType === 'task' ? '✅ تاسك' : 'ℹ️ تنبيه'}</span>` : ''}
                 </div>
                 <span class="px-1.5 py-0.5 rounded-md border border-black nb-ink text-[10px] font-black shrink-0" style="background:${cd.bg}">
                   ${cd.text}
@@ -3350,7 +3367,7 @@
       const urgent = sortAlerts(
         state.announcements.filter(a => {
           if (a.levelId !== state.currentLevelId || isPastDue(a) || !a.date) return false;
-          if (!matchesSection(a) || state.doneIds.includes(a.id)) return false;
+          if (!matchesSection(a) || (isTaskItem(a) && state.doneIds.includes(a.id))) return false;
           const diff = getDaysDiff(a.date);
           return diff !== null && diff >= 0 && diff <= 2;
         })
@@ -3371,6 +3388,7 @@
             class="nb-btn-sm px-2.5 py-1 rounded-xl bg-card flex items-center gap-1.5 text-xs font-extrabold shrink-0">
             <span class="w-2.5 h-2.5 rounded-full border border-black shrink-0" style="background:${c.color}"></span>
             <span>${t.emoji}</span>
+            <span class="px-1 py-0.5 rounded-md border border-nb ${isTaskItem(ann) ? 'bg-[#4ADE80] nb-ink' : 'bg-card'} text-[9px] font-black">${isTaskItem(ann) ? 'تاسك' : 'تنبيه'}</span>
             <span class="max-w-[140px] sm:max-w-[190px] truncate">${escapeHtml(ann.title)}</span>
             <span class="px-1.5 py-0.5 rounded-md border border-black nb-ink text-[10px] font-black" style="background:${cd.bg}">${cd.text}</span>
           </button>
@@ -3390,7 +3408,7 @@
       const matches = sortAlerts(
         state.announcements.filter(a => {
           if (a.levelId !== state.currentLevelId || !matchesSection(a)) return false;
-          if (state.hideDone && state.doneIds.includes(a.id)) return false;
+          if (state.hideDone && isTaskItem(a) && state.doneIds.includes(a.id)) return false;
           const c = getCourse(a.courseId);
           const t = getTag(a.tag);
           const hay = `${a.title} ${a.note || ''} ${c.name} ${c.arLabel || ''} ${c.shortName} ${t.label} ${getTargetLabel(a)} ${a.author || ''}`.toLowerCase();
@@ -3419,14 +3437,14 @@
           a.levelId === state.currentLevelId && a.courseId === c.id && !isPastDue(a) && matchesSection(a)
         );
         const visibleActive = state.hideDone
-          ? allActive.filter(a => !state.doneIds.includes(a.id))
+          ? allActive.filter(a => !isTaskItem(a) || !state.doneIds.includes(a.id))
           : allActive;
 
         totalActive += visibleActive.length;
 
         const hasUrgent = allActive.some(a => {
           const diff = getDaysDiff(a.date);
-          return diff !== null && diff >= 0 && diff <= 2 && !state.doneIds.includes(a.id);
+          return diff !== null && diff >= 0 && diff <= 2 && (!isTaskItem(a) || !state.doneIds.includes(a.id));
         });
         const hasNew = visibleActive.some(a => a.createdAt && (now - a.createdAt) < 86400000);
 
@@ -3449,7 +3467,7 @@
                   ${iconSvg}
                 </div>
                 <div class="text-left flex flex-col items-end gap-1">
-                  <span class="text-xs font-extrabold text-sec">${visibleActive.length} تنبيهات</span>
+                  <span class="text-xs font-extrabold text-sec">${visibleActive.length} عناصر</span>
                   ${badgeHtml}
                 </div>
               </div>
@@ -3483,8 +3501,9 @@
       const activeItems = allCourseItems.filter(a => !isPastDue(a));
       const archivedItems = allCourseItems.filter(a => isPastDue(a));
 
-      const doneCount = activeItems.filter(a => state.doneIds.includes(a.id)).length;
-      const pct = activeItems.length > 0 ? Math.round((doneCount / activeItems.length) * 100) : 0;
+      const activeTasks = activeItems.filter(isTaskItem);
+      const doneCount = activeTasks.filter(a => state.doneIds.includes(a.id)).length;
+      const pct = activeTasks.length > 0 ? Math.round((doneCount / activeTasks.length) * 100) : 0;
       const startFromZero = state.animateCourseProgressFromZero;
       const initialWidth = startFromZero ? 0 : pct;
 
@@ -3512,10 +3531,10 @@
             </div>
           </div>
 
-          ${activeItems.length > 0 ? `
+          ${activeTasks.length > 0 ? `
             <div class="pt-1 space-y-1">
               <div class="flex items-center justify-between text-[11px] font-black">
-                <span id="courseProgressLabel">نسبة الإنجاز (${doneCount}/${activeItems.length})</span>
+                <span id="courseProgressLabel">إنجاز التاسكات (${doneCount}/${activeTasks.length})</span>
                 <span id="courseProgressPct" class="font-en">${pct}%</span>
               </div>
               <div class="w-full h-3.5 rounded-full border-2 border-black bg-white overflow-hidden">
@@ -3538,8 +3557,8 @@
       }
       state.lastCoursePct = pct;
 
-      const visibleActive = state.hideDone ? activeItems.filter(a => !state.doneIds.includes(a.id)) : activeItems;
-      const visibleArchive = state.hideDone ? archivedItems.filter(a => !state.doneIds.includes(a.id)) : archivedItems;
+      const visibleActive = state.hideDone ? activeItems.filter(a => !isTaskItem(a) || !state.doneIds.includes(a.id)) : activeItems;
+      const visibleArchive = state.hideDone ? archivedItems.filter(a => !isTaskItem(a) || !state.doneIds.includes(a.id)) : archivedItems;
 
       document.getElementById('courseActiveCount').textContent = visibleActive.length;
       document.getElementById('courseArchiveCount').textContent = visibleArchive.length;
@@ -3606,7 +3625,8 @@
       const c = getCourse(ann.courseId);
       const t = getTag(ann.tag);
       const cd = getCountdownInfo(ann.date);
-      const done = state.doneIds.includes(ann.id);
+      const isTask = isTaskItem(ann);
+      const done = isTask && state.doneIds.includes(ann.id);
       const aud = getTargetLabel(ann);
       const isSpecific = ann.targetType && ann.targetType !== 'all';
       const links = getAlertLinks(ann);
@@ -3622,6 +3642,9 @@
           <div class="pr-3 space-y-2.5">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-lg border-2 border-nb nb-ink text-[11px] font-black ${isTask ? 'bg-[#4ADE80]' : 'bg-card'}">
+                  ${isTask ? '✅ تاسك' : 'ℹ️ تنبيه'}
+                </span>
                 ${showCoursePill ? `
                   <span class="px-2 py-0.5 rounded-lg border-2 border-nb nb-ink text-[11px] font-black font-en" style="background:${c.color}">
                     ${escapeHtml(c.shortName)}
@@ -3666,10 +3689,10 @@
               </div>
 
               <div class="flex items-center gap-1.5 mr-auto">
-                <button type="button" data-toggle-done="${escapeHtml(ann.id)}"
+                ${isTask ? `<button type="button" data-toggle-done="${escapeHtml(ann.id)}"
                   class="nb-btn-sm px-2.5 py-1 rounded-xl text-xs font-black ${done ? 'bg-[#4ADE80] nb-ink' : 'bg-card'}">
                   ${done ? '✓ خلصته' : 'خلصته'}
-                </button>
+                </button>` : ''}
                 <button type="button" data-copy-wa="${escapeHtml(ann.id)}" title="نسخ للواتساب"
                   class="nb-btn-sm px-2.5 py-1 rounded-xl bg-[#4ADE80] nb-ink text-xs font-black">
                   📋 واتساب
@@ -3740,8 +3763,10 @@
         const pills = items.slice(0, 2).map(ann => {
           const c = getCourse(ann.courseId);
           const t = getTag(ann.tag);
+          const itemIcon = isTaskItem(ann) ? '✅' : 'ℹ️';
           return `
             <div class="px-1 py-0.5 rounded-md border border-black nb-ink text-[9px] sm:text-[10px] font-black truncate flex items-center gap-0.5" style="background:${c.color}">
+              <span>${itemIcon}</span>
               <span>${t.emoji}</span>
               <span class="hidden sm:inline truncate">${escapeHtml(ann.title)}</span>
               <span class="sm:hidden truncate">${escapeHtml(c.shortName)}</span>
@@ -4158,8 +4183,8 @@
       document.getElementById('formErrorMsg').classList.add('hidden');
 
       const isEdit = Boolean(editAnn);
-      document.getElementById('alertModalTitle').textContent = isEdit ? '✏️ تعديل التنبيه' : '➕ إضافة تنبيه';
-      document.getElementById('alertSubmitBtn').textContent = isEdit ? 'حفظ التعديلات ✨' : 'نشر التنبيه 🚀';
+      document.getElementById('alertModalTitle').textContent = isEdit ? '✏️ تعديل العنصر' : '➕ إضافة عنصر';
+      document.getElementById('alertSubmitBtn').textContent = isEdit ? 'حفظ التعديلات ✨' : 'نشر العنصر 🚀';
       document.getElementById('editAlertId').value = isEdit ? editAnn.id : '';
 
       document.getElementById('formFixedAuthorBadge').textContent = getFixedUsername();
@@ -4172,6 +4197,7 @@
       const tid = editAnn?.tag || 'assignment';
       document.getElementById('formTagInput').value = tid;
       renderFormTagPills(tid);
+      document.getElementById('formItemType').value = getItemType(editAnn);
 
       const btnAll = document.getElementById('btnTargetAll');
       const scopeHint = document.getElementById('targetScopeHint');
@@ -4290,7 +4316,7 @@
 
       const activeAlerts = sortAlerts(state.announcements.filter(a => a.levelId === state.currentLevelId && !isPastDue(a)));
       document.getElementById('recapSingleSelect').innerHTML = activeAlerts.length
-        ? activeAlerts.map(a => `<option value="${escapeHtml(a.id)}">[${escapeHtml(getCourse(a.courseId).shortName)}] ${escapeHtml(a.title)}</option>`).join('')
+        ? activeAlerts.map(a => `<option value="${escapeHtml(a.id)}">${isTaskItem(a) ? '✅ تاسك' : 'ℹ️ تنبيه'} — [${escapeHtml(getCourse(a.courseId).shortName)}] ${escapeHtml(a.title)}</option>`).join('')
         : `<option value="">لا توجد تنبيهات نشطة</option>`;
 
       document.getElementById('recapTextarea').value = buildRecapText();
@@ -4733,12 +4759,13 @@
         e.preventDefault();
         const courseId = document.getElementById('formCourseInput').value;
         const tag = document.getElementById('formTagInput').value;
+        const itemType = document.getElementById('formItemType').value;
         const title = document.getElementById('formTitle').value.trim();
         const date = document.getElementById('formDate').value;
         const note = document.getElementById('formNote').value.trim();
         const editId = document.getElementById('editAlertId').value || null;
 
-        if (!courseId || !tag || !title) {
+        if (!courseId || !tag || !['task', 'alert'].includes(itemType) || !title) {
           const err = document.getElementById('formErrorMsg');
           err.textContent = 'برجاء اختيار المادة والتصنيف وكتابة العنوان.';
           err.classList.remove('hidden');
@@ -4761,7 +4788,7 @@
 
         await saveAlert({
           levelId: state.currentLevelId,
-          courseId, tag, title,
+          courseId, tag, itemType, title,
           date: date || '',
           links,
           link: links[0]?.url || '',
