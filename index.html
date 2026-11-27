@@ -453,6 +453,18 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+    @media (min-width: 1024px) {
+      #urgentBar {
+        cursor: grab;
+        scroll-behavior: smooth;
+      }
+      #urgentBar.is-dragging {
+        cursor: grabbing;
+        scroll-behavior: auto;
+        user-select: none;
+      }
+    }
+
     /* ==================== 31 NEO-BRUTALIST MICRO-ANIMATIONS ==================== */
 
     /* Animation 16: Top Scroll Progress Line */
@@ -3406,6 +3418,73 @@
       }).join('');
     }
 
+    function setupUrgentBarInteractions() {
+      const bar = document.getElementById('urgentBar');
+      let drag = null;
+      let suppressedChip = null;
+
+      bar.addEventListener('wheel', (e) => {
+        if (window.innerWidth < 1024 || e.ctrlKey || bar.scrollWidth <= bar.clientWidth) return;
+        const delta = e.deltaY || e.deltaX;
+        if (!delta) return;
+
+        const direction = getComputedStyle(bar).direction === 'rtl' ? -1 : 1;
+        bar.scrollBy({ left: delta * direction, behavior: 'smooth' });
+        e.preventDefault();
+      }, { passive: false });
+
+      bar.addEventListener('pointerdown', (e) => {
+        if (window.innerWidth < 1024 || e.pointerType !== 'mouse' || e.button !== 0) return;
+        drag = {
+          pointerId: e.pointerId,
+          startX: e.clientX,
+          startY: e.clientY,
+          startScrollLeft: bar.scrollLeft,
+          direction: getComputedStyle(bar).direction === 'rtl' ? 1 : -1,
+          chip: e.target.closest('[data-urgent-chip]'),
+          moved: false
+        };
+      });
+
+      window.addEventListener('pointermove', (e) => {
+        if (!drag || e.pointerId !== drag.pointerId) return;
+        const deltaX = e.clientX - drag.startX;
+        if (!drag.moved && Math.abs(deltaX) < 6 && Math.abs(e.clientY - drag.startY) < 6) return;
+
+        drag.moved = true;
+        bar.classList.add('is-dragging');
+        bar.scrollLeft = drag.startScrollLeft + deltaX * drag.direction;
+        e.preventDefault();
+      }, { passive: false });
+
+      window.addEventListener('pointerup', (e) => {
+        if (!drag || e.pointerId !== drag.pointerId) return;
+        const finishedDrag = drag;
+        drag = null;
+        bar.classList.remove('is-dragging');
+
+        if (finishedDrag.moved && finishedDrag.chip) {
+          suppressedChip = finishedDrag.chip;
+          setTimeout(() => {
+            if (suppressedChip === finishedDrag.chip) suppressedChip = null;
+          }, 0);
+        }
+      });
+
+      window.addEventListener('pointercancel', (e) => {
+        if (!drag || e.pointerId !== drag.pointerId) return;
+        drag = null;
+        bar.classList.remove('is-dragging');
+      });
+
+      bar.addEventListener('click', (e) => {
+        if (!suppressedChip || e.target.closest('[data-urgent-chip]') !== suppressedChip) return;
+        e.preventDefault();
+        e.stopPropagation();
+        suppressedChip = null;
+      }, true);
+    }
+
     function renderUrgentBar() {
       const bar = document.getElementById('urgentBar');
       const container = document.getElementById('urgentBarChips');
@@ -4495,6 +4574,8 @@
 
     // ==================== MAIN APP EVENT LISTENERS ====================
     function setupEvents() {
+      setupUrgentBarInteractions();
+
       // Top Scroll Progress Line
       window.addEventListener('scroll', () => {
         const docH = document.documentElement.scrollHeight - window.innerHeight;
